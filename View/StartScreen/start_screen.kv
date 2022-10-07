@@ -29,19 +29,7 @@
                     adaptive_height: True
                     padding: "50dp"
                     spacing: "20dp"
-
-                    MDTextField:
-                        hint_text: "Login"
-                        on_text: root.controller.set_user_data("login", self.text)
-
-                    MDTextField:
-                        hint_text: "Password"
-                        on_text: root.controller.set_user_data("password", self.text)
-                    MDTextField:
-                        hint_text: "URL"
-                        on_text: root.controller.set_user_data("url", self.text)
-
-    MDFillRoundFlatButton:
-        text: "LOGIN"
-        on_release: root.controller.on_tap_button_login()
-        pos_hint: {"center_x": .5, "center_y": .1}
+                    MDFillRoundFlatButton:
+                        text: "Reading Lists"
+                        on_release: root.controller.on_tap_button_reading_list()
+                        pos_hint: {"center_x": .5, "center_y": .1}

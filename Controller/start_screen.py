@@ -1,5 +1,5 @@
 import importlib
-
+from kivymd.app import MDApp
 import View.StartScreen.start_screen
 
 # We have to manually reload the view module in order to apply the
@@ -22,5 +22,9 @@ class StartScreenController:
         self.model = model  # Model.start_screen.StartScreenModel
         self.view = View.StartScreen.start_screen.StartScreenView(controller=self, model=self.model)
 
+    def on_tap_button_reading_list(self):
+        app = MDApp.get_running_app()
+        self.view.manager_screens.current = "reading list screen"
+        
     def get_view(self) -> View.StartScreen.start_screen:
         return self.view
