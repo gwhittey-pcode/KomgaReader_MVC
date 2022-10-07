@@ -20,13 +20,13 @@ from PIL import ImageGrab
 resolution = ImageGrab.grab().size
 
 # Change the values of the application window size as you need.
-Config.set("graphics", "height", resolution[1])
+Config.set("graphics", "height", resolution[1]-100)
 Config.set("graphics", "width", "400")
 
 from kivy.core.window import Window
 
 # Place the application window on the right side of the computer screen.
-Window.top = 0
+Window.top = 50
 Window.left = resolution[0] - Window.width
 
 from kivymd.tools.hotreload.app import MDApp
@@ -43,7 +43,7 @@ class KomgaReader_MVC(MDApp):
         """
 
         import View.screens
-
+        self.theme_cls.primary_palette = "Orange"
         self.manager_screens = MDScreenManager()
         Window.bind(on_key_down=self.on_keyboard_down)
         importlib.reload(View.screens)
