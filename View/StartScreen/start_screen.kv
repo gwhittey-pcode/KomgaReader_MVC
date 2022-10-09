@@ -25,11 +25,23 @@
                     halign: "center"
 
                 MDBoxLayout:
-                    orientation: "vertical"
+                    orientation: "horizontal"
                     adaptive_height: True
                     padding: "50dp"
                     spacing: "20dp"
+
                     MDFillRoundFlatButton:
                         text: "Reading Lists"
                         on_release: root.controller.on_tap_button_reading_list()
+                        pos_hint: {"center_x": .25, "center_y": .1}
+
+                    MDFillRoundFlatButton:
+                        text: "Login"
+                        on_release: root.controller.on_tap_button_login()
                         pos_hint: {"center_x": .5, "center_y": .1}
+
+                    MDFillRoundFlatButton:
+                        text: "Settings"
+                        on_release: app.open_settings()
+                        pos_hint: {"center_x": .75, "center_y": .1}
+

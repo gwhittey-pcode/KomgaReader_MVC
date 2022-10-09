@@ -10,13 +10,18 @@ from Model.r_l_comic_books_screen import RLComicBooksScreenModel
 from Controller.r_l_comic_books_screen import RLComicBooksScreenController
 from Model.comic_book_screen import ComicBookScreenModel
 from Controller.comic_book_screen import ComicBookScreenController
+from Controller.login_screen import LoginScreenController
+from Model.login_screen import LoginScreenModel
 
 screens = {
     "start screen": {
         "model": StartScreenModel,
         "controller": StartScreenController,
     },
-
+    'login screen': {
+        'model': LoginScreenModel,
+        'controller': LoginScreenController,
+    },
     "reading list screen": {
         "model": ReadingListScreenModel,
         "controller": ReadingListScreenController,

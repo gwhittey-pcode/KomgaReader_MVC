@@ -1,0 +1,22 @@
+<ReadingListImage>
+    RLSmartTile:
+        radius: 24
+        box_radius: [0, 0, 24, 24]
+        lines: 2
+        source: "assets/12.jpeg"
+        size_hint: None, None
+        size: "320dp", "320dp"
+        box_position: "footer"
+
+        MDIconButton:
+            icon: "heart-outline"
+            theme_icon_color: "Custom"
+            icon_color: 1, 0, 0, 1
+            pos_hint: {"center_y": .5}
+            on_release: self.icon = "heart" if self.icon == "heart-outline" else "heart-outline"
+
+        TwoLineListItem:
+            text: "[color=#ffffff][b]My cats[/b][/color]"
+            secondary_text: "[color=#808080][b]Julia and Julie[/b][/color]"
+            pos_hint: {"center_y": .5}
+            _no_ripple_effect: True
