@@ -359,7 +359,7 @@ class ComicBookPageImage(MyAsyncImage):
             if comic_obj.PageCount - 1 == var_i:
                 app = App.get_running_app()
                 s_screen = app.manager_screens.get_screen("comic book screen")
-                s_screen.load_UserCurrentPage()
+                s_screen.load_user_current_page()
 
 
 class ComicCarousel(Carousel):

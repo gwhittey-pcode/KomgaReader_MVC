@@ -10,6 +10,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
 from kivymd.app import  MDApp
 from kivymd.toast import toast
+from kivymd.uix.boxlayout import MDBoxLayout
 
 from Utility.comic_functions import get_comic_page, get_file_page_size
 from Utility.db_functions import Comic
@@ -34,6 +35,19 @@ from mysettings.settingsjson import settings_json_screen_tap_control
 
 class MyScrollView(ScrollView):
     id = StringProperty()
+
+
+class TopBarContent(MDBoxLayout):
+    pass
+
+
+class TopBarPopup(Popup):
+    def on_open(self):
+        """ disable hotkeys while we do this"""
+        Window.unbind(on_keyboard=MDApp.get_running_app().events_program)
+
+    def on_dismiss(self):
+        Window.bind(on_keyboard=MDApp.get_running_app().events_program)
 
 
 class MyPopup(Popup):
@@ -85,7 +99,14 @@ class ComicBookScreenView(BaseScreenView):
                 )
                 if tap_config == "Disabled":
                     self.ids[setting["key"]].disabled = True
-
+        self.my_topbar_content = TopBarContent()
+        self.popup = TopBarPopup(
+            content=self.my_topbar_content,
+            pos_hint={"top": 1},
+            size_hint=(1, None),
+            height=round(dp(60))
+        )
+        self.topbar_state = False
     def setup_screen(
             self,
             readinglist_obj=None,
@@ -243,21 +264,13 @@ class ComicBookScreenView(BaseScreenView):
         current_slide = comic_book_carousel.current_slide
         current_slide.open_mag_glass()
 
-    # def on_pre_enter(self):
-    #     self.app.hide_action_bar()
-    #     # self.build_option_pop()
-
     def on_pre_leave(self, *args):
         self.top_pop.dismiss()
+        self.popup.dismiss()
         self.page_nav_popup.dismiss()
         # self.option_pop.dismiss()
 
-    def on_leave(self, *args):
-        pass
-        # self.app.manager.remove_widget(self)
-        # self = None
-
-    def load_UserCurrentPage(self):
+    def load_user_current_page(self):
         for slide in self.ids.comic_book_carousel.slides:
             if slide.comic_page == self.comic_obj.UserCurrentPage:
                 self.ids.comic_book_carousel.load_slide(slide)
@@ -507,7 +520,7 @@ class ComicBookScreenView(BaseScreenView):
         smbutton.bind(on_release=smbutton.click)
         outer_grid.add_widget(inner_grid)
         if comic_obj.PageCount - 1 == i:
-            self.load_UserCurrentPage()
+            self.load_user_current_page()
         s_url_part = f"/api/v1/books/{comic_obj.Id}/pages"
         get_size_url = f"{self.app.base_url}{s_url_part}"
         if self.view_mode == "FileOpen" or self.comic_obj.is_sync:
@@ -528,7 +541,7 @@ class ComicBookScreenView(BaseScreenView):
         #                 )
         if comic_obj.PageCount - 1 == i:
             self.last_page_done = True
-            self.load_UserCurrentPage()
+            self.load_user_current_page()
 
     def page_nav_popup_open(self):
         self.page_nav_popup.open()
@@ -1148,28 +1161,20 @@ class ComicBookScreenView(BaseScreenView):
                 return
                 ######
 
-    # def build_option_pop(self):
-    #     def call_back_dismiss(instance):
-    #         self.option_isopen = False
 
-    #     option_bar = OptionToolBar(comic_Id=self.comic_obj.Id)
-    #     self.option_pop = ModalView(
-    #         pos_hint={"top": 1}, size_hint=(1, None), height=option_bar.height
-    #     )
-    #     self.option_pop.add_widget(option_bar)
-    #     self.option_pop.bind(on_dismiss=call_back_dismiss)
 
     def toggle_option_bar(self):
-        if self.option_isopen is True:
-            self.app.hide_action_bar()
-            # self.option_pop.dismiss()
-            self.option_isopen = False
+        if self.topbar_state == True:
+            self.popup.dismiss()
+            self.topbar_state = False
         else:
-            self.app.show_action_bar()
-            # self.option_pop.open()
-            self.option_isopen = True
+            self.popup.open()
+            self.topbar_state = True
+    def open_top_bar(self):
+        self.popup.open()
 
-
+    def close_top_bar(self):
+        self.popup.dismiss()
 def model_is_changed(self) -> None:
         """
         Called whenever any change has occurred in the data model.
