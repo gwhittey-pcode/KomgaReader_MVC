@@ -1,3 +1,30 @@
 <MyToolBar>
     MDTopAppBar:
-        title: "llll"
+        id:"top_bar"
+        title: root.title_text
+        left_action_items: root.left_action_items
+        right_action_items: root.right_action_items
+#        left_action_items : [
+#            ["home", "Home", lambda x: self.switch_base_screen()],
+#            ["cog-outline", "Settings", lambda x: self.open_settings()],
+#            ["fullscreen", "Full Screen", lambda x: self.toggle_full_screen()],
+#             ]
+#        # right side Action bar Icons
+#        right_action_items : [
+#            [
+#                "view-list",
+#                "Current Server Reading List",
+#                lambda x: root.switch_readinglists_screen(),
+#            ],
+#            [
+#                "folder-sync",
+#                "Local Reading Lists",
+#                lambda x: root.switch_local_lists_screen(),
+#            ],
+#            [
+#                "book-open-page-variant",
+#                "Open Comic Book",
+#                lambda x: root.switch_comic_reader(),
+#            ],
+#            ["close-box-outline", "Exit App", lambda x: app.stop()],
+#        ]
