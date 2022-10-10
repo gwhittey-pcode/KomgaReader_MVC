@@ -1,71 +1,74 @@
 <RLComicBooksScreenView>
     max_books_page: app.max_books_page
     sync_bool:self.so
-    BoxLayout:
-        id:main_stack
-        orientation: 'vertical'
-        padding: dp(10), dp(10)
-        spacing: dp(10)
-        disabled:False
-        GridLayout:
-            #orientation: 'horizontal'
-            cols:9
-            rows:1
-            spacing: dp(10)
-            size_hint_y:None
-            height:dp(50)
-            MDBoxLayout:
-                md_bg_color: 1,1,1,1
-                CustomMDFillRoundFlatIconButton:
-                    id:prev_button
-                    text: "Prev Page"
-                    icon: "arrow-left"
-                    width: dp(50)
-                    padding: dp(10), dp(10)
-                    center_x:main_stack.x + (self.width)
-                    on_release:root.get_page(self)
-                MDTextButton:
-                    id:page_count
-                    width: dp(1)
-                    text: ''
-                    center_x:main_stack.center_x
-                    disabled:False
-                CustomMDFillRoundFlatIconButton:
-                    id:next_button
-                    text: 'Next Page'
-                    icon: "arrow-right"
-                    width: dp(50)
-                    padding: dp(10), dp(10)
-                    center_x:main_stack.right - (self.width)
-                    on_release:root.get_page(self)
-                MDTextButton:
-                    id:comics_per
-                    width: dp(1)
-                    text: ''
-                    disabled:False
-
-
-        GridLayout:
-            #orientation: 'horizontal'
-            cols:3
-            rows:1
+    MDBoxLayout:
+        orientation: "vertical"
+        MyToolBar:
+        BoxLayout:
+            id:main_stack
+            orientation: 'vertical'
             padding: dp(10), dp(10)
             spacing: dp(10)
-            ScrollView:
-                do_scroll_x: False
-                id: main_scroll
+            disabled:False
+            GridLayout:
+                #orientation: 'horizontal'
+                cols:9
+                rows:1
+                spacing: dp(10)
+                size_hint_y:None
+                height:dp(50)
+                MDBoxLayout:
+                    md_bg_color: 1,1,1,1
+                    CustomMDFillRoundFlatIconButton:
+                        id:prev_button
+                        text: "Prev Page"
+                        icon: "arrow-left"
+                        width: dp(50)
+                        padding: dp(10), dp(10)
+                        center_x:main_stack.x + (self.width)
+                        on_release:root.get_page(self)
+                    MDTextButton:
+                        id:page_count
+                        width: dp(1)
+                        text: ''
+                        center_x:main_stack.center_x
+                        disabled:False
+                    CustomMDFillRoundFlatIconButton:
+                        id:next_button
+                        text: 'Next Page'
+                        icon: "arrow-right"
+                        width: dp(50)
+                        padding: dp(10), dp(10)
+                        center_x:main_stack.right - (self.width)
+                        on_release:root.get_page(self)
+                    MDTextButton:
+                        id:comics_per
+                        width: dp(1)
+                        text: ''
+                        disabled:False
+
+
+            GridLayout:
+                #orientation: 'horizontal'
+                cols:3
+                rows:1
                 padding: dp(10), dp(10)
-                refresh_callback: self.refresh_callback
-                GridLayout:
-                    id: main_grid
-                    row_force_default: True
-                    size_hint_y: None
-                    size_hint_x: 1
-                    height: self.minimum_height
-                    padding: dp(10), dp(10),dp(30),dp(50)
-                    spacing: dp(4)
-                    col_default_width:root.comic_thumb_width
-                    row_default_height:root.comic_thumb_height
+                spacing: dp(10)
+                ScrollView:
+                    do_scroll_x: False
+                    id: main_scroll
+                    padding: dp(10), dp(10)
+                    refresh_callback: self.refresh_callback
+                    GridLayout:
+                        id: main_grid
+                        row_force_default: True
+                        size_hint_y: None
+                        size_hint_x: 1
+                        height: self.minimum_height
+                        padding: dp(10), dp(10),dp(30),dp(50)
+                        spacing: dp(4)
+                        col_default_width:root.comic_thumb_width
+                        row_default_height:root.comic_thumb_height
 
 
 <ReadingListComicImage>

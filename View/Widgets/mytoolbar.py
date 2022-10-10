@@ -1,6 +1,6 @@
 from kivymd.uix.toolbar.toolbar import MDTopAppBar
-from kivymd.uix.button import MDIconButton
-from kivymd.uix.tooltip import MDTooltip
+from kivymd.uix.button.button import MDIconButton
+from kivymd.uix.tooltip.tooltip import MDTooltip
 from kivy.properties import StringProperty
 from kivy.metrics import dp
 

@@ -54,6 +54,7 @@ class KomgaReader(MDApp):
     open_comic_screen = StringProperty()
     sync_is_running = BooleanProperty(False)
     rl_count = NumericProperty()
+    full_screen = False
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.load_all_kv_files(self.directory)
@@ -348,7 +349,7 @@ class KomgaReader(MDApp):
 
     def toggle_full_screen(self):
         if MDApp.get_running_app().full_screen is False:
-            Window.fullscreen = "auto"
+            Window.fullscreen = True
             MDApp.get_running_app().full_screen = True
         else:
             MDApp.get_running_app().full_screen = False
