@@ -1,47 +1,254 @@
 <StartScreenView>
+    name: 'base'
+    password: app.password
+    username: app.username
+    base_url: app.base_url
+    api_key: app.api_key
     MDBoxLayout:
         orientation: "vertical"
+        MyToolBar:
 
-        MDTopAppBar:
-            title: "MDTopAppBar"
+        ScrollView:
+            size_hint_x: None
+            width: box.width
+            pos_hint: {'center_x': .5}
+            bar_width: 0
 
-        MDFloatLayout:
+            BoxLayout:
+                id: box
+                padding: dp(10)
+                size_hint: None, None
+                size: self.minimum_size
+                spacing: dp(10)
+                orientation: 'vertical'
+                pos_hint: {'center_x': .5}
 
-            MDBoxLayout:
-                orientation: "vertical"
-                adaptive_height: True
-                size_hint_x: None
-                width: root.width - dp(72)
-                radius: 12
-                padding: "12dp"
-                md_bg_color: 1, 1, 1, .5
-                pos_hint: {"center_x": .5, "center_y": .5}
+                BoxLayout:
+                    size_hint: None, None
+                    width: self.minimum_width
+                    height: dp(56)
+                    spacing: '10dp'
 
+                    MDFillRoundFlatIconButton:
+                        icon: 'server'
+                        text: 'Open ReadingLists'
+                        height: dp(50)
+                        opposite_colors: True
+                        elevation_normal: 8
+                        on_press:root.manager_screens.current = "reading list screen"
+
+                    MDFillRoundFlatIconButton:
+                        icon: 'login'
+                        text: 'Open Login'
+                        height:dp(50)
+                        opposite_colors: True
+                        elevation_normal: 8
+                        md_bg_color: app.theme_cls.primary_color
+                        #on_press:app.show_action_bar()
+                        on_press: root.open_popup()
+
+                    # MDFillRoundFlatIconButton:
+                    #     icon: 'folder-sync'
+                    #     text: 'Open Sync Lists'
+                    #     height:dp(50)
+                    #     opposite_colors: True
+                    #     elevation_normal: 8
+                    #     on_press: app.switch_local_lists_screen()
+                # BoxLayout:
+                #     size_hint: None, None
+                #     width: self.minimum_width
+                #     height: dp(56)
+                #     spacing: '10dp'
+
+                    MDFillRoundFlatIconButton:
+                        icon: 'file-image'
+                        text: 'Get Server Data'
+                        height:dp(50)
+                        opposite_colors: True
+                        elevation_normal: 8
+                        on_press: app.get_server_data()
                 MDLabel:
-                    id: prev_label
-                    text: "To log in, enter your personal data:"
-                    font_style: "H6"
-                    adaptive_height: True
-                    halign: "center"
+                    id: last_comic_label
+                    text: 'Last Comic Loaded'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    font_style: 'Caption'
+                    theme_text_color: 'Primary'
+                    markup: True
+                    halign: 'center'
+                    text_size: self.width - 20, None
+                GridLayout:
+                    id: main_grid
+                    row_force_default: True
+                    size_hint_y: None
+                    size_hint_x: None
+                    height: self.minimum_height
+                    padding: dp(10), dp(10)
+                    spacing: dp(4)
+                    col_default_width:app.comic_thumb_width
+                    row_default_height:app.comic_thumb_height
 
-                MDBoxLayout:
-                    orientation: "horizontal"
-                    adaptive_height: True
-                    padding: "50dp"
-                    spacing: "20dp"
 
-                    MDFillRoundFlatButton:
-                        text: "Reading Lists"
-                        on_release: root.controller.on_tap_button_reading_list()
-                        pos_hint: {"center_x": .25, "center_y": .1}
+                #     MDIconButton:
+                #         icon: 'sd'
+                #         theme_text_color: 'Custom'
+                #         text_color: app.theme_cls.primary_color
 
-                    MDFillRoundFlatButton:
-                        text: "Login"
-                        on_release: root.controller.on_tap_button_login()
-                        pos_hint: {"center_x": .5, "center_y": .1}
+                # MDFlatButton:
+                #     text: 'MDFlatButton'
+                #     pos_hint: {'center_x': .5}
 
-                    MDFillRoundFlatButton:
-                        text: "Settings"
-                        on_release: app.open_settings()
-                        pos_hint: {"center_x": .75, "center_y": .1}
+                # MDRaisedButton:
+                #     text: "MDRaisedButton"
+                #     elevation_normal: 2
+                #     opposite_colors: True
+                #     pos_hint: {'center_x': .5}
 
+                # MDRectangleFlatButton:
+                #     text: "MDRectangleFlatButton"
+                #     pos_hint: {'center_x': .5}
+
+                # MDRectangleFlatIconButton:
+                #     text: "MDRectangleFlatIconButton"
+                #     icon: "language-python"
+                #     width: dp(230)
+                #     pos_hint: {'center_x': .5}
+
+                # MDRoundFlatButton:
+                #     text: "MDRoundFlatButton"
+                #     pos_hint: {'center_x': .5}
+
+                # MDRoundFlatIconButton:
+                #     text: "MDRoundFlatIconButton"
+                #     icon: "language-python"
+                #     width: dp(200)
+                #     pos_hint: {'center_x': .5}
+
+                # MDFillRoundFlatButton:
+                #     text: "MDFillRoundFlatButton"
+                #     pos_hint: {'center_x': .5}
+
+                # MDRoundFlatIconButton:
+                #     text: "MDRoundFlatIconButton"
+                #     icon: "language-python"
+                #     width: dp(200)
+                #     pos_hint: {'center_x': .5}
+
+                # MDFillRoundFlatIconButton:
+                #     text: "MDFillRoundFlatIconButton"
+                #     icon: "language-python"
+                #     pos_hint: {'center_x': .5}
+
+                # MDTextButton:
+                #     text: "MDTextButton"
+                #     pos_hint: {'center_x': .5}
+            # do_scroll_x: False
+
+            # MDList:
+            #     id: ml
+
+            #     OneLineListItem:
+            #         text: "One-line item"
+
+
+
+<Folder@MDAccordionListItem>
+    icon: 'android'
+
+    IconLeftSampleWidget:
+        icon: root.icon
+
+
+<SubFolderContent>
+    GridLayout:
+
+
+<FlatButton@ButtonBehavior+Label>:
+    font_size: 16
+
+<LoginPopupContent>
+    id: main_win
+    orientation: "vertical"
+    spacing: dp(10)
+    space_x: self.size[0]/3
+    canvas.before:
+        Color:
+            rgba: (1,1,1, 1)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    BoxLayout:
+        size_hint_y: None
+        height: dp(50)
+        canvas.before:
+            Color:
+                rgba: app.theme_cls.primary_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        Label:
+            text: "Login to Komga Server"
+            bold: True
+            size_hint_x: .9
+        FlatButton:#TODO:Change to MDFlatIconButton
+            text: "x"
+            size_hint_x: .1
+            on_release: app.ids.base.close_popup()
+    BoxLayout:
+        orientation: 'vertical'
+        padding: main_win.space_x, dp(60)
+        #spacing: 20
+        BoxLayout:
+            orientation: "vertical"
+            spacing: dp(10)
+            size_hint_y: None
+            size_hint_x: None
+            height: dp(150)
+            width: dp(300)
+            border:dp(10)
+            Label:
+                id: info
+                text:
+                markup: True
+                size_hint_y: None
+                height: dp(20)
+            MDTextField:
+                id: username_field
+                hint_text: "Username"
+                multiline: False
+                mode:'rectangle'
+                focus: True
+                text:app.username
+                on_text_validate: pwd_field.focus = True
+
+            MDTextField:
+                id: pwd_field
+                hint_text: "Password"
+                multiline: False
+                mode:'rectangle'
+                password: True
+                on_text_validate: url_field.focus = True
+                text:app.password
+
+            MDTextField:
+                id: url_field
+                hint_text: "ComicRack Server URL"
+                multiline: False
+                mode:'rectangle'
+                on_text_validate:root.validate_user()
+                text:app.base_url
+
+        Label:
+            id: sp
+            size_hint_y: None
+            height: dp(40)
+        Button:
+            text: "Sign In"
+            size_hint_y: None
+            height: dp(40)
+            background_color: app.theme_cls.primary_color
+            background_normal: ''
+            on_release: app.manager_screens.current_screen.validate_user()
+        Label:
+            id: sp2

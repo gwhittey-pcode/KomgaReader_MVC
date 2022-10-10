@@ -30,5 +30,7 @@ class StartScreenController:
     def on_tap_button_login(self):
         self.view.manager_screens.current = "login screen"
 
+    def validate_user(self):
+        print("OK")
     def get_view(self) -> View.StartScreen.start_screen:
         return self.view

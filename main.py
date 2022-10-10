@@ -8,92 +8,18 @@ https://kivymd.readthedocs.io/en/latest/api/kivymd/tools/patterns/create_project
 To run the application in hot boot mode, execute the command in the console:
 DEBUG=1 python main.py
 """
-import inspect
+from kivy import Logger
 
-# import importlib
-# import os
-#
-# from kivy import Config
-#
-# from PIL import ImageGrab
-#
-# #
-# resolution = ImageGrab.grab().size
-#
-# # Change the values of the application window size as you need.
-# Config.set("graphics", "height", resolution[1]-100)
-# Config.set("graphics", "width", "400")
-#
-# from kivy.core.window import Window
-#
-# # Place the application window on the right side of the computer screen.
-# Window.top = 50
-# Window.left = resolution[0] - Window.width
-#
-# from kivymd.tools.hotreload.app import MDApp
-# from kivymd.uix.screenmanager import MDScreenManager
-#
-# class KomgaReader_MVC(MDApp):
-#     KV_DIRS = [os.path.join(os.getcwd(), "View")]
-#
-#     def build_app(self) -> MDScreenManager:
-#         """
-#         In this method, you don't need to change anything other than the
-#         application theme.
-#         """
-#
-#         import View.screens
-#         self.theme_cls.primary_palette = "Orange"
-#         self.manager_screens = MDScreenManager()
-#
-#         Window.bind(on_key_down=self.on_keyboard_down)
-#         importlib.reload(View.screens)
-#         screens = View.screens.screens
-#
-#         for i, name_screen in enumerate(screens.keys()):
-#             model = screens[name_screen]["model"]()
-#             controller = screens[name_screen]["controller"](model)
-#             view = controller.get_view()
-#             view.manager_screens = self.manager_screens
-#             view.name = name_screen
-#             self.manager_screens.add_widget(view)
-#
-#         return self.manager_screens
-#
-#     def on_keyboard_down(self, window, keyboard, keycode, text, modifiers) -> None:
-#         """
-#         The method handles keyboard events.
-#
-#         By default, a forced restart of an application is tied to the
-#         `CTRL+R` key on Windows OS and `COMMAND+R` on Mac OS.
-#         """
-#
-#         if "meta" in modifiers or "ctrl" in modifiers and text == "r":
-#             self.rebuild()
-#
-#
-#
-# KomgaReader_MVC().run()
-#
-#
-#
-
-# After you finish the project, remove the above code and uncomment the below
-# code to test the application normally without hot reloading.
-
-# """
-# The entry point to the application.
-# 
-# The application uses the MVC template. Adhering to the principles of clean
-# architecture means ensuring that your application is easy to test, maintain,
-# and modernize.
-# 
-# You can read more about this template at the links below:
-# 
-# https://github.com/HeaTTheatR/LoginAppMVC
-# https://en.wikipedia.org/wiki/Model–view–controller
-# """
-# 
+from View.Widgets.my_tool_bar import MyToolBar
+from kivy.core.window import Window, Keyboard
+from kivy.properties import (
+    ObjectProperty,
+    StringProperty,
+    ListProperty,
+    NumericProperty,
+    BooleanProperty,
+    DictProperty
+)
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from View.screens import screens
@@ -109,23 +35,42 @@ from mysettings.settingsjson import (
 )
 from kivy.factory import Factory
 
-
-#from mysettings.custom_settings import MySettings
+from View.base_screen import BaseScreenView
+from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
+from Utility.db_functions import start_db
+
 class KomgaReader(MDApp):
+    title = StringProperty
+    store_dir = StringProperty()
+    comic_db = ObjectProperty()
+    username = StringProperty()
+    password = StringProperty()
+    api_key = StringProperty()
+    max_books_page = NumericProperty()
+    open_last_comic_startup = NumericProperty()
+    how_to_open_comic = StringProperty()
+    app_started = BooleanProperty(False)
+    open_comic_screen = StringProperty()
+    sync_is_running = BooleanProperty(False)
+    rl_count = NumericProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.load_all_kv_files(self.directory)
         self.base_url = ""
         self.password = ""
         self.username = ""
-        #self.settings_cls = MySettings
+        self.comic_thumb_height = 240
+        self.comic_thumb_width = 156
+        self.title = ""
+        self.settings_cls = MySettings
         # This is the screen manager that will contain all the screens of your
         # application.
         self.manager_screens = MDScreenManager()
         self.config = ConfigParser()
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
+
     def build_config(self, config):
         """Creates an application settings file KomgaReader2.ini."""
 
@@ -281,6 +226,11 @@ class KomgaReader(MDApp):
     def build(self) -> MDScreenManager:
         self.set_value_from_config()
         self.config.add_callback(self.config_callback)
+        start_db()
+        path = os.path.dirname(__file__)
+        icon_path = os.path.join(path, f"data{os.sep}")
+        self.icon = os.path.join(icon_path, f"icon.png")
+        self.theme_cls.primary_palette = "Amber"
         self.generate_application_screens()
 
         return self.manager_screens
@@ -324,4 +274,96 @@ class KomgaReader(MDApp):
         # settings.add_json_panel(
         #     "Hotkeys", self.config, data=settings_json_hotkeys
         # )
+    def hide_action_bar(self):
+        self.manager_screens.ids.action_bar.opacity = 0
+        self.manager_screens.ids.action_bar.disabled = True
+        self.manager_screens.ids.action_bar.size_hint_y = None
+        self.manager_screens.ids.action_bar.size = (0, 0)
+
+    def show_action_bar(self):
+        self.manager_screens.ids.action_bar.opacity = 1
+        self.manager_screens.ids.action_bar.disabled = False
+        self.manager_screens.ids.action_bar.size = (
+            Window.width,
+            self.theme_cls.standard_increment,
+        )
+    def events_program(self, instance, keyboard, keycode, text, modifiers):
+        c = Keyboard()
+        """Called when you press a Key"""
+        app = MDApp.get_running_app()
+        current_screen = app.manager.current_screen
+        hk_next_page = app.config.get("Hotkeys", "hk_next_page")
+        hk_prev_page = app.config.get("Hotkeys", "hk_prev_page")
+        hk_open_page_nav = app.config.get("Hotkeys", "hk_open_page_nav")
+        hk_open_collection = app.config.get("Hotkeys", "hk_open_collection")
+        hk_return_comic_list = app.config.get(
+            "Hotkeys", "hk_return_comic_list"
+        )
+        hk_return_base_screen = app.config.get(
+            "Hotkeys", "hk_return_base_screen"
+        )
+        hk_toggle_navbar = app.config.get("Hotkeys", "hk_toggle_navbar")
+
+        hk_toggle_fullscreen = app.config.get(
+            "Hotkeys", "hk_toggle_fullscreen"
+        )
+        Logger.debug(f"keyboard:{keyboard}")
+        if current_screen.name not in self.LIST_SCREENS:
+            if keyboard in (c.string_to_keycode(hk_next_page), 275):
+                current_screen.load_next_slide()
+            elif keyboard in (c.string_to_keycode(hk_prev_page), 276):
+                current_screen.load_prev_slide()
+            elif keyboard == c.string_to_keycode(hk_open_page_nav):
+                current_screen.page_nav_popup_open()
+            elif keyboard == c.string_to_keycode(hk_open_collection):
+                current_screen.comicscreen_open_collection_popup()
+            elif keyboard == c.string_to_keycode(hk_toggle_navbar):
+                current_screen.toggle_option_bar()
+            elif keyboard == c.string_to_keycode(hk_return_comic_list):
+                app.switch_readinglists_screen()
+            elif keyboard == c.string_to_keycode(hk_return_base_screen):
+                app.show_action_bar()
+                app.manager.current = "base"
+            elif keyboard in (1001, 27):
+                if self.nav_drawer.state == "open":
+                    self.nav_drawer.toggle_nav_drawer()
+                self.back_screen(event=keyboard)
+            elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
+                self.toggle_full_screen()
+        else:
+            if keyboard in (282, 319):
+                pass
+            elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
+                self.toggle_full_screen()
+            elif keyboard == c.string_to_keycode(hk_return_comic_list):
+                app.manager.current = "server_readinglists_screen"
+            elif keyboard == c.string_to_keycode(hk_return_base_screen):
+                app.show_action_bar()
+                app.switch_base_screen()
+            elif keyboard in (1001, 27):
+                if self.nav_drawer.state == "open":
+                    self.nav_drawer.toggle_nav_drawer()
+                self.back_screen(event=keyboard)
+        return True
+
+    def toggle_full_screen(self):
+        if MDApp.get_running_app().full_screen is False:
+            Window.fullscreen = "auto"
+            MDApp.get_running_app().full_screen = True
+        else:
+            MDApp.get_running_app().full_screen = False
+            Window.fullscreen = False
+
+    def back_screen(self, event=None):
+        """Screen manager Called when the Back Key is pressed."""
+        # BackKey pressed.
+        if event in (1001, 27):
+            if self.manager.current == "base":
+                self.dialog_exit()
+                return
+            try:
+                self.manager.current = self.list_previous_screens.pop()
+            except:  # noqa
+                self.manager.current = "base"
+            # self.screen.ids.action_bar.title = self.title
 KomgaReader().run()

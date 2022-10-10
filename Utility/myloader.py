@@ -453,7 +453,7 @@ class LoaderBase(object):
         loading image. You can use it as follows::
 
             from kivy.app import App
-            from libs.utils.myimage import Image
+            from Utility.myimage import Image
             from kivy.loader import Loader
 
             class TestApp(App):

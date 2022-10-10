@@ -1,4 +1,5 @@
 <ReadingListScreenView>
+    name: 'server_lists_screen'
     BoxLayout:
         id:main_stack
         orientation: 'vertical'
@@ -14,7 +15,7 @@
             height:dp(50)
             MDBoxLayout:
                 md_bg_color: 1,1,1,1
-                MDFillRoundFlatIconButton:
+                CustomMDFillRoundFlatIconButton:
                     id:prev_button
                     text: "Prev Page"
                     icon: "arrow-left"
@@ -29,7 +30,7 @@
                     center_x:main_stack.center_x
                     disabled:False
                     #on_release:MDDropdownMenu(items=root.menu_items,hor_growth='right',starting_coords ='bottom', width_mult=.5,background_color=(1,1,1,1)).open(self)
-                MDFillRoundFlatIconButton:
+                CustomMDFillRoundFlatIconButton:
                     id:next_button
                     text: 'Next Page'
                     icon: "arrow-right"
@@ -61,4 +62,22 @@
                     height: self.minimum_height
                     padding: dp(10), dp(10),dp(10),dp(10)
                     spacing: dp(4)
-                    row_default_height:dp(340)
+                    row_default_height:root.comic_thumb_height
+
+<ReadingListImage>
+    size: (dp(160),dp(240))
+    font_style: 'Subtitle1'
+    on_release:self.open_readinglist()
+#        if self.do_action is 'read': self.open_readinglist()
+#        else: MDDropdownMenu(items=root.menu_items, width_mult=3).open(self)
+
+
+<Tooltip>:
+    size_hint: None, None
+    size: self.texture_size[0]+5, self.texture_size[1]+5
+    canvas.before:
+        Color:
+            rgb: 0.2, 0.2, 0.2
+        Rectangle:
+            size: self.size
+            pos: self.pos
