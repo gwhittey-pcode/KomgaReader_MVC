@@ -1,8 +1,11 @@
 import os
 from datetime import datetime
+
+from kivymd.app import MDApp
+
 from Utility.comicapi.comicarchive import MetaDataStyle, ComicArchive
 from kivy.logger import Logger
-from kivy.app import App
+
 from pathlib import Path
 from PIL import Image
 from Utility.komga_server_conn import ComicServerConn
@@ -39,7 +42,7 @@ def convert_comicapi_to_json(comic_path):
 
 def get_comic_page(comic_obj, page_num):
     """returns name of cache file of requested page """
-    app = App.get_running_app()
+    app = MDApp.get_running_app()
     cahce_dir = os.path.join(app.store_dir, "cache")
     if comic_obj.is_sync:
         comic_name = comic_obj.Id
@@ -111,7 +114,7 @@ async def save_thumb(comic_id, c_image_source,callback=None):
         pass
 
     fetch_data = ComicServerConn()
-    app = App.get_running_app()
+    app = MDApp.get_running_app()
     id_folder = app.store_dir
     my_thumb_dir = Path(os.path.join(id_folder, "comic_thumbs"))
 
@@ -130,7 +133,7 @@ async def save_rl_thumb(comic_id, c_image_source,callback=None):
         pass
 
     fetch_data = ComicServerConn()
-    app = App.get_running_app()
+    app = MDApp.get_running_app()
     id_folder = app.store_dir
     my_thumb_dir = Path(os.path.join(id_folder, "reading_list_thumbs"))
 

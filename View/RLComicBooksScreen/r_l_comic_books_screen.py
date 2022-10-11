@@ -1,4 +1,6 @@
+import ntpath
 import os
+from pathlib import Path
 from sqlite3 import ProgrammingError, OperationalError, DataError
 
 from kivy import Logger
@@ -67,6 +69,7 @@ class ReadingListComicImage(ComicTileLabel):
             "Open This Comic",
             "Mark as Read",
             "Mark as UnRead",
+            "Download"
             # "Download Comic",
         ]
         self.menu_items = []
@@ -133,6 +136,7 @@ class ReadingListComicImage(ComicTileLabel):
             #     self.comic_obj.UserCurrentPage = the_page
 
         if action == "Open This Comic":
+            self.amenu.dismiss()
             self.open_comic()
         elif action == "Mark as Read":
             try:
@@ -166,6 +170,7 @@ class ReadingListComicImage(ComicTileLabel):
                     results
                 ),
             )
+            self.amenu.dismiss()
         elif action == "Mark as UnRead":
             try:
                 db_comic = Comic.get(Comic.Id == self.comic_obj.Id)
@@ -193,6 +198,26 @@ class ReadingListComicImage(ComicTileLabel):
                     results
                 ),
             )
+            self.amenu.dismiss()
+        elif action == "Download":
+            id_folder = self.app.store_dir
+            dl_folder = os.path.join(self.app.sync_folder, self.readinglist_obj.slug)
+            my_comic_dir = Path(os.path.join(id_folder, 'comics'))
+            file_name = ntpath.basename(self.comic_obj.FilePath)
+            if not my_comic_dir.is_dir():
+                os.makedirs(my_comic_dir)
+            fetch_data = ComicServerConn()
+            req_url =  f"{self.app.base_url}/api/v1/books/{self.comic_obj.Id}/file"
+            fetch_data.get_server_file_download(
+                req_url, callback=lambda req, results: got_file(results),
+                file_path=os.path.join(my_comic_dir, file_name)
+            )
+            self.amenu.dismiss()
+
+        def got_file(results):
+            toast(f'Got {file_name}')
+
+
 
     def on_press(self):
         if self.comic_obj is not None:
