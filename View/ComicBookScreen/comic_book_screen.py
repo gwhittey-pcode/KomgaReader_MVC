@@ -8,7 +8,7 @@ from kivy.properties import StringProperty
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
-from kivymd.app import  MDApp
+from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivymd.uix.boxlayout import MDBoxLayout
 
@@ -56,6 +56,7 @@ class MyPopup(Popup):
 
 class MyGridLayout(GridLayout):
     id = StringProperty()
+
 
 class ComicBookScreenView(BaseScreenView):
     scroller = ObjectProperty()
@@ -107,6 +108,7 @@ class ComicBookScreenView(BaseScreenView):
             height=round(dp(60))
         )
         self.topbar_state = False
+
     def setup_screen(
             self,
             readinglist_obj=None,
@@ -154,8 +156,6 @@ class ComicBookScreenView(BaseScreenView):
         self.app.config.write()
         comic_book_carousel = self.ids.comic_book_carousel
         comic_book_carousel.clear_widgets()
-        for slide in comic_book_carousel.slides:
-            print(slide)
         if self.scroller:
             self.scroller.clear_widgets()
         if self.top_pop:
@@ -272,7 +272,7 @@ class ComicBookScreenView(BaseScreenView):
 
     def load_user_current_page(self):
         for slide in self.ids.comic_book_carousel.slides:
-            if slide.comic_page == self.comic_obj.UserCurrentPage:
+            if slide.comic_page + 1 == self.comic_obj.UserCurrentPage:
                 self.ids.comic_book_carousel.load_slide(slide)
 
     def refresh_callback(self, *args):
@@ -316,7 +316,7 @@ class ComicBookScreenView(BaseScreenView):
                             "r l comic books screen"
                         )
                         server_readinglists_screen.page_turn(
-                            self.comic_obj.Id, value - 1
+                            self.comic_obj.Id, value
                         )
             db_item.save()
 
@@ -331,13 +331,13 @@ class ComicBookScreenView(BaseScreenView):
                 comic_obj = self.comic_obj
                 comic_Id = comic_obj.Id
                 if self.comic_obj.is_sync:
-                    if current_page > self.comic_obj.UserLastPageRead:
+                    if current_page + 1 > self.comic_obj.UserLastPageRead:
                         key_val = {
-                            "UserLastPageRead": current_page,
-                            "UserCurrentPage": current_page,
+                            "UserLastPageRead": current_page + 1,
+                            "UserCurrentPage": current_page + 1,
                         }
                     else:
-                        key_val = {"UserCurrentPage": current_page}
+                        key_val = {"UserCurrentPage": current_page + 1}
                     Clock.schedule_once(
                         lambda dt, key_value={}: __update_page(key_val=key_val)
                     )
@@ -354,7 +354,7 @@ class ComicBookScreenView(BaseScreenView):
 
             if index is not None:
                 comic_book_carousel = self.ids.comic_book_carousel
-                current_page = comic_book_carousel.current_slide.comic_page
+                current_page = comic_book_carousel.current_slide.comic_page + 1
                 comic_obj = self.comic_obj
                 if current_page >= comic_obj.PageCount:
                     completed = 'true'
@@ -364,8 +364,8 @@ class ComicBookScreenView(BaseScreenView):
                 update_url = f"{self.app.base_url}/api/v1/books/{comic_Id}/read-progress"
                 if current_page > self.comic_obj.UserLastPageRead:
                     key_val = {
-                        "UserLastPageRead": current_page + 1,
-                        "UserCurrentPage": current_page + 1,
+                        "UserLastPageRead": current_page,
+                        "UserCurrentPage": current_page,
                     }
                 else:
                     key_val = {"UserCurrentPage": current_page}
@@ -539,9 +539,9 @@ class ComicBookScreenView(BaseScreenView):
         #                                 i,comic_page_source
         #                                 )
         #                 )
-        if comic_obj.PageCount - 1 == i:
-            self.last_page_done = True
-            self.load_user_current_page()
+        # if comic_obj.PageCount - 1 == i:
+        #     self.last_page_done = True
+        #     self.load_user_current_page()
 
     def page_nav_popup_open(self):
         self.page_nav_popup.open()
@@ -1161,8 +1161,6 @@ class ComicBookScreenView(BaseScreenView):
                 return
                 ######
 
-
-
     def toggle_option_bar(self):
         if self.topbar_state == True:
             self.popup.dismiss()
@@ -1170,13 +1168,16 @@ class ComicBookScreenView(BaseScreenView):
         else:
             self.popup.open()
             self.topbar_state = True
+
     def open_top_bar(self):
         self.popup.open()
 
     def close_top_bar(self):
         self.popup.dismiss()
+
+
 def model_is_changed(self) -> None:
-        """
+    """
         Called whenever any change has occurred in the data model.
         The view in this method tracks these changes and updates the UI
         according to these changes.

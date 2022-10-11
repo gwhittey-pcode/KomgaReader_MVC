@@ -74,9 +74,10 @@
 <ReadingListComicImage>
     size: (dp(200),dp(300))
     font_style: 'Subtitle1'
+    id:menu_open
     on_release:
         if self.do_action is 'read': self.open_comic()
-        else: MDDropdownMenu(items=root.menu_items, width_mult=3).open()
+        else: self.amenu_open()
 
 #<SyncButtonIcon>
 #    # on_release:

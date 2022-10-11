@@ -9,6 +9,7 @@ from kivy.utils import get_hex_from_color
 from kivymd.app import MDApp
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.menu import MDDropdownMenu
 from kivymd.utils import asynckivy
 
 from Utility.comic_functions import save_thumb
@@ -58,7 +59,7 @@ class ReadingListComicImage(ComicTileLabel):
     loading_done = BooleanProperty(False)
     PageRead = NumericProperty()
     extra_headers = DictProperty()
-
+    is_read = BooleanProperty(False)
     def __init__(self, comic_obj=None, **kwargs):
         super(ReadingListComicImage, self).__init__(**kwargs)
         list_menu_items = [
@@ -71,12 +72,12 @@ class ReadingListComicImage(ComicTileLabel):
         self.comic_obj = comic_obj
         for item in list_menu_items:
             a_menu_item = {
-                "viewclass": "MDMenuItem",
+                "viewclass": "OneLineListItem",
                 "text": f"[color=#000000]{item}[/color]",
-                "callback": self.callback_for_menu_items,
+                "on_release": lambda x=item:self.callback_for_menu_items(x),
             }
             self.menu_items.append(a_menu_item)
-
+            self.amenu = MDDropdownMenu(items=self.menu_items, width_mult=3,caller=self)
         if self.comic_obj is not None:
             extra_headers = kwargs.get('extra_headers')
             self.app = MDApp.get_running_app()
@@ -86,11 +87,11 @@ class ReadingListComicImage(ComicTileLabel):
             self.PageRead = comic_obj.UserLastPageRead
             if self.comic_obj.local_file != "":
                 self.has_localfile = True
-            if self.comic_obj.UserLastPageRead == self.comic_obj.PageCount - 1:
-                # self.img_color = (.89, .15, .21, 5)
+            if self.comic_obj.UserLastPageRead == self.comic_obj.PageCount:
+                self.img_color = (.89, .15, .21, 5)
                 self.is_read = True
-                # txt_color = get_hex_from_color((.89, .15, .21, 1))
-                txt_color = get_hex_from_color((1, 1, 1, 1))
+                txt_color = get_hex_from_color((.89, .15, .21, 1))
+                #txt_color = get_hex_from_color((1, 1, 1, 1))
             else:
                 txt_color = get_hex_from_color((1, 1, 1, 1))
                 self.is_read = False
@@ -108,25 +109,26 @@ class ReadingListComicImage(ComicTileLabel):
                 )
             self.page_count_text = f"{self.percent_read}%"
 
-    def callback_for_menu_items(self, *args):
-        def __updated_progress(results, state):
+    def callback_for_menu_items(self, text_item):
+        action = text_item
+        def __updated_progress(results):
+            print(results)
             Logger.info(results)
-            if state == "Unread":
-                # self.img_color = (1, 1, 1, 1)
-                self.is_read = False
-                self.page_count_text = "0%"
-                self.comic_obj.UserLastPage = 0
-                self.comic_obj.UserCurrentPage = 0
-                self.comic_obj.update()
-            elif state == "Read":
-                # self.img_color = (.89, .15, .21, 5)
-                self.is_read = True
-                self.page_count_text = "100%"
-                the_page = self.comic_obj.PageCount
-                self.comic_obj.UserLastPage = the_page
-                self.comic_obj.UserCurrentPage = the_page
+            # if state == "Unread":
+            #     # self.img_color = (1, 1, 1, 1)
+            #     self.is_read = False
+            #     self.page_count_text = "0%"
+            #     self.comic_obj.UserLastPage = 0
+            #     self.comic_obj.UserCurrentPage = 0
+            #     self.comic_obj.update()
+            # elif state == "Read":
+            #     # self.img_color = (.89, .15, .21, 5)
+            #     self.is_read = True
+            #     self.page_count_text = "100%"
+            #     the_page = self.comic_obj.PageCount
+            #     self.comic_obj.UserLastPage = the_page
+            #     self.comic_obj.UserCurrentPage = the_page
 
-        action = args[0].replace("[color=#000000]", "").replace("[/color]", "")
         if action == "Open This Comic":
             self.open_comic()
         elif action == "Mark as Read":
@@ -142,8 +144,8 @@ class ReadingListComicImage(ComicTileLabel):
                     self.comic_obj.UserCurrentPage = (
                             self.comic_obj.PageCount - 1
                     )
-                    server_readinglists_screen = self.app.manager.get_screen(
-                        "server_readinglists_screen"
+                    server_readinglists_screen = self.app.manager_screens.get_screen(
+                        "r l comic books screen"
                     )
                     for item in server_readinglists_screen.new_readinglist.comics:
                         if item.Id == self.comic_obj.Id:
@@ -152,14 +154,13 @@ class ReadingListComicImage(ComicTileLabel):
             except (ProgrammingError, OperationalError, DataError) as e:
                 Logger.error(f"Mar as unRead DB: {e}")
             server_con = ComicServerConn()
-            update_url = "{}/Comics/{}/Progress".format(
-                self.app.api_url, self.comic_obj.Id
-            )
+            update_url = f"{self.app.base_url}/api/v1/books/{self.comic_obj.Id}/read-progress"
+
             server_con.update_progress(
                 update_url,
-                self.comic_obj.PageCount - 1,
+                self.comic_obj.PageCount - 1,"true",
                 callback=lambda req, results: __updated_progress(
-                    results, "Read"
+                    results
                 ),
             )
         elif action == "Mark as UnRead":
@@ -171,8 +172,8 @@ class ReadingListComicImage(ComicTileLabel):
                     db_comic.save()
                     self.comic_obj.UserLastPageRead = 0
                     self.comic_obj.UserCurrentPage = 0
-                    server_readinglists_screen = self.app.manager.get_screen(
-                        "server_readinglists_screen"
+                    server_readinglists_screen = self.app.manager_screens.get_screen(
+                        "r l comic books screen"
                     )
                     for item in server_readinglists_screen.new_readinglist.comics:
                         if item.Id == self.comic_obj.Id:
@@ -181,19 +182,18 @@ class ReadingListComicImage(ComicTileLabel):
             except (ProgrammingError, OperationalError, DataError) as e:
                 Logger.error(f"Mark as unRead DB: {e}")
             server_con = ComicServerConn()
-            update_url = "{}/Comics/{}/Mark_Unread".format(
-                self.app.api_url, self.comic_obj.Id
-            )
+            update_url = f"{self.app.base_url}/api/v1/books/{self.comic_obj.Id}/read-progress"
             server_con.update_progress(
                 update_url,
-                0,
+                0, "false",
                 callback=lambda req, results: __updated_progress(
-                    results, "Unread"
+                    results
                 ),
             )
 
     def on_press(self):
         if self.comic_obj is not None:
+
             callback = partial(self.menu)
             self.do_action = "read"
             Clock.schedule_once(callback, 0.25)
@@ -205,13 +205,15 @@ class ReadingListComicImage(ComicTileLabel):
         self.do_action = "menu"
 
     def on_release(self):
+
         if self.comic_obj is not None:
             Clock.unschedule(self.my_clock)
             self.do_action = "menu"
             return super(ReadingListComicImage, self).on_press()
         else:
             pass
-
+    def amenu_open(self):
+        self.amenu.open()
     def open_comic(self):
         if self.comic_obj is not None:
             screen = self.app.manager_screens.get_screen("comic book screen")
@@ -468,23 +470,20 @@ class RLComicBooksScreenView(BaseScreenView):
         asynckivy.start(_do_readinglist())
 
     def got_json2(self, req, results):
-        print("Start got_json2")
-
         async def _got_json():
-            print("Start _got_json")
             self.new_readinglist = ComicReadingList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
             )
-            totalCount = self.new_readinglist.totalCount
+            total_count = self.new_readinglist.totalCount
             i = 1
             for item in self.new_readinglist.comic_json:
                 await asynckivy.sleep(0)
                 str_name = "{} #{}".format(item["seriesTitle"], item["number"])
                 self.dialog_load_comic_data.name_kv_file = str_name
                 self.dialog_load_comic_data.percent = str(
-                    i * 100 // int(totalCount)
+                    i * 100 // int(total_count)
                 )
                 comic_index = self.new_readinglist.comic_json.index(item)
                 new_comic = ComicBook(
@@ -494,7 +493,6 @@ class RLComicBooksScreenView(BaseScreenView):
                 )
                 self.new_readinglist.add_comic(new_comic)
                 i += 1
-            print("End for item in self.new_readinglist.comic_json:")
             self.setup_options()
             new_readinglist_reversed = self.new_readinglist.comics[::-1]
             self.paginator_obj = Paginator(
