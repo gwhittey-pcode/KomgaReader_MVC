@@ -93,7 +93,7 @@ Builder.load_string(
     BoxLayout:
         canvas:
             Color:
-                rgba: root.box_color
+                rgba: root.box_color 
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -117,11 +117,12 @@ Builder.load_string(
 
     BoxLayout:
         canvas:
-
+            Color:
+                rgba: root.box_header_color
             Rectangle:
                 pos: self.pos
                 size: self.size
-
+    
         id: box_header
         size_hint_y: None
         padding: dp(5), 0, 0, 0
@@ -129,18 +130,17 @@ Builder.load_string(
         x: root.x
         y: root.y
         opacity:1
-
-        MDIcon:
+    
+        MDLabel:
             id: boxicon
-            icon_name: 'read'
+            #icon_name: 'read'
             #halign: "center"
             size_hint_y: None
             height: self.texture_size[1]
-            text: md_icons.get(self.icon_name)
+            text: "Read"
             theme_text_color: 'Custom'
-            text_color: app.theme_cls.primary_color
+            text_color: 1,1,1,1
             opacity: 1 if root.is_read else 0
-            font_size: dp(25)
         MDIcon:
             id: boxicon
             icon_name: 'file-check'
@@ -159,9 +159,8 @@ Builder.load_string(
             size_hint_y: None
             height: self.texture_size[1]
             text: str(root.page_count_text)
-            #root.page_count_text
             theme_text_color: 'Custom'
-            text_color: app.theme_cls.primary_color
+            text_color: root.page_count_text_color
 
 <RLTileLabel>
     _img_widget: img
@@ -314,7 +313,8 @@ class ComicTileLabel(MySmartTile):
     box_header_opaticty = StringProperty(1)
     page_count_text = StringProperty()
     extra_headers = DictProperty()
-
+    page_count_text_color = ListProperty([1, 1, 1, 1])
+    box_header_color = ListProperty([0,0,0,.25])
     def __init__(self, **kwargs):
         super(ComicTileLabel, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')

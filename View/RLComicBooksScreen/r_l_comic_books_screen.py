@@ -2,7 +2,7 @@ import os
 from sqlite3 import ProgrammingError, OperationalError, DataError
 
 from kivy import Logger
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty, BooleanProperty, DictProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty, BooleanProperty, DictProperty, ListProperty
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.utils import get_hex_from_color
@@ -60,6 +60,7 @@ class ReadingListComicImage(ComicTileLabel):
     PageRead = NumericProperty()
     extra_headers = DictProperty()
     is_read = BooleanProperty(False)
+    box_header_color = ListProperty([0, 0, 0, .25])
     def __init__(self, comic_obj=None, **kwargs):
         super(ReadingListComicImage, self).__init__(**kwargs)
         list_menu_items = [
@@ -78,7 +79,9 @@ class ReadingListComicImage(ComicTileLabel):
             }
             self.menu_items.append(a_menu_item)
             self.amenu = MDDropdownMenu(items=self.menu_items, width_mult=3,caller=self)
+            self.box_header_color = (1, 1, 1, 1)
         if self.comic_obj is not None:
+            self.box_header_color = (0, 0, 0, .75)
             extra_headers = kwargs.get('extra_headers')
             self.app = MDApp.get_running_app()
             self.comic_obj = comic_obj
@@ -306,18 +309,20 @@ class RLComicBooksScreenView(BaseScreenView):
     def page_turn(self, c_id, new_user_last_page_read):
         grid = self.m_grid
         for child in grid.children:
-            if child.comic_obj:
-                if child.comic_obj.Id == c_id:
-                    if new_user_last_page_read == 0:
-                        child.percent_read = 0
-                    else:
-                        child.percent_read = round(
-                            new_user_last_page_read
-                            / (child.comic_obj.PageCount - 1)
-                            * 100
-                        )
-                    child.page_count_text = f"{child.percent_read}%"
-
+            try:
+                if child.comic_obj:
+                    if child.comic_obj.Id == c_id:
+                        if new_user_last_page_read == 0:
+                            child.percent_read = 0
+                        else:
+                            child.percent_read = round(
+                                new_user_last_page_read
+                                / (child.comic_obj.PageCount - 1)
+                                * 100
+                            )
+                        child.page_count_text = f"{child.percent_read}%"
+            except:
+                print(child)
     def file_sync_update(self, c_id, state):
         grid = self.m_grid
         for child in grid.children:
