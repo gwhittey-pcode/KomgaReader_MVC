@@ -69,9 +69,9 @@
 <ReadingListImage>
     size: (dp(160),dp(240))
     font_style: 'Subtitle1'
-    on_release:self.open_readinglist()
-#        if self.do_action is 'read': self.open_readinglist()
-#        else: MDDropdownMenu(items=root.menu_items, width_mult=3).open(self)
+    on_release:
+        if self.do_action is 'read': self.open_readinglist()
+        else: self.amenu_open()
 
 
 <Tooltip>:

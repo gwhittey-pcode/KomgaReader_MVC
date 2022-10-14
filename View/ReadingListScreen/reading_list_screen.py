@@ -1,5 +1,7 @@
+import ntpath
 import os
 from functools import partial
+from pathlib import Path
 
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -9,11 +11,13 @@ from kivy.utils import get_hex_from_color
 from kivymd.app import MDApp
 from kivy import Logger
 from kivymd.material_resources import dp
+from kivymd.toast import toast
 from kivymd.uix.button import MDIconButton
+from kivymd.uix.menu import MDDropdownMenu
 
 from Utility.comic_functions import save_thumb
 from Utility.db_functions import ReadingList
-from Utility.server_conn import ComicServerConn
+from Utility.komga_server_conn import ComicServerConn
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.myimagelist import RLTileLabel
@@ -21,6 +25,7 @@ from View.base_screen import BaseScreenView
 from kivymd.utils import asynckivy
 
 import inspect
+
 
 class ReadingListImage(RLTileLabel):
     rl_name = StringProperty()
@@ -35,37 +40,53 @@ class ReadingListImage(RLTileLabel):
         super(ReadingListImage, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
         self.rl_book_count = rl_book_count
+        self.rl_name = rl_name
         list_menu_items = [
             "Open This Comic",
-            "Mark as Read",
-            "Mark as UnRead",
+            "Download"
             # "Download Comic",
         ]
 
         self.menu_items = []
         for item in list_menu_items:
             a_menu_item = {
-                "viewclass": "MDMenuItem",
+                "viewclass": "OneLineListItem",
                 "text": f"[color=#000000]{item}[/color]",
-                "callback": self.callback_for_menu_items,
+                "on_release": lambda x=item: self.callback_for_menu_items(x),
             }
             self.menu_items.append(a_menu_item)
+            self.amenu = MDDropdownMenu(items=self.menu_items, width_mult=3, caller=self)
         self.app = MDApp.get_running_app()
         txt_color = get_hex_from_color((1, 1, 1, 1))
-        str_txt = f"{rl_name}"
+        str_txt = f"{self.rl_name}"
         # str_txt = f"{self.comic_obj.Series} #{self.comic_obj.Number}"
         if self.rl_id != "NOID":
             self.text = f"[color={txt_color}]{str_txt}[/color]"
             self.page_count_text = f"{str(rl_book_count)} Books"
 
+    def amenu_open(self):
+        self.amenu.open()
+
     def callback_for_menu_items(self, *args):
         action = args[0].replace("[color=#000000]", "").replace("[/color]", "")
         if action == "Open This Reading List":
             self.open_readinglist()
-        elif action == "Mark as Read":
-            print('Mark as Read')
-        elif action == "Mark as UnRead":
-            print('Mark as UInRead')
+        elif action == "Download":
+            id_folder = self.app.store_dir
+            my_comic_dir = Path(os.path.join(id_folder, 'comics'))
+            file_name = ntpath.basename(f"{self.rl_name}.zip")
+            if not my_comic_dir.is_dir():
+                os.makedirs(my_comic_dir)
+            fetch_data = ComicServerConn()
+            req_url = f"{self.app.base_url}/api/v1/readlists/{self.rl_id}/file"
+            fetch_data.get_server_file_download(
+                req_url, callback=lambda req, results: got_file(results),
+                file_path=os.path.join(my_comic_dir, file_name)
+            )
+            self.amenu.dismiss()
+
+        def got_file(results):
+            toast(f'Got {file_name}')
 
     def on_press(self):
         callback = partial(self.menu)
@@ -111,7 +132,7 @@ class ReadingListImage(RLTileLabel):
                     )
                 )
                 set_mode = "From Server"
-            #set_mode = 'From Server'
+            # set_mode = 'From Server'
             Clock.schedule_once(
                 lambda dt: server_readinglists_screen.collect_readinglist_data(
                     readinglist_name=readinglist_name,
@@ -138,6 +159,7 @@ class ReadingListScreenView(BaseScreenView):
     dynamic_ids = DictProperty({})
     comic_thumb_width = NumericProperty()
     comic_thumb_height = NumericProperty()
+
     def __init__(self, **kwargs):
         super(ReadingListScreenView, self).__init__(**kwargs)
         self.app = MDApp.get_running_app()
@@ -163,6 +185,7 @@ class ReadingListScreenView(BaseScreenView):
         self.next_button = ""
         self.comic_thumb_height = 240
         self.comic_thumb_width = 156
+        self.loading_done = False
     def callback_for_menu_items(self, *args):
         pass
 
@@ -174,8 +197,9 @@ class ReadingListScreenView(BaseScreenView):
         self.api_url = self.app.api_url
         self.prev_button = self.ids["prev_button"]
         self.next_button = self.ids["next_button"]
+        if self.loading_done is True:
+            return
         self.get_comicrack_list()
-
 
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():
@@ -306,11 +330,9 @@ class ReadingListScreenView(BaseScreenView):
             self.prev_button.page_num = ""
         self.get_comicrack_list(new_page_num=this_page)
 
-
     def model_is_changed(self) -> None:
         """
         Called whenever any change has occurred in the data model.
         The view in this method tracks these changes and updates the UI
         according to these changes.
         """
-

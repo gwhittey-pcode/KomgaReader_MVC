@@ -9,9 +9,10 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.utils import get_hex_from_color
 from kivymd.app import MDApp
-from kivymd.uix.button import MDIconButton
+from kivymd.uix.button import MDIconButton, MDRaisedButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.tooltip import MDTooltip
 from kivymd.utils import asynckivy
 
 from Utility.comic_functions import save_thumb
@@ -264,6 +265,87 @@ class ReadingListComicImage(ComicTileLabel):
 class CustomMDFillRoundFlatIconButton(MDIconButton):
     pass
 
+class SyncButtonIcon(MDIconButton, MDTooltip):
+    icon_name = StringProperty("plus")
+
+    my_clock = ObjectProperty()
+    do_action = StringProperty()
+
+    # def on_mouse_pos(self, *args):
+    #     if not self.get_root_window():
+    #         return
+    #     pos = args[1]
+    #     self.tooltip.text = self.tooltip_text
+    #     self.tooltip.pos = pos
+    #     # cancel scheduled event since I moved the cursor
+    #     Clock.unschedule(self.display_tooltip)
+    #     self.close_tooltip()  # close if it's opened
+    #     if self.collide_point(*self.to_widget(*pos)):
+    #         Clock.schedule_once(self.display_tooltip, 0.5)
+
+    # def close_tooltip(self, *args):
+    #     Window.remove_widget(self.tooltip)
+
+    # def display_tooltip(self, *args):
+    #     Window.add_widget(self.tooltip)
+
+    def do_sync_rf(self, *args):
+        MDApp.get_running_app().manager_screens.get_screen(
+            "r l comic books screen"
+        ).sync_readinglist()
+
+    def do_options(self, *args):
+        MDApp.get_running_app().manager_screens.get_screen(
+            "r l comic books screen"
+        ).open_sync_options()
+
+    def do_data_refresh(self, *args):
+        the_screen = MDApp.get_running_app().manager_screens.get_screen("r l comic books screen")
+        the_screen.new_readinglist.do_db_refresh(screen=the_screen)
+
+    def del_rl_files(self, *args):
+        the_screen = MDApp.get_running_app().manager_screens.get_screen("r l comic books screen")
+        import shutil
+        id_folder = os.path.join(MDApp.get_running_app().sync_folder, the_screen.new_readinglist.slug)
+        print("id:" + id_folder)
+        shutil.rmtree(id_folder)
+
+        print(the_screen.new_readinglist.slug)
+
+
+class SynLimitButton(MDRaisedButton):
+    def __init__(self, **kwargs):
+        super(SynLimitButton, self).__init__(**kwargs)
+        self.limit_menu_items = [
+            {
+                "viewclass": "MDMenuItem",
+                "text": "[color=#000000]Books[/color]",
+                "callback": self.callback_for_menu_items,
+            },
+            {
+                "viewclass": "MDMenuItem",
+                "text": "[color=#000000]GB[/color]",
+                "callback": self.callback_for_menu_items,
+            },
+            {
+                "viewclass": "MDMenuItem",
+                "text": "[color=#000000]MB[/color]",
+                "callback": self.callback_for_menu_items,
+            },
+        ]
+
+    def callback_for_menu_items(self, *args):
+        action = args[0].replace("[color=#000000]", "").replace("[/color]", "")
+        if action == "Books":
+            self.text = "Books"
+        elif action == "GB":
+            self.text = "GB"
+        elif action == "MB":
+            self.text = "MB"
+
+    def open_menu(self):
+        MDDropdownMenu(items=self.limit_menu_items, width_mult=3).open(self)
+
 
 class Tooltip(Label):
     pass
@@ -284,6 +366,7 @@ class RLComicBooksScreenView(BaseScreenView):
     comic_thumb_width = NumericProperty()
     def __init__(self, **kwargs):
         super(RLComicBooksScreenView, self).__init__(**kwargs)
+        self.sync_options = None
         self.app = MDApp.get_running_app()
         self.fetch_data = None
         self.readinglist_Id = StringProperty()
@@ -348,11 +431,13 @@ class RLComicBooksScreenView(BaseScreenView):
                         child.page_count_text = f"{child.percent_read}%"
             except:
                 print(child)
+                
     def file_sync_update(self, c_id, state):
         grid = self.m_grid
         for child in grid.children:
-            if child.comic_obj.Id == c_id:
-                child.has_localfile = state
+            if child.comic_obj:
+                if child.comic_obj.Id == c_id:
+                    child.has_localfile = state
 
     def collect_readinglist_data(
             self,
@@ -389,7 +474,7 @@ class RLComicBooksScreenView(BaseScreenView):
 
     def get_page(self, instance):
         page_num = instance.page_num
-        self.app.set_screen(self.readinglist_name + f" Page {page_num}")
+        #self.app.set_screen(self.readinglist_name + f" Page {page_num}")
         self.reading_list_title = self.readinglist_name + f" Page {page_num}"
         page = self.paginator_obj.page(page_num)
         self.current_page = page
@@ -568,22 +653,22 @@ class RLComicBooksScreenView(BaseScreenView):
         self.please_wait_dialog.open()
 
     def setup_options(self):
-        pass
-        # self.sync_options = SyncOptionsPopup(
-        #     size_hint=(0.76, 0.76),
-        #     cb_limit_active=self.new_readinglist.cb_limit_active,
-        #     limit_num_text=str(self.new_readinglist.limit_num),
-        #     cb_only_read_active=self.new_readinglist.cb_only_read_active,
-        #     cb_purge_active=self.new_readinglist.cb_purge_active,  # noqa
-        #     cb_optimize_size_active=self.new_readinglist.cb_optimize_size_active,  # noqa
-        #     sw_syn_this_active=bool(self.new_readinglist.sw_syn_this_active),
-        # )
-        # self.sync_options.ids.limit_num.bind(
-        #     on_text_validate=check_input,
-        #     focus=check_input,
-        # )
-        #
-        # self.sync_options.title = self.new_readinglist.name
+        
+        self.sync_options = SyncOptionsPopup(
+            size_hint=(0.76, 0.76),
+            cb_limit_active=self.new_readinglist.cb_limit_active,
+            limit_num_text=str(self.new_readinglist.limit_num),
+            cb_only_read_active=self.new_readinglist.cb_only_read_active,
+            cb_purge_active=self.new_readinglist.cb_purge_active,  # noqa
+            # cb_optimize_size_active=self.new_readinglist.cb_optimize_size_active,  # noqa
+            sw_syn_this_active=bool(self.new_readinglist.sw_syn_this_active),
+        )
+        self.sync_options.ids.limit_num.bind(
+            on_text_validate=check_input,
+            focus=check_input,
+        )
+
+        self.sync_options.title = self.new_readinglist.name
 
     def open_sync_options(self):
         if self.sync_options.ids.sw_syn_this.active is True:
@@ -610,81 +695,81 @@ def check_input(*args: object) -> object:
         return False
 
 
-# class SyncOptionsPopup(Popup):
-#     background = "assets/cPop_bkg.png"
-#     text = StringProperty("")
-#     cb_limit_active = BooleanProperty(False)
-#     limit_num_text = BooleanProperty(False)
-#     cb_only_read_active = BooleanProperty(False)
-#     cb_purge_active = BooleanProperty(False)
-#     cb_optimize_size_active = BooleanProperty(False)
-#     sw_syn_this_active = BooleanProperty(False)
-#     ok_text = StringProperty("OK")
-#     cancel_text = StringProperty("Cancel")
-#
-#     __events__ = ("on_ok", "on_cancel")
-#
-#     def __init__(self, **kwargs):
-#         super(SyncOptionsPopup, self).__init__(**kwargs)
-#         app = MDApp.get_running_app()
-#         server_readinglists_screen = app.manager_screens.get_screen(
-#             "server_readinglists_screen"
-#         )
-#         self.current_screen = server_readinglists_screen
-#
-#     def on_open(self):
-#         # self.sw_syn_this.active=bool(self.current_screen.new_readinglist.sw_syn_this_active)
-#         """ disable hotkeys while we do this"""
-#         Window.unbind(on_keyboard=MDApp.get_running_app().events_program)
-#
-#     def on_dismiss(self):
-#         Window.bind(on_keyboard=MDApp.get_running_app().events_program)
-#
-#     def on_ok(self):
-#         chk_input = check_input(self.ids.limit_num)
-#         if chk_input is True:
-#             if self.ids.sw_syn_this.active:
-#                 self.current_screen.sync_bool = True
-#             else:
-#                 self.current_screen.sync_bool = False
-#             self.current_screen.new_readinglist.save_settings(
-#                 cb_limit_active=self.ids.cb_limit.active,
-#                 limit_num=int(self.ids.limit_num.text),
-#                 cb_only_read_active=self.ids.cb_only_read.active,
-#                 cb_purge_active=self.ids.cb_purge.active,
-#                 cb_optimize_size_active=self.ids.cb_optimize_size.active,
-#                 sw_syn_this_active=self.ids.sw_syn_this.active,
-#             )
-#             self.dismiss()
-#         else:
-#             self.ids.limit_num.focus = True
-#             return
-#
-#     def on_cancel(self):
-#         self.ids.cb_limit.active = (
-#             self.current_screen.new_readinglist.cb_limit_active
-#         )  # noqa
-#         self.ids.limit_num.text = str(
-#             self.current_screen.new_readinglist.limit_num
-#         )
-#         self.ids.cb_only_read.active = (
-#             self.current_screen.new_readinglist.cb_only_read_active
-#         )  # noqa
-#         self.ids.cb_purge.active = (
-#             self.current_screen.new_readinglist.cb_purge_active
-#         )  # noqa
-#         self.ids.cb_optimize_size.active = (
-#             self.current_screen.new_readinglist.cb_optimize_size_active
-#         )  # noqa
-#         self.ids.sw_syn_this.active = bool(
-#             self.current_screen.new_readinglist.sw_syn_this_active
-#         )
-#         self.ids.limit_num.error = False
-#         self.dismiss()
-#
-#     def model_is_changed(self) -> None:
-#         """
-#         Called whenever any change has occurred in the data model.
-#         The view in this method tracks these changes and updates the UI
-#         according to these changes.
-#         """
+class SyncOptionsPopup(Popup):
+    background = "assets/cPop_bkg.png"
+    text = StringProperty("")
+    cb_limit_active = BooleanProperty(False)
+    limit_num_text = BooleanProperty(False)
+    cb_only_read_active = BooleanProperty(False)
+    cb_purge_active = BooleanProperty(False)
+    cb_optimize_size_active = BooleanProperty(False)
+    sw_syn_this_active = BooleanProperty(False)
+    ok_text = StringProperty("OK")
+    cancel_text = StringProperty("Cancel")
+
+    __events__ = ("on_ok", "on_cancel")
+
+    def __init__(self, **kwargs):
+        super(SyncOptionsPopup, self).__init__(**kwargs)
+        app = MDApp.get_running_app()
+        server_readinglists_screen = app.manager_screens.get_screen(
+            "r l comic books screen"
+        )
+        self.current_screen = server_readinglists_screen
+
+    def on_open(self):
+        # self.sw_syn_this.active=bool(self.current_screen.new_readinglist.sw_syn_this_active)
+        """ disable hotkeys while we do this"""
+        Window.unbind(on_keyboard=MDApp.get_running_app().events_program)
+
+    def on_dismiss(self):
+        Window.bind(on_keyboard=MDApp.get_running_app().events_program)
+
+    def on_ok(self):
+        chk_input = check_input(self.ids.limit_num)
+        if chk_input is True:
+            if self.ids.sw_syn_this.active:
+                self.current_screen.sync_bool = True
+            else:
+                self.current_screen.sync_bool = False
+            self.current_screen.new_readinglist.save_settings(
+                cb_limit_active=self.ids.cb_limit.active,
+                limit_num=int(self.ids.limit_num.text),
+                cb_only_read_active=self.ids.cb_only_read.active,
+                cb_purge_active=self.ids.cb_purge.active,
+                cb_optimize_size_active=False,
+                sw_syn_this_active=self.ids.sw_syn_this.active,
+            )
+            self.dismiss()
+        else:
+            self.ids.limit_num.focus = True
+            return
+
+    def on_cancel(self):
+        self.ids.cb_limit.active = (
+            self.current_screen.new_readinglist.cb_limit_active
+        )  # noqa
+        self.ids.limit_num.text = str(
+            self.current_screen.new_readinglist.limit_num
+        )
+        self.ids.cb_only_read.active = (
+            self.current_screen.new_readinglist.cb_only_read_active
+        )  # noqa
+        self.ids.cb_purge.active = (
+            self.current_screen.new_readinglist.cb_purge_active
+        )  # noqa
+        # self.ids.cb_optimize_size.active = (
+        #     self.current_screen.new_readinglist.cb_optimize_size_active
+        # )  # noqa
+        self.ids.sw_syn_this.active = bool(
+            self.current_screen.new_readinglist.sw_syn_this_active
+        )
+        self.ids.limit_num.error = False
+        self.dismiss()
+
+    def model_is_changed(self) -> None:
+        """
+        Called whenever any change has occurred in the data model.
+        The view in this method tracks these changes and updates the UI
+        according to these changes.
+        """

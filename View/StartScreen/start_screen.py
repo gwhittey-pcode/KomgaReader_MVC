@@ -176,11 +176,11 @@ class StartScreenView(BaseScreenView):
         def __got_readlist_data(results):
             async def __load_readinglist_scree(paginator_obj=None):
                 if tmp_last_comic_type == "local_file":
-                    x_readinglists_screen = self.app.manager.get_screen(
+                    x_readinglists_screen = self.app.manager_screens.get_screen(
                         "local_readinglists_screen"
                     )
                 else:
-                    x_readinglists_screen = self.app.manager.get_screen(
+                    x_readinglists_screen = self.app.manager_screens.get_screen(
                         "server_readinglists_screen"
                     )
                 x_readinglists_screen.list_loaded = False

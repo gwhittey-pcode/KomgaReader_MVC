@@ -18,6 +18,7 @@ from kivy.properties import (
     ObjectProperty,
     StringProperty,
 )
+from kivymd.app import MDApp
 from kivymd.toast.kivytoast.kivytoast import toast
 from kivy.network.urlrequest import UrlRequest
 from Utility.komga_server_conn import ComicServerConn
@@ -324,7 +325,7 @@ class ComicReadingList(EventDispatcher):
     def do_db_refresh(self, screen=None):
         def __finish_toast(dt):
             app = App.get_running_app()
-            screen = app.manager.get_screen("server_readinglists_screen")
+            screen = app.manager_screens.get_screen("r l comic books screen")
             screen.refresh_callback()
             toast("DataBase Refresh Complete")
 
@@ -430,7 +431,7 @@ class ComicReadingList(EventDispatcher):
         def _syncrun_callback(*args):
             pass
 
-        app = App.get_running_app()
+        app = MDApp.get_running_app()
         if app.sync_is_running is True:
             self.please_wait_dialog = MDDialog(
                 title="Sync Already in Progress",
@@ -543,8 +544,8 @@ class ComicReadingList(EventDispatcher):
                 db_comic.is_sync = False
                 db_comic.local_file = ""
                 db_comic.save()
-                server_readinglists_screen = app.manager.get_screen(
-                    "server_readinglists_screen"
+                server_readinglists_screen = app.manager_screens.get_screen(
+                    "r l comic books screen"
                 )
                 server_readinglists_screen.file_sync_update(item.Id, False)
         self.sync_readinglist(comic_list=sync_comic_list)
@@ -553,19 +554,16 @@ class ComicReadingList(EventDispatcher):
         def is_finished(dt):
             if req.is_finished is True:
                 app = App.get_running_app()
-                screen = app.manager.get_screen("server_readinglists_screen")
+                screen = app.manager_screens.get_screen("r l comic books screen")
                 screen.ids.sync_button.enabled = True
                 Clock.schedule_once(self.download_file)
             else:
                 Clock.schedule_once(is_finished, 0.25)
 
-        app = App.get_running_app()
-        username = app.config.get("General", "username")
-        api_key = app.config.get("General", "api_key")
-        str_cookie = f"API_apiKey={api_key}; BCR_username={username}"
+        app = MDApp.get_running_app()
+        session_cookie = app.config.get("General", "api_key")
+        str_cookie = "SESSION=" + session_cookie
         head = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
             "Cookie": str_cookie,
         }
 
@@ -573,7 +571,7 @@ class ComicReadingList(EventDispatcher):
             req_url, req_headers=head, on_success=callback, file_path=file_path
         )
         app = App.get_running_app()
-        screen = app.manager.get_screen("server_readinglists_screen")
+        screen = app.manager_screens.get_screen("r l comic books screen")
         if len(self.sync_list) != 0:
             screen.ids.sync_status_lbl.text = (
                 f"Sync is Running Left in Que: {len(self.sync_list)}"
@@ -603,8 +601,8 @@ class ComicReadingList(EventDispatcher):
         rl_db.end_last_sync_num += 1
         rl_db.save()
         app = App.get_running_app()
-        server_readinglists_screen = app.manager.get_screen(
-            "server_readinglists_screen"
+        server_readinglists_screen = app.manager_screens.get_screen(
+            "r l comic books screen"
         )
         server_readinglists_screen.file_sync_update(comic_obj.Id, True)
 
@@ -612,40 +610,33 @@ class ComicReadingList(EventDispatcher):
         def got_thumb(results):
             pass
 
-        app = App.get_running_app()
-        screen = app.manager.get_screen("server_readinglists_screen")
+        app = MDApp.get_running_app()
+        screen = app.manager_screens.get_screen("r l comic books screen")
         screen.ids.sync_button.enabled = False
         if len(self.sync_list) == 0:
             toast("Reading List has been Synced, Refreshing Screen")
             app = App.get_running_app()
-            screen = app.manager.get_screen("server_readinglists_screen")
+            screen = app.manager_screens.get_screen("r l comic books screen")
             screen.ids.sync_status_lbl.text = ""
             screen.ids.sync_button.enabled = True
             app.sync_is_running = False
             # screen.refresh_callback()
             return
+        app = MDApp.get_running_app()
         comic = self.sync_list.pop(0)
         self.file_download = False
         file_name = ntpath.basename(comic.FilePath)
-        y = 240
-        part_url = f"/Comics/{comic.Id}/Pages/0?"
-        app = App.get_running_app()
-        part_api = f"&apiKey={app.api_key}&height={round(dp(y))}"
-        thumb_url = f"{app.api_url}{part_url}{part_api}"
-
-        if self.cb_optimize_size_active is False:
-            sync_url = f"{app.api_url}/Comics/{comic.Id}/Sync/File/"
-        elif self.cb_optimize_size_active is True:
-            sync_url = f"{app.api_url}/Comics/{comic.Id}/Sync/Webp"
-        app = App.get_running_app()
+        part_url = f'/api/v1/books/{comic.Id}/thumbnail'
+        thumb_url = f"{app.base_url}{part_url}"
+        sync_url = f'{app.base_url}/api/v1/books/{comic.Id}/file'
         id_folder = os.path.join(app.sync_folder, self.slug)
-        self.my_comic_dir = Path(os.path.join(id_folder, "comics"))
-        self.my_thumb_dir = Path(os.path.join(id_folder, "thumb"))
+        my_comic_dir = Path(os.path.join(id_folder, "comics"))
+        my_thumb_dir = Path(os.path.join(id_folder, "thumb"))
         if not self.my_comic_dir.is_dir():
-            os.makedirs(self.my_comic_dir)
+            os.makedirs(my_comic_dir)
         if not self.my_thumb_dir.is_dir():
-            os.makedirs(self.my_thumb_dir)
-        t_file = os.path.join(self.my_comic_dir, file_name)
+            os.makedirs(my_thumb_dir)
+        t_file = os.path.join(my_comic_dir, file_name)
         self.get_server_file_download(
             sync_url,
             callback=self.got_file(comic, comic_file=t_file),
@@ -655,14 +646,14 @@ class ComicReadingList(EventDispatcher):
         self.fetch_data.get_server_file_download(
             thumb_url,
             callback=lambda req, results: got_thumb(results),
-            file_path=os.path.join(self.my_thumb_dir, thumb_name),
+            file_path=os.path.join(my_thumb_dir, thumb_name),
         )
 
     def _finish_sync(self, comic_list, *largs):
         def __finish_toast(dt):
             toast("Reading List has been Synced, Refreshing Screen")
             # app = App.get_running_app()
-            # screen = app.manager.get_screen("server_readinglists_screen")
+            # screen = app.manager_screens.get_screen("r l comic books screen")
             # screen.refresh_callback()
 
         list_comics = comic_list
@@ -673,10 +664,10 @@ class ComicReadingList(EventDispatcher):
             self.event = None
 
     def sync_readinglist(self, comic_list=[]):
-        app = App.get_running_app()
+
         self.sync_list = comic_list
-        app = App.get_running_app()
-        screen = app.manager.get_screen("server_readinglists_screen")
+        app = MDApp.get_running_app()
+        screen = app.manager_screens.get_screen("r l comic books screen")
         screen.ids.sync_status_lbl.text = (
             f"Sync is Running Comics to Sync: {len(self.sync_list)}"
         )
