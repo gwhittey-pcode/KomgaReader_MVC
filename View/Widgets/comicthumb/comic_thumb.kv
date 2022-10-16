@@ -1,0 +1,72 @@
+#:import get_color_from_hex  kivy.utils.get_color_from_hex
+<TooltipMDLabel@MDLabel+MDTooltip>
+<TooltipMDBoxLayout@MDBoxLayout+MDTooltip>
+<ComicThumb>
+    _str_caption:self.str_caption
+    _percent_read:self.percent_read
+    TooltipMDBoxLayout:
+        id:top_box
+        md_bg_color:get_color_from_hex("#1e1e1e")
+        size_hint: None, None
+        size: "156dp", "320dp"
+        orientation:"vertical"
+        pos_hint: {"right": 1, "top": 1}
+        spacing: 2
+        tooltip_text: root.tooltip_text
+        MyMDSmartTile:
+#            canvas.after:
+#                Color:
+#                    rgba: 1,.84,0,1
+#                Line:
+#                    width: 2
+#                    rectangle: self.x, self.y, self.width, self.height
+
+            box_color: 0, 0, 0, .2
+            source:root.source
+            pos_hint: {"right": 1, "top": 1}
+            size_hint: None, None
+            size: "156dp", "240dp"
+            on_release:root.on_short_touch()
+            MDIconButton:
+                icon: "checkbox-blank-circle-outline"
+                theme_icon_color: "Custom"
+                icon_color:  app.theme_cls.primary_color
+                pos_hint: {"center_y": .2}
+                icon_size: "30sp"
+                disabled:0
+                on_release: self.icon = "checkbox-marked-circle" if self.icon == "checkbox-blank-circle-outline" else "checkbox-blank-circle-outline"
+            MDIconButton:
+                icon: "download-circle-outline"
+                theme_icon_color: "Custom"
+                icon_color:  app.theme_cls.primary_color
+                pos_hint: {"center_y": .2}
+                icon_size: "30sp"
+                disabled:1
+                opacity:0
+                on_release: self.icon = "download-circle" if self.icon == "download-circle-outline" else "download-circle-outline"
+            MDIconButton:
+                icon: "read"
+                theme_icon_color: "Custom"
+                icon_color:  app.theme_cls.primary_color
+                pos_hint: {"center_y": .2}
+                icon_size: "30sp"
+                disabled:0
+                on_release: self.icon = "download-circle" if self.icon == "download-circle-outline" else "download-circle-outline"
+        MDProgressBar:
+
+            value: root._percent_read
+            size_hint_y:.1
+            color: 1,.84,0,1
+        MDBoxLayout:
+            padding_x:"10dp"
+            md_bg_color:(1,1,1,0)
+            MDLabel:
+                text_size: root.width - 5, None
+                text: root._str_caption
+                color: 1, 1, 1, 1
+                size: self.texture_size
+                font_style:"Body2"
+                pos_hint: {"center_x": .5, "center_y": .5}
+                tooltip_text:root.tooltip_text
+                halign: "left"
+

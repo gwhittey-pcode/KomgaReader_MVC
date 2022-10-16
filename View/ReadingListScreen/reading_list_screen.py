@@ -20,7 +20,7 @@ from Utility.db_functions import ReadingList
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
-from View.Widgets.myimagelist import RLTileLabel
+from View.Widgets.custimagelist import RLTileLabel
 from View.base_screen import BaseScreenView
 from kivymd.utils import asynckivy
 

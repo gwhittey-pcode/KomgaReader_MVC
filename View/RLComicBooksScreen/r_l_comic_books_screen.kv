@@ -18,7 +18,7 @@
                 size_hint_y:None
                 height:dp(50)
                 MDBoxLayout:
-                    md_bg_color: 1,1,1,1
+
                     CustomMDFillRoundFlatIconButton:
                         id:prev_button
                         text: "Prev Page"
@@ -155,9 +155,9 @@
                         size_hint_x: 1
                         height: self.minimum_height
                         padding: dp(10), dp(10),dp(30),dp(50)
-                        spacing: dp(4)
+                        spacing: dp(10)
                         col_default_width:root.comic_thumb_width
-                        row_default_height:root.comic_thumb_height
+                        row_default_height:root.comic_thumb_height + dp(80)
 
 
 <ReadingListComicImage>

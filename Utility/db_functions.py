@@ -52,6 +52,7 @@ class Comic(BaseModel):
     UserLastPageRead = IntegerField()
     UserCurrentPage = IntegerField()
     PageCount = IntegerField()
+    Title = TextField(null=True)
     Summary = TextField(null=True)
     FilePath = CharField(null=True)
     Volume = CharField(null=True)

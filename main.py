@@ -1,4 +1,3 @@
-
 """
 Script for managing hot reloading of the project.
 For more details see the documentation page -
@@ -40,6 +39,7 @@ from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
 from Utility.db_functions import start_db
 
+
 class KomgaReader(MDApp):
     title = StringProperty
     store_dir = StringProperty()
@@ -55,6 +55,7 @@ class KomgaReader(MDApp):
     sync_is_running = BooleanProperty(False)
     rl_count = NumericProperty()
     full_screen = False
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.load_all_kv_files(self.directory)
@@ -231,7 +232,8 @@ class KomgaReader(MDApp):
         path = os.path.dirname(__file__)
         icon_path = os.path.join(path, f"data{os.sep}")
         self.icon = os.path.join(icon_path, f"icon.png")
-        self.theme_cls.primary_palette = "Amber"
+        self.theme_cls.primary_palette = "Cyan"
+        self.theme_cls.theme_style = "Light"
         self.generate_application_screens()
 
         return self.manager_screens
@@ -253,6 +255,7 @@ class KomgaReader(MDApp):
             view.manager_screens = self.manager_screens
             view.name = name_screen
             self.manager_screens.add_widget(view)
+
     def on_config_change(self, config, section, key, value):
         pass
 
@@ -275,6 +278,7 @@ class KomgaReader(MDApp):
         # settings.add_json_panel(
         #     "Hotkeys", self.config, data=settings_json_hotkeys
         # )
+
     def hide_action_bar(self):
         self.manager_screens.ids.action_bar.opacity = 0
         self.manager_screens.ids.action_bar.disabled = True
@@ -288,6 +292,7 @@ class KomgaReader(MDApp):
             Window.width,
             self.theme_cls.standard_increment,
         )
+
     def events_program(self, instance, keyboard, keycode, text, modifiers):
         c = Keyboard()
         """Called when you press a Key"""
@@ -367,4 +372,6 @@ class KomgaReader(MDApp):
             except:  # noqa
                 self.manager.current = "base"
             # self.screen.ids.action_bar.title = self.title
+
+
 KomgaReader().run()

@@ -1,4 +1,4 @@
-from View.RLComicBooksScreen.r_l_comic_books_screen import ReadingListComicImage
+
 from View.base_screen import BaseScreenView
 import inspect
 

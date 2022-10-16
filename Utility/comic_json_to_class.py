@@ -57,11 +57,13 @@ COMIC_DB_KEYS = [
     "UserCurrentPage",
     "UserLastPageRead",
     "PageCount",
+    "Title",
     "Summary",
     "FilePath",
     "local_file",
     "data",
     "is_sync",
+
 ]
 
 
@@ -95,6 +97,7 @@ class ComicBook(EventDispatcher):
     UserCurrentPage = NumericProperty()
     PageCount = NumericProperty()
     Summary = StringProperty()
+    Title = StringProperty()
     FilePath = StringProperty()
     Volume = StringProperty()
     readlist_obj = ObjectProperty()
@@ -133,6 +136,7 @@ class ComicBook(EventDispatcher):
                     self.UserLastPageRead = comic_data['readProgress']['page']
                     self.UserCurrentPage = comic_data['readProgress']['page']
                 self.PageCount = comic_data['media']["pagesCount"]
+                self.Title = comic_data['metadata']['title']
                 self.Summary = comic_data["metadata"]['summary']
                 self.FilePath = comic_data["url"]
                 self.Volume = 'None'
