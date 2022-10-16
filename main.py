@@ -9,15 +9,12 @@ DEBUG=1 python main.py
 """
 from kivy import Logger
 
-from View.Widgets.my_tool_bar import MyToolBar
 from kivy.core.window import Window, Keyboard
 from kivy.properties import (
     ObjectProperty,
     StringProperty,
-    ListProperty,
     NumericProperty,
-    BooleanProperty,
-    DictProperty
+    BooleanProperty
 )
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
@@ -29,16 +26,14 @@ from mysettings.settingsjson import (
     settings_json_server,
     settings_json_dispaly,
     settings_json_screen_tap_control,
-    settings_json_hotkeys,
     settings_json_sync,
 )
 from kivy.factory import Factory
 
-from View.base_screen import BaseScreenView
 from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
 from Utility.db_functions import start_db
-
+from View.Widgets.mytoolbar import MyToolBar
 
 class KomgaReader(MDApp):
     title = StringProperty

@@ -34,16 +34,18 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
         super(ComicThumb, self).__init__(**kwargs)
         self.source = ""
         self.item_id = kwargs.get('item_id')
-        self.comic_obj = comic_obj
-        UserLastPageRead = 40
-        PageCount = 48
+        if comic_obj is None:
+            pass
+        else:
+            self.comic_obj = comic_obj
+            UserLastPageRead = self.comic_obj.UserLastPageRead
+            PageCount = comic_obj.PageCount
 
-        self.percent_read = round(
-            UserLastPageRead
-            / PageCount
-            * 100
-        )
-
+            self.percent_read = round(
+                UserLastPageRead
+                / PageCount
+                * 100
+            )
 
     def on_short_touch(self):
         if self.thumb_type == "ReadingList":
@@ -69,7 +71,6 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
         else:
             def __wait_for_open(dt):
                 if server_readinglists_screen.loading_done is True:
-
                     app.manager_screens.current = "r l comic books screen"
 
             server_readinglists_screen = app.manager_screens.get_screen(
@@ -118,6 +119,7 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             Clock.schedule_once(lambda dt: self.open_comic_callback(), 0.1)
         else:
             pass
+
     def open_comic_callback(self, *args):
         self.ids.top_box.remove_tooltip()
         app = MDApp.get_running_app()

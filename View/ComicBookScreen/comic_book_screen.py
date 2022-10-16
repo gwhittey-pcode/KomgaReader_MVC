@@ -19,7 +19,6 @@ from Utility.myloader import Loader
 from View.Widgets.comicbook_screen_widgets import ComicBookPageScatter, ComicBookPageImage, ThumbPopPageInnerGrid, \
     ComicBookPageThumb, ThumbPopPagebntlbl, CommonComicsScroll, CommonComicsOuterGrid, CommonComicsCoverInnerGrid, \
     CommonComicsCoverImage
-from View.Widgets.mytoolbar import MDToolbarTooltips
 from View.base_screen import BaseScreenView
 from kivy.metrics import dp
 from kivy.properties import (
