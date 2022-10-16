@@ -276,7 +276,7 @@ class RLComicBooksScreenView(BaseScreenView):
             grid = self.m_grid
             grid.clear_widgets()
             # add spacer so page forms right while lmgs are dl
-            c_spacer = ComicThumb(comic_obj=None)
+            c_spacer = ComicThumb(item_id="NOID")
             c_spacer.lines = 1
             c_spacer.padding = dp(60), dp(60)
             src_thumb = "assets/spacer.jpg"
@@ -287,13 +287,13 @@ class RLComicBooksScreenView(BaseScreenView):
                 await asynckivy.sleep(0)
                 str_cookie = 'SESSION=' + self.session_cookie
 
-                c = ComicThumb(comic_obj=comic,
-                               extra_headers={"Cookie": str_cookie, })
+                c = ComicThumb(item_id=comic.Id, comic_obj=comic)
                 c.lines = 2
                 c.readinglist_obj = self.new_readinglist
                 c.paginator_obj = self.paginator_obj
                 c.str_caption = f"  {comic.Series } \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 c.tooltip_text = f"{comic.Series }\n#{comic.Number} - {comic.Title}"
+                c.thumb_type = "ComicBook"
                 c.text_size = dp(8)
                 y = self.comic_thumb_height
                 thumb_filename = f"{comic.Id}.jpg"

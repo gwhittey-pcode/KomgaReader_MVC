@@ -23,7 +23,7 @@ from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.custimagelist import RLTileLabel
 from View.base_screen import BaseScreenView
 from kivymd.utils import asynckivy
-
+from View.Widgets.comicthumb import ComicThumb
 import inspect
 
 
@@ -244,16 +244,13 @@ class ReadingListScreenView(BaseScreenView):
             grid.clear_widgets()
             i = 1
             # add spacer so page forms right while imgs are dl
-            c_spacer = ReadingListImage(rl_name="",
-                                        rl_book_count=0,
-                                        rl_id="NOID",
-
-                                        )
+            c_spacer = ComicThumb(item_id="NOID")
             c_spacer.lines = 1
             c_spacer.padding = dp(60), dp(60)
             c_spacer.totalPages = self.totalPages
             src_thumb = "assets/spacer.jpg"
             c_spacer.source = src_thumb
+            c_spacer.opacity = 0
             grid.add_widget(c_spacer)
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
@@ -264,12 +261,12 @@ class ReadingListScreenView(BaseScreenView):
                 rl_book_count = x
                 self.rl_book_count = rl_book_count
                 strCookie = 'SESSION=' + self.session_cookie
-                c = ReadingListImage(rl_name=item['name'],
-                                     rl_book_count=rl_book_count,
-                                     rl_id=rl_id,
-                                     extra_headers={"Cookie": strCookie, },
-                                     )
-
+                c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
+                c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
+                c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
+                c.item_id = rl_id
+                c.thumb_type = "ReadingList"
+                c.text_size = dp(8)
                 c_spacer.lines = 1
                 c_spacer.padding = dp(60), dp(60)
                 c_spacer.totalPages = self.totalPages
