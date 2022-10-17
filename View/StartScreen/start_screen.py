@@ -1,4 +1,3 @@
-
 from View.base_screen import BaseScreenView
 import inspect
 
@@ -7,21 +6,20 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.logger import Logger
 from kivy.metrics import dp
-from kivy.properties import ConfigParserProperty, StringProperty
+from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import Screen
-from kivy.utils import get_hex_from_color
 from kivymd.utils import asynckivy
-from View.ReadingListScreen.reading_list_screen import ReadingListImage
 from Utility.comic_json_to_class import ComicReadingList
 from Utility.komga_server_conn import ComicServerConn
 from Utility.db_functions import ReadingList
 from Utility.paginator import Paginator
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
 
+
 class LoginPopupContent(BoxLayout):
     info_text = StringProperty()
+
 
 class LoginPopup(Popup):
     def on_open(self):
@@ -32,9 +30,9 @@ class LoginPopup(Popup):
         Window.bind(on_keyboard=App.get_running_app().events_program)
 
 
-
 class StartScreenView(BaseScreenView):
     app = App.get_running_app()
+
     # username = ConfigParserProperty("", "General", "username", app.config)
     # password = ConfigParserProperty("", "General", "password", app.config)
     # api_key = ConfigParserProperty("", "General", "api_key", app.config)
@@ -289,6 +287,7 @@ class StartScreenView(BaseScreenView):
 
     def close_popup(self):
         self.app.popup.dismiss()
+
     def got_error(self, req, results):
         Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
 

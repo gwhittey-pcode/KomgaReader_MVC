@@ -13,7 +13,9 @@ from kivy import Logger
 from kivymd.material_resources import dp
 from kivymd.toast import toast
 from kivymd.uix.button import MDIconButton
+from kivymd.uix.list import OneLineAvatarIconListItem, IRightBodyTouch, ILeftBodyTouch
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.selectioncontrol import MDCheckbox
 
 from Utility.comic_functions import save_thumb
 from Utility.db_functions import ReadingList
@@ -27,132 +29,28 @@ from View.Widgets.comicthumb import ComicThumb
 import inspect
 
 
-class ReadingListImage(RLTileLabel):
-    rl_name = StringProperty()
-    rl_book_count = NumericProperty()
-    rl_id = StringProperty()
-    my_clock = ObjectProperty()
-    do_action = StringProperty()
-    extra_headers = DictProperty()
-    totalPages = NumericProperty()
-
-    def __init__(self, rl_name=None, rl_book_count=0, **kwargs):
-        super(ReadingListImage, self).__init__(**kwargs)
-        extra_headers = kwargs.get('extra_headers')
-        self.rl_book_count = rl_book_count
-        self.rl_name = rl_name
-        list_menu_items = [
-            "Open This Comic",
-            "Download"
-            # "Download Comic",
-        ]
-
-        self.menu_items = []
-        for item in list_menu_items:
-            a_menu_item = {
-                "viewclass": "OneLineListItem",
-                "text": f"[color=#000000]{item}[/color]",
-                "on_release": lambda x=item: self.callback_for_menu_items(x),
-            }
-            self.menu_items.append(a_menu_item)
-            self.amenu = MDDropdownMenu(items=self.menu_items, width_mult=3, caller=self)
-        self.app = MDApp.get_running_app()
-        txt_color = get_hex_from_color((1, 1, 1, 1))
-        str_txt = f"{self.rl_name}"
-        # str_txt = f"{self.comic_obj.Series} #{self.comic_obj.Number}"
-        if self.rl_id != "NOID":
-            self.text = f"[color={txt_color}]{str_txt}[/color]"
-            self.page_count_text = f"{str(rl_book_count)} Books"
-
-    def amenu_open(self):
-        self.amenu.open()
-
-    def callback_for_menu_items(self, *args):
-        action = args[0].replace("[color=#000000]", "").replace("[/color]", "")
-        if action == "Open This Reading List":
-            self.open_readinglist()
-        elif action == "Download":
-            id_folder = self.app.store_dir
-            my_comic_dir = Path(os.path.join(id_folder, 'comics'))
-            file_name = ntpath.basename(f"{self.rl_name}.zip")
-            if not my_comic_dir.is_dir():
-                os.makedirs(my_comic_dir)
-            fetch_data = ComicServerConn()
-            req_url = f"{self.app.base_url}/api/v1/readlists/{self.rl_id}/file"
-            fetch_data.get_server_file_download(
-                req_url, callback=lambda req, results: got_file(results),
-                file_path=os.path.join(my_comic_dir, file_name)
-            )
-            self.amenu.dismiss()
-
-        def got_file(results):
-            toast(f'Got {file_name}')
-
-    def on_press(self):
-        callback = partial(self.menu)
-        self.do_action = "read"
-        Clock.schedule_once(callback, 0.25)
-        self.my_clock = callback
-
-    def menu(self, *args):
-        print("menu")
-        self.do_action = "menu"
-
-    def on_release(self):
-        if self.rl_id == "NOID":
-            pass
-        Clock.unschedule(self.my_clock)
-        self.do_action = "menu"
-        return super(ReadingListImage, self).on_press()
-
-    def open_readinglist(self):
-        if self.rl_id == "NOID":
-            pass
-        else:
-            def __wait_for_open(dt):
-                if server_readinglists_screen.loading_done is True:
-                    self.app.manager_screens.current = "r l comic books screen"
-
-            server_readinglists_screen = self.app.manager_screens.get_screen(
-                "r l comic books screen"
-            )
-            server_readinglists_screen.setup_screen()
-            server_readinglists_screen.page_number = 1
-            readinglist_id = self.rl_id
-            readinglist_name = self.rl_name
-            server_readinglists_screen.list_loaded = False
-            query = ReadingList.select().where(ReadingList.slug == readinglist_id)
-            if query.exists():
-                Logger.info(f"{readinglist_name} already in Database")
-                set_mode = "From DataBase"
-            else:
-                Logger.info(
-                    "{} not in Database getting info from server".format(
-                        readinglist_name
-                    )
-                )
-                set_mode = "From Server"
-            # set_mode = 'From Server'
-            Clock.schedule_once(
-                lambda dt: server_readinglists_screen.collect_readinglist_data(
-                    readinglist_name=readinglist_name,
-                    readinglist_Id=readinglist_id,
-                    mode=set_mode,
-                    rl_book_count=self.rl_book_count
-                )
-            )
-            self.app.manager_screens.current = "r l comic books screen"
-
-    def open_comic_callback(self, *args):
-        self.app.manager_screens.current = "r l comic books screen"
-
-
 class CustomMDFillRoundFlatIconButton(MDIconButton):
     pass
 
 
 class Tooltip(Label):
     pass
+
+
+class ListItemWithCheckbox(OneLineAvatarIconListItem):
+    """Custom list item."""
+    icon = StringProperty("android")
+
+    def on_checkbox_active(self, checkbox, value):
+        if value:
+            print('The checkbox', checkbox, 'is active', 'and', checkbox.state, 'state')
+            print(self.text)
+        else:
+            print('The checkbox', checkbox, 'is inactive', 'and', checkbox.state, 'state')
+
+
+class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
+    """Custom right container."""
 
 
 class ReadingListScreenView(BaseScreenView):
@@ -162,6 +60,7 @@ class ReadingListScreenView(BaseScreenView):
 
     def __init__(self, **kwargs):
         super(ReadingListScreenView, self).__init__(**kwargs)
+        self.item_per_menu = None
         self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
@@ -186,6 +85,57 @@ class ReadingListScreenView(BaseScreenView):
         self.comic_thumb_height = 240
         self.comic_thumb_width = 156
         self.loading_done = False
+        self.item_per_menu_build()
+        self.filter_menu_build()
+
+    def item_per_menu_build(self):
+        item_per_menu_numbers = ("20", "50", "100", "200", "500")
+        item_per_menu_items = [
+            {
+                "text": f"{nums}",
+                "viewclass": "OneLineListItem",
+                "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
+            } for nums in item_per_menu_numbers
+        ]
+        self.item_per_menu = MDDropdownMenu(
+            caller=self.ids.item_per_menu_button,
+            items=item_per_menu_items,
+            width_mult=1.6,
+            radius=[24, 0, 24, 0],
+            max_height=dp(240)
+        )
+
+    def filter_menu_build(self):
+        def __got_publisher_data(results):
+            filter_menu_items = results
+            item_per_menu_items = [
+                {
+                    "text": f"{item}",
+                    "viewclass": "ListItemWithCheckbox",
+                    "on_release": lambda x=f"{item}": self.item_per_menu_callback(x),
+                } for item in filter_menu_items
+            ]
+            self.filter_menu = MDDropdownMenu(
+                caller=self.ids.filter_menu_button,
+                items=item_per_menu_items,
+                width_mult=5,
+                # max_height=dp(240)
+            )
+
+        fetch_data = ComicServerConn()
+        url_send = f"{self.base_url}/api/v1/publishers"
+        fetch_data.get_server_data_callback(
+            url_send,
+            callback=lambda url_send, results: __got_publisher_data(results))
+
+    def filter_menu_callback(self, text_item):
+        self.filter_menu.dismiss()
+        print(text_item)
+
+    def item_per_menu_callback(self, text_item):
+        self.item_per_menu.dismiss()
+        print(text_item)
+
     def callback_for_menu_items(self, *args):
         pass
 

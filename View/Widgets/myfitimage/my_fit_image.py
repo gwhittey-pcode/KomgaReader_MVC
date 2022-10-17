@@ -129,6 +129,8 @@ from kivy.clock import Clock
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Rectangle
 from kivy.properties import BooleanProperty, ObjectProperty
+from kivymd.app import MDApp
+
 from Utility.myimage import MyAsyncImage
 from kivy.uix.widget import Widget
 
@@ -177,7 +179,8 @@ class MyContainer(Widget):
 
     def __init__(self, source, mipmap, **kwargs):
         super().__init__(**kwargs)
-        str_cookie = 'SESSION=NGU2MjI2ZWMtOWI2Yi00NTRkLWJmNDgtNjZjMDg3ZWQ5MjMw'
+        session_cookie = MDApp.get_running_app().config.get("General", "api_key")
+        str_cookie = "SESSION=" + session_cookie
         extra_headers = {"Cookie": str_cookie, }
         self.image = MyAsyncImage(mipmap=mipmap,
                                   extra_headers=extra_headers

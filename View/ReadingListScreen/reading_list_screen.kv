@@ -1,3 +1,4 @@
+<MDIconButtonTooltip@MDIconButton+MDTooltip>
 <ReadingListScreenView>
     MDBoxLayout:
         orientation: "vertical"
@@ -45,6 +46,30 @@
                         width: dp(1)
                         text: ''
                         disabled:False
+                    MDIconButton:
+                        id:next_button
+                        text: 'Next Page'
+                        icon: "language-python"
+                        width: dp(50)
+                        padding: dp(10), dp(10)
+                        center_x:main_stack.right - (self.width)
+                        on_release:root.get_page(self)
+                MDIconButtonTooltip:
+                    tooltip_text: "Items Per Page"
+                    icon: "table-plus"
+                    id: item_per_menu_button
+                    pos_hint: {"center_x": 1, "center_y": .5}
+                    on_release: root.item_per_menu.open()
+
+                MDIconButtonTooltip:
+                    tooltip_text: "Filter"
+                    icon: "filter-variant"
+                    id: filter_menu_button
+                    pos_hint: {"center_x": 1, "center_y": .5}
+                    on_release: root.filter_menu.open()
+
+
+
             GridLayout:
                 #orientation: 'horizontal'
                 cols:3
@@ -66,6 +91,9 @@
                         spacing: dp(4)
                         col_default_width:root.comic_thumb_width
                         row_default_height:root.comic_thumb_height + dp(80)
+<ListItemWithCheckbox>:
+    LeftCheckbox:
+        on_active: root.on_checkbox_active(*args)
 
 <ReadingListImage>
     size: (dp(160),dp(240))
