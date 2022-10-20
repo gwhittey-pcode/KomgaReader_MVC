@@ -102,7 +102,7 @@ class ReadingListScreenView(BaseScreenView):
         self.m_grid = ''
         self.bind(width=self.my_width_callback)
         self.dialog_load_comic_data = None
-        self.rl_count = 20
+        self.item_per_page = 20
         self.rl_book_count = 25
         self.totalPages = 0
         self.prev_button = ""
@@ -136,7 +136,7 @@ class ReadingListScreenView(BaseScreenView):
 
     def item_per_menu_callback(self, text_item):
         self.item_per_menu.dismiss()
-        self.rl_count = int(text_item)
+        self.item_per_page = int(text_item)
         self.get_comicrack_list(new_page_num=1)
 
     def filter_menu_build(self):
@@ -190,7 +190,7 @@ class ReadingListScreenView(BaseScreenView):
                 c.cols = (Window.width - 10) // self.comic_thumb_width
 
     def get_comicrack_list(self, new_page_num=0):
-        def __got_readlist_data(self, results):
+        def __get_comicrack_list(self, results):
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
@@ -202,11 +202,11 @@ class ReadingListScreenView(BaseScreenView):
 
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.rl_count}"
+            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
             print(url_send)
             fetch_data.get_server_data_callback(
                 url_send,
-                callback=lambda url_send, results: __got_readlist_data(self, results))
+                callback=lambda url_send, results: __get_comicrack_list(self, results))
 
     def build_paginations(self):
         build_pageination_nav()
@@ -256,7 +256,7 @@ class ReadingListScreenView(BaseScreenView):
                 str_name = ""
                 self.dialog_load_comic_data.name_kv_file = str_name
                 self.dialog_load_comic_data.percent = str(
-                    i * 100 // int(self.rl_count)
+                    i * 100 // int(self.item_per_page)
                 )
                 y = self.comic_thumb_height
                 thumb_filename = f"{rl_id}.jpg"

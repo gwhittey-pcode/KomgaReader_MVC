@@ -145,15 +145,15 @@ class ComicBook(EventDispatcher):
                 self.readlist_obj = readlist_obj
                 self.comic_index = comic_index
                 self.local_file = ""
-                if mode != "FileOpen":
-                    Clock.schedule_once(
-                        lambda dt: self.get_or_create_db_item())
+                # if mode != "FileOpen":
+                #     Clock.schedule_once(
+                #         lambda dt: self.get_or_create_db_item())
         if mode == "db_data":
             self.Id = comic_Id
-        if mode != "FileOpen":
-            # Clock.schedule_once(
-            #    lambda dt: self.get_or_create_db_item())
-            self.get_or_create_db_item()
+        # if mode != "FileOpen":
+        #     # Clock.schedule_once(
+        #     #    lambda dt: self.get_or_create_db_item())
+        #     self.get_or_create_db_item()
 
     def get_or_create_db_item(self):
         tmp_defaults = {}
@@ -252,8 +252,8 @@ class ComicReadingList(EventDispatcher):
                     self.totalCount = 0
                 else:
                     self.totalCount = self.data["totalElements"]
-        if mode != "FileOpen":
-            self.get_or_create_db_item(mode=mode)
+        # if mode != "FileOpen":
+        #     self.get_or_create_db_item(mode=mode)
 
     def add_comic(self, comic, index=0):
         """
