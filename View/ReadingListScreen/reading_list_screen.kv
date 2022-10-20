@@ -12,31 +12,24 @@
             disabled:False
             GridLayout:
                 #orientation: 'horizontal'
-                cols:3
+                cols:9
                 rows:1
                 spacing: dp(10)
                 size_hint_y:None
                 height:dp(50)
-#                canvas:
-#                    Color:
-#                        rgba: app.theme_cls.primary_color
-#                    Rectangle:
-#                        pos: self.pos
-#                        size: self.size
                 MDGridLayout:
                     id:page_num_grid
                     rows : 1
                     size_hint:(None, None)
                     spacing:5
                     padding:(5, 5, 5, 5)
-
                 MDGridLayout:
                     id:item_sel_grid
                     cols: 3
                     rows : 1
                     size_hint:(None, None)
                     spacing:5
-
+                    padding:(5, 5, 5, 5)
                     MyMDRaisedButton:
                         width : dp(400) + (self.ids.lbl_txt.texture_size[0] - self.ids.lbl_txt.texture_size[0])
                         opacity : 0
@@ -55,12 +48,11 @@
                         on_release: root.filter_menu.open()
 
 
-
             GridLayout:
                 #orientation: 'horizontal'
                 cols:3
                 rows:1
-                padding: dp(10), dp(10)
+                padding: dp(60), dp(60)
                 spacing: dp(10)
                 ScrollView:
                     do_scroll_x: False

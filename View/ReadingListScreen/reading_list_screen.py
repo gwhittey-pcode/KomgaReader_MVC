@@ -134,6 +134,11 @@ class ReadingListScreenView(BaseScreenView):
             max_height=dp(240)
         )
 
+    def item_per_menu_callback(self, text_item):
+        self.item_per_menu.dismiss()
+        self.rl_count = int(text_item)
+        self.get_comicrack_list(new_page_num=1)
+
     def filter_menu_build(self):
         def __got_publisher_data(results):
             filter_menu_items = results
@@ -161,8 +166,6 @@ class ReadingListScreenView(BaseScreenView):
         self.filter_menu.dismiss()
         print(text_item)
 
-    def item_per_menu_callback(self, text_item):
-        self.item_per_menu.dismiss()
 
 
     def callback_for_menu_items(self, *args):
@@ -206,8 +209,7 @@ class ReadingListScreenView(BaseScreenView):
                 callback=lambda url_send, results: __got_readlist_data(self, results))
 
     def build_paginations(self):
-        pass
-       #build_pageination_nav()
+        build_pageination_nav()
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":
@@ -230,7 +232,7 @@ class ReadingListScreenView(BaseScreenView):
             c_spacer.source = src_thumb
             c_spacer.opacity = 0
             grid.add_widget(c_spacer)
-
+            first_item = self.rl_comics_json[0]['id']
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
                 rl_id = item['id']
@@ -242,13 +244,13 @@ class ReadingListScreenView(BaseScreenView):
                 strCookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
                 c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
-                c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
+                #c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
                 c.thumb_type = "ReadingList"
                 c.text_size = dp(8)
                 c_spacer.lines = 1
                 c_spacer.padding = dp(20), dp(20)
-                c_spacer.totalPages = self.totalPages
+                c.totalPages = self.totalPages
                 # c.extra_headers = {"X-Auth-Token":"fbdd4f69-274d-4fd4-ad58-0932d20e37f6",}
                 # c.readinglist_obj = self.new_readinglist
                 str_name = ""
@@ -278,7 +280,10 @@ class ReadingListScreenView(BaseScreenView):
                 i += 1
             self.loading_done = True
             self.dialog_load_comic_data.dismiss()
-
+            scroll = self.ids.main_scroll
+            for child in grid.children:
+                if child.item_id == first_item:
+                    scroll.scroll_to(child)
         self.dialog_load_comic_data = DialogLoadKvFiles()
         self.dialog_load_comic_data.open()
         asynckivy.start(_build_page())
