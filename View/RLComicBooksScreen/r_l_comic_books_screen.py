@@ -66,6 +66,7 @@ class RLComicBooksScreenView(BaseScreenView):
         self.main_stack = self.ids["main_stack"]
         self.m_grid = self.ids["main_grid"]
 
+
     def collect_readinglist_data(
             self,
             readinglist_name="",
@@ -127,8 +128,7 @@ class RLComicBooksScreenView(BaseScreenView):
                     print("in")
                 i += 1
             new_readinglist_reversed = self.new_readinglist.comics[::-1]
-            for comic in self.new_readinglist.comics:
-                print(comic.Id)
+
             self.build_page(new_readinglist_reversed)
             self.list_loaded = True
             self.dialog_load_comic_data.dismiss()
@@ -138,7 +138,7 @@ class RLComicBooksScreenView(BaseScreenView):
         asynckivy.start(_got_json())
 
     def build_paginations(self):
-        build_pageination_nav()
+        build_pageination_nav(screen_name="r l comic books screen")
 
     def build_page(self, comic_obj):
         async def _build_page():
@@ -163,6 +163,11 @@ class RLComicBooksScreenView(BaseScreenView):
                 c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
                 c.thumb_type = "ComicBook"
                 c.text_size = dp(8)
+                c.current_page = self.current_page
+                c.first = self.first
+                c.last = self.last
+                c.totalPages = self.totalPages
+                c.item_per_page = self.item_per_page
                 y = self.comic_thumb_height
                 thumb_filename = f"{comic.Id}.jpg"
                 id_folder = self.app.store_dir

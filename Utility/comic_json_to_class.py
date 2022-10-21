@@ -123,7 +123,7 @@ class ComicBook(EventDispatcher):
                 self.data = comic_data
                 self.Id = comic_data["id"]
                 self.__str__ = "{} #{}".format(
-                    comic_data["seriesTitle"], str(comic_data["number"])
+                    comic_data["seriesTitle"], str(comic_data['metadata']['number'])
                 )
                 self.slug = str(comic_data["id"])
                 self.name = f"{comic_data['seriesTitle']} #{str(comic_data['number'])}"

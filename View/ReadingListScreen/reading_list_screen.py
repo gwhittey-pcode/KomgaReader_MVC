@@ -209,7 +209,7 @@ class ReadingListScreenView(BaseScreenView):
                 callback=lambda url_send, results: __get_comicrack_list(self, results))
 
     def build_paginations(self):
-        build_pageination_nav()
+        build_pageination_nav(screen_name="reading list screen")
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":

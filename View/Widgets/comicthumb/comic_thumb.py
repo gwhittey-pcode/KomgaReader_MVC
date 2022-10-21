@@ -1,6 +1,6 @@
 from kivy import Logger
 from kivy.clock import Clock
-from kivy.properties import StringProperty, NumericProperty, DictProperty, ObjectProperty
+from kivy.properties import StringProperty, NumericProperty, DictProperty, ObjectProperty, BooleanProperty
 from kivymd.app import MDApp
 from kivymd.uix.behaviors import CommonElevationBehavior, TouchBehavior, HoverBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -29,11 +29,17 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     rl_name = StringProperty()
     view_mode = StringProperty("Server")
     comic_obj = ObjectProperty(rebind=True)
+    current_page = NumericProperty()
+    first = BooleanProperty(False)
+    last = BooleanProperty(False)
+    totalPages = NumericProperty()
+    item_per_page = NumericProperty()
 
-    def __init__(self, comic_obj=None, **kwargs):
+    def __init__(self, comic_obj=None, current_page=1, **kwargs):
         super(ComicThumb, self).__init__(**kwargs)
         self.source = ""
         self.item_id = kwargs.get('item_id')
+        self.current_page = current_page
         if comic_obj is None:
             pass
         else:
@@ -115,6 +121,11 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
                 pag_pagenum=self.pag_pagenum,
                 last_load=0,
                 view_mode=self.view_mode,
+                first=self.first,
+                last=self.last,
+                item_per_page=self.item_per_page,
+                totalPages=self.totalPages
+
             )
             Clock.schedule_once(lambda dt: self.open_comic_callback(), 0.1)
         else:

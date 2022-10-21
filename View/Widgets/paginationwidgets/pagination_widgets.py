@@ -69,14 +69,16 @@ class MyMDIconRaisedButton(BaseButton, ButtonElevationBehaviour, OldButtonIconMi
         self.height = diameter
 
 
-def build_pageination_nav():
-
-    screen = MDApp.get_running_app().manager_screens.current_screen
-    grid = screen.ids.page_num_grid
+def build_pageination_nav(widget=None,screen_name=""):
+    if screen_name:
+        the_widget = MDApp.get_running_app().manager_screens.get_screen(screen_name)
+    else:
+        the_widget = widget
+    grid = the_widget.ids.page_num_grid
     grid.clear_widgets()
     c = MyMDRaisedButton(opacity=0)
     c.width = dp(500) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-    screen.ids.page_num_grid.add_widget(c)
+    the_widget.ids.page_num_grid.add_widget(c)
     grid.bind(minimum_width=grid.setter("width"))
     ltbutton = MyMDIconRaisedButton(
         icon="less-than",
@@ -87,44 +89,60 @@ def build_pageination_nav():
         height=dp(20),
         text_color=(0, 0, 0, 1)
     )
-    if not screen.first:
-        ltbutton.bind(on_press=screen.ltgtbutton_press)
-    screen.ids.page_num_grid.add_widget(ltbutton)
-    if screen.totalPages <= 7:
-        for num in range(1, screen.totalPages + 1):
+    if not the_widget.first:
+        ltbutton.bind(on_press=the_widget.ltgtbutton_press)
+    the_widget.ids.page_num_grid.add_widget(ltbutton)
+    if the_widget.totalPages <= 7:
+        for num in range(1, the_widget.totalPages + 1):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-    elif screen.current_page + 1 in range(1, 13) and screen.current_page + 1 != screen.totalPages:
+    elif the_widget.current_page + 1 in range(1, 13) and the_widget.current_page + 1 != the_widget.totalPages:
         print(
             "###############if self.current_page + 1 in range(1, 13) and self.current_page + 1 != self.totalPages:#################")
-
-        for num in range(screen.current_page + 1, screen.current_page + 7):
+        if the_widget.current_page + 1 > 1:
+            print("!")
+            c = MyMDRaisedButton(text=str(1),
+                                 size_hint=(None, None),
+                                 height=dp(40),
+                                 text_color=(0, 0, 0, 1)
+                                 )
+            c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
+            c.bind(on_press=the_widget.pag_num_press)
+            grid.add_widget(c)
+            the_widget.ids.page_num_grid.add_widget(
+                MDLabel(
+                    text="...",
+                    size_hint=(None, None),
+                    width=dp(20),
+                    height=dp(20),
+                ))
+        for num in range(the_widget.current_page + 1, the_widget.current_page + 7):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-        screen.ids.page_num_grid.add_widget(
+        the_widget.ids.page_num_grid.add_widget(
             MDLabel(
                 text="...",
                 size_hint=(None, None),
                 width=dp(20),
                 height=dp(20),
             ))
-        for num in range(screen.totalPages - 4, screen.totalPages + 1):
+        for num in range(the_widget.totalPages - 4, the_widget.totalPages + 1):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -132,14 +150,14 @@ def build_pageination_nav():
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
 
 
-    elif screen.totalPages - screen.current_page + 1 >= 7 and screen.current_page + 1 not in range(1, 13) and \
-            screen.current_page + 1 != screen.totalPages:
+    elif the_widget.totalPages - the_widget.current_page + 1 >= 7 and the_widget.current_page + 1 not in range(1, 13) and \
+            the_widget.current_page + 1 != the_widget.totalPages:
         print("#######elif self.totalPages-self.current_page+1 >= 7 and self.current_page+1 not in range(1, 13) and \
                     self.current_page + 1 != self.totalPages:######")
         c = MyMDRaisedButton(text=str("1"),
@@ -148,9 +166,9 @@ def build_pageination_nav():
                              text_color=(0, 0, 0, 1)
                              )
         c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-        c.bind(on_press=screen.pag_num_press)
+        c.bind(on_press=the_widget.pag_num_press)
         grid.add_widget(c)
-        screen.ids.page_num_grid.add_widget(
+        the_widget.ids.page_num_grid.add_widget(
             MDLabel(
                 text="...",
                 size_hint=(None, None),
@@ -158,7 +176,7 @@ def build_pageination_nav():
                 height=dp(20),
                 text_color=(0, 0, 0, 1)
             ))
-        for num in range(screen.current_page + 1 - 6, screen.current_page + 1, ):
+        for num in range(the_widget.current_page + 1 - 6, the_widget.current_page + 1, ):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -166,12 +184,12 @@ def build_pageination_nav():
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 print("#$##$##$#")
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-        for num in range(screen.current_page + 1, screen.current_page + 7, ):
+        for num in range(the_widget.current_page + 1, the_widget.current_page + 7, ):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -179,11 +197,11 @@ def build_pageination_nav():
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-        screen.ids.page_num_grid.add_widget(
+        the_widget.ids.page_num_grid.add_widget(
             MDLabel(
                 text="...",
                 size_hint=(None, None),
@@ -191,13 +209,13 @@ def build_pageination_nav():
                 height=dp(20),
                 text_color=(0, 0, 0, 1)
             ))
-        c = MyMDRaisedButton(text=str(screen.totalPages),
+        c = MyMDRaisedButton(text=str(the_widget.totalPages),
                              size_hint=(None, None),
                              height=dp(40),
                              text_color=(0, 0, 0, 1)
                              )
         c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-        c.bind(on_press=screen.pag_num_press)
+        c.bind(on_press=the_widget.pag_num_press)
         grid.add_widget(c)
     else:
         for num in range(1, 8):
@@ -208,11 +226,11 @@ def build_pageination_nav():
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-        screen.ids.page_num_grid.add_widget(
+        the_widget.ids.page_num_grid.add_widget(
             MDLabel(
                 text="...",
                 size_hint=(None, None),
@@ -220,7 +238,7 @@ def build_pageination_nav():
                 height=dp(20),
             ))
 
-        for num in range(screen.totalPages - 6, screen.totalPages + 1):
+        for num in range(the_widget.totalPages - 6, the_widget.totalPages + 1):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -228,8 +246,8 @@ def build_pageination_nav():
                                  text_color=(0, 0, 0, 1)
                                  )
             c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-            c.bind(on_press=screen.pag_num_press)
-            if num == screen.current_page + 1:
+            c.bind(on_press=the_widget.pag_num_press)
+            if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
     gtbutton = MyMDIconRaisedButton(
@@ -241,9 +259,9 @@ def build_pageination_nav():
         height=dp(20),
     )
 
-    if not screen.last:
-        gtbutton.bind(on_press=screen.ltgtbutton_press)
-    screen.ids.page_num_grid.add_widget(gtbutton)
+    if not the_widget.last:
+        gtbutton.bind(on_press=the_widget.ltgtbutton_press)
+    the_widget.ids.page_num_grid.add_widget(gtbutton)
 
     # alphabet = ["All", "#"];
     # for i in range(ord('A'), ord('Z') + 1):

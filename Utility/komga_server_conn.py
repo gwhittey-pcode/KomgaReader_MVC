@@ -37,7 +37,7 @@ class ComicServerConn(EventDispatcher):
         )
 
     def update_progress(self, req_url, index, completed, callback):
-        data = {'page':index,'completed':completed}
+        data = {'page': index, 'completed': completed}
         import json
         data_json = json.dumps(data)
         username = self.app.config.get("General", "username")
@@ -58,16 +58,16 @@ class ComicServerConn(EventDispatcher):
             on_failure=self.got_error,
         )
 
-    def get_server_data_callback(self, req_url, callback):
-        str_cookie ="SESSION=" + self.session_cookie
+    def get_server_data_callback(self, req_url: object, callback: object) -> object:
+        str_cookie = "SESSION=" + self.session_cookie
         head = {
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
-             "Cookie": str_cookie,
+            "Cookie": str_cookie,
         }
         username = self.app.config.get("General", "username")
         password = self.app.config.get("General", "password")
-        #api_key = self.app.config.get("General", "api_key")
+        # api_key = self.app.config.get("General", "api_key")
 
         myUrlRequest(
             req_url,
@@ -76,19 +76,19 @@ class ComicServerConn(EventDispatcher):
             on_error=self.got_error,
             on_redirect=self.got_redirect,
             on_failure=self.got_error,
-            #auth=(username,password)
+            # auth=(username,password)
         )
 
     def get_server_data(self, req_url, instance):
-        str_cookie ="SESSION=" + self.session_cookie
+        str_cookie = "SESSION=" + self.session_cookie
         head = {
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
-             "Cookie": str_cookie,
+            "Cookie": str_cookie,
         }
         username = self.app.config.get("General", "username")
         password = self.app.config.get("General", "password")
-        #api_key = self.app.config.get("General", "api_key")
+        # api_key = self.app.config.get("General", "api_key")
         myUrlRequest(
             req_url,
             req_headers=head,
@@ -96,7 +96,7 @@ class ComicServerConn(EventDispatcher):
             on_error=self.got_error,
             on_redirect=self.got_redirect,
             on_failure=self.got_error,
-            #auth=(username,password)
+            # auth=(username,password)
         )
 
     # def get_api_key(self, req_url, username, password, callback):
@@ -120,10 +120,10 @@ class ComicServerConn(EventDispatcher):
         head = {
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
-            "X-Auth-Token":"fbdd4f69-274d-4fd4-ad58-0932d20e37f6",
-             "Cookie": 'SESSION=ZmJkZDRmNjktMjc0ZC00ZmQ0LWFkNTgtMDkzMmQyMGUzN2Y2',
+            "X-Auth-Token": "fbdd4f69-274d-4fd4-ad58-0932d20e37f6",
+            "Cookie": 'SESSION=ZmJkZDRmNjktMjc0ZC00ZmQ0LWFkNTgtMDkzMmQyMGUzN2Y2',
         }
-         
+
         myUrlRequest(
             req_url,
             req_headers=head,
@@ -132,10 +132,9 @@ class ComicServerConn(EventDispatcher):
             on_error=self.got_error,
             on_redirect=self.got_redirect,
             on_failure=self.got_error,
-            
-            #auth=(username,password)
-        )
 
+            # auth=(username,password)
+        )
 
     def get_list_count(self, req_url, instance):
         username = self.app.config.get("General", "username")
@@ -158,13 +157,14 @@ class ComicServerConn(EventDispatcher):
     def get_server_file_download(self, req_url, callback, file_path):
         def update_progress(request, current_size, total_size):
             pass
-        str_cookie ="SESSION=" + self.session_cookie
+
+        str_cookie = "SESSION=" + self.session_cookie
         head = {
-             "Cookie": str_cookie,
+            "Cookie": str_cookie,
         }
         username = self.app.config.get("General", "username")
         password = self.app.config.get("General", "password")
-        #api_key = self.app.config.get("General", "api_key")
+        # api_key = self.app.config.get("General", "api_key")
         req = myUrlRequest(
             req_url,
             req_headers=head,
@@ -173,11 +173,10 @@ class ComicServerConn(EventDispatcher):
             on_redirect=self.got_redirect,
             on_failure=self.got_error,
             file_path=file_path,
-            #auth=(username,password)
+            # auth=(username,password)
         )
 
     def got_json(self, req, result):
-
         return result["results"]
 
     def got_error(self, req, results):

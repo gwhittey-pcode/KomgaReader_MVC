@@ -152,5 +152,30 @@
     text_color: (0,0,0)
     background_color: (1,1,1,.5)
 
+<TopNavContent>
+    id:main_stack
+    orientation: 'vertical'
+    padding: dp(10), dp(10)
+    spacing: dp(10)
+    disabled:False
+    GridLayout:
+        #orientation: 'horizontal'
+        cols:9
+        rows:2
+        spacing: dp(10)
+        size_hint_y:None
+        height:dp(50)
+        MDGridLayout:
+            id:page_num_grid
+            rows : 1
+            size_hint:(None, None)
+            spacing:5
+            padding:(5, 5, 5, 5)
+    CommonComicsScroll:
+        id : page_thumb_scroll
+        size_hint : (1, 1)
+        do_scroll_x : True
+        do_scroll_y : False
+
 <TopBarContent>
     MyToolBar:
