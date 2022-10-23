@@ -73,12 +73,6 @@
     LeftCheckbox:
         on_active: root.on_checkbox_active(*args)
 
-<ReadingListImage>
-    size: (dp(160),dp(240))
-    font_style: 'Subtitle1'
-    on_release:
-        if self.do_action is 'read': self.open_readinglist()
-        else: self.amenu_open()
 
 
 <Tooltip>:

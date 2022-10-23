@@ -179,7 +179,6 @@ class KomgaReader(MDApp):
                 if args[0] == "Delete Database":
                     self.stop()
                 elif args[0] == "Move Database":
-                    print("move")
                     db_folder = self.my_data_dir
                     old_dbfile = os.path.join(db_folder, "KomgaReader.db")
                     store_dir = os.path.join(value, "store_dir")

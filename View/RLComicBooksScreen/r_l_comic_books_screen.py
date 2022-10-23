@@ -75,6 +75,7 @@ class RLComicBooksScreenView(BaseScreenView):
             current_page_num=1,
             rl_book_count=10,
             new_page_num=0,
+            book_ids=[],
             *largs,
     ):
         """Collect Reaing List Date From Server """
@@ -85,6 +86,8 @@ class RLComicBooksScreenView(BaseScreenView):
             self.reading_list_title = self.readinglist_name + " Page 1"
             self.readinglist_Id = readinglist_Id
             self.page_number = current_page_num
+            self.book_ids = book_ids
+            print(book_ids)
             fetch_data = ComicServerConn()
             url_send = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
             fetch_data.get_server_data(url_send, self)
@@ -104,13 +107,13 @@ class RLComicBooksScreenView(BaseScreenView):
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
+                book_ids=self.book_ids,
             )
             total_count = self.new_readinglist.totalCount
             i = 1
             for item in self.new_readinglist.comic_json:
                 await asynckivy.sleep(0)
                 str_name = "{} #{}".format(item["seriesTitle"], item["number"])
-                print(str_name)
                 self.dialog_load_comic_data.name_kv_file = str_name
                 self.dialog_load_comic_data.percent = str(
                     i * 100 // int(total_count)
@@ -122,10 +125,7 @@ class RLComicBooksScreenView(BaseScreenView):
                     comic_index=comic_index,
                 )
                 if new_comic not in self.new_readinglist.comics:
-                    print("not")
                     self.new_readinglist.add_comic(new_comic)
-                else:
-                    print("in")
                 i += 1
             new_readinglist_reversed = self.new_readinglist.comics[::-1]
 
@@ -140,7 +140,7 @@ class RLComicBooksScreenView(BaseScreenView):
     def build_paginations(self):
         build_pageination_nav(screen_name="r l comic books screen")
 
-    def build_page(self, comic_obj):
+    def build_page(self, readinglist_obk):
         async def _build_page():
             grid = self.m_grid
             grid.clear_widgets()
@@ -152,7 +152,7 @@ class RLComicBooksScreenView(BaseScreenView):
             c_spacer.source = src_thumb
             grid.add_widget(c_spacer)
             c_spacer.opacity = 0
-            for comic in comic_obj:
+            for comic in readinglist_obk:
                 await asynckivy.sleep(0)
                 str_cookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(item_id=comic.Id, comic_obj=comic)
@@ -274,4 +274,3 @@ class RLComicBooksScreenView(BaseScreenView):
 
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()
-        print(text_item)

@@ -203,7 +203,6 @@ class ReadingListScreenView(BaseScreenView):
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
             url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
-            print(url_send)
             fetch_data.get_server_data_callback(
                 url_send,
                 callback=lambda url_send, results: __get_comicrack_list(self, results))
@@ -236,14 +235,16 @@ class ReadingListScreenView(BaseScreenView):
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
                 rl_id = item['id']
+                book_ids = item['bookIds']
                 x = 0
-                for bookID in item['bookIds']:
+                for bookIds in item['bookIds']:
                     x += 1
                 rl_book_count = x
                 self.rl_book_count = rl_book_count
                 strCookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
                 c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
+                c.book_ids = book_ids
                 #c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
                 c.thumb_type = "ReadingList"
@@ -290,7 +291,6 @@ class ReadingListScreenView(BaseScreenView):
 
     def get_page(self, instance):
         this_page = instance.page_num
-        print(this_page)
         # if not self.rl_json['last']:
         #     self.next_button.opacity = 1
         #     self.next_button.disabled = False

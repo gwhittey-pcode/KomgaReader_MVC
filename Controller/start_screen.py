@@ -31,6 +31,6 @@ class StartScreenController:
         self.view.manager_screens.current = "login screen"
 
     def validate_user(self):
-        print("OK")
+       pass
     def get_view(self) -> View.StartScreen.start_screen:
         return self.view

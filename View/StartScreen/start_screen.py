@@ -32,12 +32,6 @@ class LoginPopup(Popup):
 
 class StartScreenView(BaseScreenView):
     app = App.get_running_app()
-
-    # username = ConfigParserProperty("", "General", "username", app.config)
-    # password = ConfigParserProperty("", "General", "password", app.config)
-    # api_key = ConfigParserProperty("", "General", "api_key", app.config)
-    # base_url = ConfigParserProperty("", "General", "base_url", app.config)
-
     def __init__(self, **kwargs):
         super(StartScreenView, self).__init__(**kwargs)
         self.app = App.get_running_app()
@@ -49,19 +43,13 @@ class StartScreenView(BaseScreenView):
         self.app.popup = LoginPopup(
             content=self.app.myLoginPop, size_hint=(.75, .75), size=(dp(500), dp(400))
         )
-        # self.update_settings()
-        # self.bind(username=self.update_settings)
-        # self.bind_settings()
         self.password = self.app.password
         self.api_key = self.app.api_key
         self.username = self.app.username
         self.base_url = self.app.base_url
         self.open_last_comic_startup = self.app.open_last_comic_startup
-        print(self.app.get_application_config())
 
-    def update_settings(self, *args):
-        print(f"This is running : {self.username}")
-        # self.username = self.app.username
+
 
     def on_pre_enter(self, *args):
         self.check_login()

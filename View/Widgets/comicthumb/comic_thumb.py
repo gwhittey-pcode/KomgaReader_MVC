@@ -1,6 +1,6 @@
 from kivy import Logger
 from kivy.clock import Clock
-from kivy.properties import StringProperty, NumericProperty, DictProperty, ObjectProperty, BooleanProperty
+from kivy.properties import StringProperty, NumericProperty, DictProperty, ObjectProperty, BooleanProperty, ListProperty
 from kivymd.app import MDApp
 from kivymd.uix.behaviors import CommonElevationBehavior, TouchBehavior, HoverBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -34,7 +34,7 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     last = BooleanProperty(False)
     totalPages = NumericProperty()
     item_per_page = NumericProperty()
-
+    book_ids = ListProperty()
     def __init__(self, comic_obj=None, current_page=1, **kwargs):
         super(ComicThumb, self).__init__(**kwargs)
         self.source = ""
@@ -104,7 +104,8 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
                     readinglist_name=readinglist_name,
                     readinglist_Id=readinglist_id,
                     mode=set_mode,
-                    rl_book_count=self.rl_book_count
+                    rl_book_count=self.rl_book_count,
+                    book_ids=self.book_ids,
                 )
             )
             self.ids.top_box.remove_tooltip()
