@@ -1,6 +1,6 @@
 #:import get_color_from_hex  kivy.utils.get_color_from_hex
-<TooltipMDLabel@MDLabel+MDTooltip>
-<TooltipMDBoxLayout@MDBoxLayout+MDTooltip>
+<TooltipMDLabel@MDLabel>
+<TooltipMDBoxLayout@MDBoxLayout>
 <ComicThumb>
     _str_caption:self.str_caption
     _percent_read:self.percent_read
@@ -12,7 +12,7 @@
         orientation:"vertical"
         pos_hint: {"right": 1, "top": 1}
         spacing: 2
-        tooltip_text: root.tooltip_text
+
         MyMDSmartTile:
 #            canvas.after:
 #                Color:
@@ -67,6 +67,6 @@
                 size: self.texture_size
                 font_style:"Body2"
                 pos_hint: {"center_x": .5, "center_y": .5}
-                tooltip_text:root.tooltip_text
+
                 halign: "left"
 

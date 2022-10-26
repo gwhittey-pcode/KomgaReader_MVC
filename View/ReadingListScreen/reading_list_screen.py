@@ -4,9 +4,11 @@ from functools import partial
 from pathlib import Path
 
 from kivy.animation import Animation
+from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty, DictProperty, BooleanProperty
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty, DictProperty, BooleanProperty, \
+    ConfigParserProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.label import Label
 from kivy.utils import get_hex_from_color
@@ -85,7 +87,7 @@ class ReadingListScreenView(BaseScreenView):
 
     def __init__(self, **kwargs):
         super(ReadingListScreenView, self).__init__(**kwargs)
-        self.item_per_menu = None
+        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page",  App.get_running_app().config)
         self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
@@ -102,7 +104,7 @@ class ReadingListScreenView(BaseScreenView):
         self.m_grid = ''
         self.bind(width=self.my_width_callback)
         self.dialog_load_comic_data = None
-        self.item_per_page = 20
+        self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.rl_book_count = 25
         self.totalPages = 0
         self.prev_button = ""
@@ -114,53 +116,64 @@ class ReadingListScreenView(BaseScreenView):
         self.comic_thumb_width = 156
         self.loading_done = False
         self.item_per_menu_build()
-        self.filter_menu_build()
+        # self.filter_menu_build()
 
 
     def item_per_menu_build(self):
         item_per_menu_numbers = ("20", "50", "100", "200", "500")
-        item_per_menu_items = [
-            {
-                "text": f"{nums}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-            } for nums in item_per_menu_numbers
-        ]
+        item_per_menu_items = []
+        for nums in item_per_menu_numbers:
+            if int(nums) == int(self.item_per_page):
+                background_color = self.app.theme_cls.primary_color
+            else:
+                background_color = (1, 1, 1, 1)
+            item_per_menu_items.append(
+                {
+                    "text": f"{nums}",
+                    "viewclass": "OneLineListItem",
+                    "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
+                    "bg_color":background_color
+                }
+            )
+
         self.item_per_menu = MDDropdownMenu(
             caller=self.ids.item_per_menu_button,
             items=item_per_menu_items,
             width_mult=1.6,
             radius=[24, 0, 24, 0],
-            max_height=dp(240)
+            max_height=dp(240),
         )
 
     def item_per_menu_callback(self, text_item):
         self.item_per_menu.dismiss()
         self.item_per_page = int(text_item)
-        self.get_comicrack_list(new_page_num=1)
+        self.app.config.set("General", "max_item_per_page", self.item_per_page)
+        self.app.config.write()
+        self.get_comicrack_list(new_page_num=self.current_page)
+        self.item_per_menu_build()
 
-    def filter_menu_build(self):
-        def __got_publisher_data(results):
-            filter_menu_items = results
-            item_per_menu_items = [
-                {
-                    "text": f"{item}",
-                    "viewclass": "ListItemWithCheckbox",
-                    "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
-                } for item in filter_menu_items
-            ]
-            self.filter_menu = MDDropdownMenu(
-                caller=self.ids.filter_menu_button,
-                items=item_per_menu_items,
-                width_mult=5,
-                # max_height=dp(240)
-            )
-
-        fetch_data = ComicServerConn()
-        url_send = f"{self.base_url}/api/v1/publishers"
-        fetch_data.get_server_data_callback(
-            url_send,
-            callback=lambda url_send, results: __got_publisher_data(results))
+    # def filter_menu_build(self):
+    #     def __got_publisher_data(results):
+    #         filter_menu_items = results
+    #         item_per_menu_items = [
+    #             {
+    #                 "text": f"{item}",
+    #                 "viewclass": "ListItemWithCheckbox",
+    #                 "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
+    #             } for item in filter_menu_items
+    #         ]
+    #         self.filter_menu = MDDropdownMenu(
+    #             caller=self.ids.filter_menu_button,
+    #             items=item_per_menu_items,
+    #             width_mult=5,
+    #             # max_height=dp(240)
+    #         )
+    #
+    #     fetch_data = ComicServerConn()
+    #     url_send = f"{self.base_url}/api/v1/publishers"
+    #     fetch_data.get_server_data_callback(
+    #         url_send,
+    #         callback=lambda url_send, results: __got_publisher_data(results))
 
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()

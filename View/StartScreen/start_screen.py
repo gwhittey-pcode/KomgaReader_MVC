@@ -1,6 +1,8 @@
+from kivymd.app import MDApp
+
 from View.base_screen import BaseScreenView
 import inspect
-
+from kivy.properties import ConfigParserProperty
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -31,7 +33,7 @@ class LoginPopup(Popup):
 
 
 class StartScreenView(BaseScreenView):
-    app = App.get_running_app()
+
     def __init__(self, **kwargs):
         super(StartScreenView, self).__init__(**kwargs)
         self.app = App.get_running_app()
@@ -48,9 +50,6 @@ class StartScreenView(BaseScreenView):
         self.username = self.app.username
         self.base_url = self.app.base_url
         self.open_last_comic_startup = self.app.open_last_comic_startup
-
-
-
     def on_pre_enter(self, *args):
         self.check_login()
 
@@ -123,7 +122,9 @@ class StartScreenView(BaseScreenView):
             app.popup.dismiss()
 
         user = self.app.myLoginPop.ids.username_field.text
+        self.app.config.set("General", "username", user)
         pwd = self.app.myLoginPop.ids.pwd_field.text
+        self.app.config.set("General", "password", pwd)
         url = self.app.myLoginPop.ids.url_field.text
         self.base_url = url.strip()
         self.username = user
@@ -207,12 +208,12 @@ class StartScreenView(BaseScreenView):
                     )
 
                     # self.new_readinglist.comics_write()
-                    max_books_page = int(
-                        self.app.config.get("General", "max_books_page")
+                    max_item_per_page = int(
+                        self.app.config.get("General", "max_item_per_page")
                     )
                     new_readinglist_reversed = self.new_readinglist.comics
                     paginator_obj = Paginator(
-                        new_readinglist_reversed, max_books_page
+                        new_readinglist_reversed, max_item_per_page
                     )
                     for x in range(1, paginator_obj.num_pages()):
                         this_page = paginator_obj.page(x)

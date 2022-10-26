@@ -131,7 +131,7 @@ class Tooltip(Label):
 class RLComicBooksScreenView(BaseScreenView):
     reading_list_title = StringProperty()
     page_number = NumericProperty()
-    max_books_page = NumericProperty()
+    max_item_per_page = NumericProperty()
     dynamic_ids = DictProperty({})  # declare class attribute, dynamic_ids
     sync_bool = BooleanProperty(False)
     so = BooleanProperty()
@@ -165,7 +165,7 @@ class RLComicBooksScreenView(BaseScreenView):
         self.comic_thumb_width = 156
         self.file_download = True
         self.num_file_done = 0
-        self.max_books_page = self.app.max_books_page
+        self.max_item_per_page = self.app.max_item_per_page
         self.please_wait_dialog = None
         self.dialog_load_comic_data = None
         self.rl_book_count = NumericProperty()
@@ -338,7 +338,7 @@ class RLComicBooksScreenView(BaseScreenView):
             self.setup_options()
             new_readinglist_reversed = self.new_readinglist.comics
             self.paginator_obj = Paginator(
-                new_readinglist_reversed, self.max_books_page
+                new_readinglist_reversed, self.max_item_per_page
             )
             page = self.paginator_obj.page(self.page_number)
             self.current_page = page
@@ -406,7 +406,7 @@ class RLComicBooksScreenView(BaseScreenView):
             self.setup_options()
             new_readinglist_reversed = self.new_readinglist.comics[::-1]
             self.paginator_obj = Paginator(
-                new_readinglist_reversed, self.max_books_page
+                new_readinglist_reversed, self.max_item_per_page
             )
             page = self.paginator_obj.page(self.page_number)
             self.current_page = page

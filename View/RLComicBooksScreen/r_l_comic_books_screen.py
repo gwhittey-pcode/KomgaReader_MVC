@@ -19,7 +19,7 @@ from View.base_screen import BaseScreenView
 class RLComicBooksScreenView(BaseScreenView):
     reading_list_title = StringProperty()
     page_number = NumericProperty()
-    max_books_page = NumericProperty()
+    max_item_per_page = NumericProperty()
     dynamic_ids = DictProperty({})  # declare class attribute, dynamic_ids
     sync_bool = BooleanProperty(False)
     so = BooleanProperty()
@@ -52,20 +52,20 @@ class RLComicBooksScreenView(BaseScreenView):
         self.comic_thumb_width = 156
         self.file_download = True
         self.num_file_done = 0
-        self.max_books_page = self.app.max_books_page
+        self.max_item_per_page = self.app.max_item_per_page
         self.please_wait_dialog = None
         self.dialog_load_comic_data = None
-        self.item_per_page = 20
+        self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.item_per_menu = None
         self.item_per_menu_build()
-        self.filter_menu_build()
+        # self.filter_menu_build()
         self.rl_comics_json = ""
-
+        self.next_readinglist = ObjectProperty()
+        self.prev_readinglist = ObjectProperty()
     def setup_screen(self):
         self.session_cookie = self.app.config.get("General", "api_key")
         self.main_stack = self.ids["main_stack"]
         self.m_grid = self.ids["main_grid"]
-
 
     def collect_readinglist_data(
             self,
@@ -75,7 +75,7 @@ class RLComicBooksScreenView(BaseScreenView):
             current_page_num=1,
             rl_book_count=10,
             new_page_num=0,
-            book_ids=[],
+
             *largs,
     ):
         """Collect Reaing List Date From Server """
@@ -86,11 +86,10 @@ class RLComicBooksScreenView(BaseScreenView):
             self.reading_list_title = self.readinglist_name + " Page 1"
             self.readinglist_Id = readinglist_Id
             self.page_number = current_page_num
-            self.book_ids = book_ids
-            print(book_ids)
+            self.new_page_num = new_page_num
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
-            fetch_data.get_server_data(url_send, self)
+            url_send_current = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
+            fetch_data.get_server_data(url_send_current, self)
 
         asynckivy.start(collect_readinglist_data())
 
@@ -103,11 +102,14 @@ class RLComicBooksScreenView(BaseScreenView):
             self.last = self.rl_json['last']
             self.first = self.rl_json['first']
             self.build_paginations()
+            if not self.first:
+                self.get_prev_reading_list_page()
+            if not self.last:
+                self.get_next_reading_list_page()
             self.new_readinglist = ComicReadingList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
-                book_ids=self.book_ids,
             )
             total_count = self.new_readinglist.totalCount
             i = 1
@@ -137,10 +139,72 @@ class RLComicBooksScreenView(BaseScreenView):
         self.dialog_load_comic_data.open()
         asynckivy.start(_got_json())
 
+    def get_next_reading_list_page(self):
+        def __get_next_reading_list_page(self, results):
+            next_rl_comics_json = results['content']
+            next_readinglist = ComicReadingList(
+                name=self.readinglist_name,
+                data=results,
+                slug=self.readinglist_Id,
+            )
+            total_count = self.new_readinglist.totalCount
+            i = 1
+            for item in next_rl_comics_json:
+                str_name = "{} #{}".format(item["seriesTitle"], item["number"])
+                self.dialog_load_comic_data.name_kv_file = str_name
+                self.dialog_load_comic_data.percent = str(
+                    i * 100 // int(total_count)
+                )
+                comic_index = next_readinglist.comic_json.index(item)
+                new_comic = ComicBook(
+                    item,
+                    readlist_obj=next_readinglist,
+                    comic_index=comic_index,
+                )
+                if new_comic not in next_readinglist.comics:
+                    next_readinglist.add_comic(new_comic)
+                i += 1
+            self.next_readinglist = next_readinglist
+        fetch_data = ComicServerConn()
+        url_send_next = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={self.new_page_num + 1}&size={self.item_per_page}"
+        fetch_data.get_server_data_callback(
+            url_send_next,
+            callback=lambda url_send, results: __get_next_reading_list_page(self, results))
+    def get_prev_reading_list_page(self):
+        def __get_prev_reading_list_page(self, results):
+            prev_rl_comics_json = results['content']
+            prev_readinglist = ComicReadingList(
+                name=self.readinglist_name,
+                data=results,
+                slug=self.readinglist_Id,
+            )
+            total_count = self.new_readinglist.totalCount
+            i = 1
+            for item in prev_rl_comics_json:
+                str_name = "{} #{}".format(item["seriesTitle"], item["number"])
+                self.dialog_load_comic_data.name_kv_file = str_name
+                self.dialog_load_comic_data.percent = str(
+                    i * 100 // int(total_count)
+                )
+                comic_index = prev_readinglist.comic_json.index(item)
+                new_comic = ComicBook(
+                    item,
+                    readlist_obj=prev_readinglist,
+                    comic_index=comic_index,
+                )
+                if new_comic not in prev_readinglist.comics:
+                    prev_readinglist.add_comic(new_comic)
+                i += 1
+            self.prev_readinglist = prev_readinglist
+        fetch_data = ComicServerConn()
+        url_send_next = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={self.new_page_num - 1}&size={self.item_per_page}"
+        fetch_data.get_server_data_callback(
+            url_send_next,
+            callback=lambda url_send, results: __get_prev_reading_list_page(self, results))
     def build_paginations(self):
         build_pageination_nav(screen_name="r l comic books screen")
 
-    def build_page(self, readinglist_obk):
+    def build_page(self, readinglist_obj):
         async def _build_page():
             grid = self.m_grid
             grid.clear_widgets()
@@ -152,12 +216,14 @@ class RLComicBooksScreenView(BaseScreenView):
             c_spacer.source = src_thumb
             grid.add_widget(c_spacer)
             c_spacer.opacity = 0
-            for comic in readinglist_obk:
+            for comic in readinglist_obj:
                 await asynckivy.sleep(0)
                 str_cookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(item_id=comic.Id, comic_obj=comic)
                 c.lines = 2
                 c.readinglist_obj = self.new_readinglist
+                c.next_readinglist = self.next_readinglist
+                c.prev_readinglist = c.prev_readinglist
                 c.paginator_obj = self.paginator_obj
                 c.str_caption = f"  {comic.Series} \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
@@ -229,48 +295,58 @@ class RLComicBooksScreenView(BaseScreenView):
 
     def item_per_menu_build(self):
         item_per_menu_numbers = ("20", "50", "100", "200", "500")
-        item_per_menu_items = [
-            {
-                "text": f"{nums}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-            } for nums in item_per_menu_numbers
-        ]
+        item_per_menu_items = []
+        for nums in item_per_menu_numbers:
+            if int(nums) == int(self.item_per_page):
+                print("yes")
+                background_color = self.app.theme_cls.primary_color
+            else:
+                background_color = (1, 1, 1, 1)
+            item_per_menu_items.append(
+                {
+                    "text": f"{nums}",
+                    "viewclass": "OneLineListItem",
+                    "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
+                    "bg_color":background_color
+                }
+            )
+
         self.item_per_menu = MDDropdownMenu(
             caller=self.ids.item_per_menu_button,
             items=item_per_menu_items,
             width_mult=1.6,
             radius=[24, 0, 24, 0],
-            max_height=dp(240)
+            max_height=dp(240),
         )
-
     def item_per_menu_callback(self, text_item):
         self.item_per_menu.dismiss()
         self.item_per_page = int(text_item)
-        self.collect_readinglist_data(new_page_num=1, readinglist_Id=self.readinglist_Id)
-
-    def filter_menu_build(self):
-        def __got_publisher_data(results):
-            filter_menu_items = results
-            item_per_menu_items = [
-                {
-                    "text": f"{item}",
-                    "viewclass": "ListItemWithCheckbox",
-                    "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
-                } for item in filter_menu_items
-            ]
-            self.filter_menu = MDDropdownMenu(
-                caller=self.ids.filter_menu_button,
-                items=item_per_menu_items,
-                width_mult=5,
-                # max_height=dp(240)
-            )
-
-        fetch_data = ComicServerConn()
-        url_send = f"{self.base_url}/api/v1/publishers"
-        fetch_data.get_server_data_callback(
-            url_send,
-            callback=lambda url_send, results: __got_publisher_data(results))
+        self.app.config.set("General", "max_item_per_page", self.item_per_page)
+        self.app.config.write()
+        self.collect_readinglist_data(current_page_num=self.current_page, readinglist_Id=self.readinglist_Id)
+        self.item_per_menu_build()
+    # def filter_menu_build(self):
+    #     def __got_publisher_data(results):
+    #         filter_menu_items = results
+    #         item_per_menu_items = [
+    #             {
+    #                 "text": f"{item}",
+    #                 "viewclass": "ListItemWithCheckbox",
+    #                 "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
+    #             } for item in filter_menu_items
+    #         ]
+    #         self.filter_menu = MDDropdownMenu(
+    #             caller=self.ids.filter_menu_button,
+    #             items=item_per_menu_items,
+    #             width_mult=5,
+    #             # max_height=dp(240)
+    #         )
+    #
+    #     fetch_data = ComicServerConn()
+    #     url_send = f"{self.base_url}/api/v1/publishers"
+    #     fetch_data.get_server_data_callback(
+    #         url_send,
+    #         callback=lambda url_send, results: __got_publisher_data(results))
 
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()

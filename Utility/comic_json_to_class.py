@@ -63,7 +63,7 @@ COMIC_DB_KEYS = [
     "local_file",
     "data",
     "is_sync",
-    "book_ids",
+
     "rl_number",
 
 ]
@@ -241,12 +241,11 @@ class ComicReadingList(EventDispatcher):
     totalCount = NumericProperty()
     pickled_data = ObjectProperty()
     sync_list = ListProperty()
-    book_ids = ListProperty()
-    def __init__(self, name="", data=None, slug="", mode="Server",book_ids=[],):
+    def __init__(self, name="", data=None, slug="", mode="Server"):
         self.slug = slug
         self.name = name
         self.event = None
-        self.book_ids = book_ids
+
         if data != "db_data":
             self.pickled_data = pickle.dumps(data, -1)
             self.data = pickle.loads(self.pickled_data)

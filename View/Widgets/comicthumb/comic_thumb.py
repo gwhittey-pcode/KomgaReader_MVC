@@ -6,7 +6,6 @@ from kivymd.uix.behaviors import CommonElevationBehavior, TouchBehavior, HoverBe
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivy.uix.modalview import ModalView
-from kivymd.uix.tooltip import MDTooltip
 
 from Utility.db_functions import ReadingList
 from ..myimagelist.myimagelist import MyMDSmartTile
@@ -22,7 +21,6 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     read_progress = NumericProperty()
     percent_read = NumericProperty()
     extra_headers = DictProperty()
-    tooltip_text = StringProperty()
     item_id = StringProperty()
     thumb_type = StringProperty()
     rl_book_count = NumericProperty()
@@ -35,6 +33,9 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     totalPages = NumericProperty()
     item_per_page = NumericProperty()
     book_ids = ListProperty()
+    next_readinglist = ObjectProperty()
+    prev_readinglist = ObjectProperty()
+
     def __init__(self, comic_obj=None, current_page=1, **kwargs):
         super(ComicThumb, self).__init__(**kwargs)
         self.source = ""
@@ -105,10 +106,9 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
                     readinglist_Id=readinglist_id,
                     mode=set_mode,
                     rl_book_count=self.rl_book_count,
-                    book_ids=self.book_ids,
                 )
             )
-            self.ids.top_box.remove_tooltip()
+
             app.manager_screens.current = "r l comic books screen"
 
     def open_comic(self):
@@ -125,7 +125,10 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
                 first=self.first,
                 last=self.last,
                 item_per_page=self.item_per_page,
-                totalPages=self.totalPages
+                totalPages=self.totalPages,
+                next_readinglist=self.next_readinglist,
+                prev_readinglist=self.prev_readinglist,
+                current_page=self.current_page
 
             )
             Clock.schedule_once(lambda dt: self.open_comic_callback(), 0.1)
@@ -133,6 +136,6 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             pass
 
     def open_comic_callback(self, *args):
-        self.ids.top_box.remove_tooltip()
+
         app = MDApp.get_running_app()
         app.manager_screens.current = "comic book screen"
