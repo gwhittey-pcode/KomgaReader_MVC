@@ -448,7 +448,6 @@ class ComicBookScreenView(BaseScreenView):
         self.new_page_num = new_page_num
         fetch_data = ComicServerConn()
         url_send = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
-        print(f"url_send:{url_send}")
         fetch_data.get_server_data(url_send, self)
 
     def got_json2(self, req, results):
@@ -456,8 +455,6 @@ class ComicBookScreenView(BaseScreenView):
         self.rl_json = results
         self.totalPages = self.rl_json['totalPages']
         self.current_page = self.rl_json['pageable']['pageNumber']
-        print(f"self.current_page:{self.current_page} ---got_json2")
-        print("###############################")
         self.last = self.rl_json['last']
         self.first = self.rl_json['first']
         self.new_readinglist = ComicReadingList(
@@ -578,17 +575,12 @@ class ComicBookScreenView(BaseScreenView):
 
     def get_next_comic(self):
         async def __get_next_comic():
-
-            print(f" self.item_per_page:{self.item_per_page}")
-            print(f"self.last:{self.last}")
             comic_obj = self.comic_obj
             comics_list = self.readinglist_obj.comics[::-1]
             for comic in comics_list:
                 await asynckivy.sleep(0)
-                print(f"comic:{comic.Id}   comic_obj.Id:{comic_obj.Id}")
                 if comic.Id == comic_obj.Id:
                     index = comics_list.index(comic)
-                    print(f"index:{index}")
             if comic_obj.Id == comics_list[0].Id and index + 1 != self.item_per_page \
                     and self.last is not True:
                 next_comic = comics_list[+1]

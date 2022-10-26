@@ -298,7 +298,6 @@ class RLComicBooksScreenView(BaseScreenView):
         item_per_menu_items = []
         for nums in item_per_menu_numbers:
             if int(nums) == int(self.item_per_page):
-                print("yes")
                 background_color = self.app.theme_cls.primary_color
             else:
                 background_color = (1, 1, 1, 1)

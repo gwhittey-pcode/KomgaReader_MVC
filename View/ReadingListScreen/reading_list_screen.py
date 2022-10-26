@@ -177,7 +177,6 @@ class ReadingListScreenView(BaseScreenView):
 
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()
-        print(text_item)
 
 
 
