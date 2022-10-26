@@ -288,7 +288,7 @@ class ReadingListScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                #grid.cols = (Window.width - 30) // self.comic_thumb_width
+                grid.cols = round((Window.width - 30) // self.comic_thumb_width)
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True

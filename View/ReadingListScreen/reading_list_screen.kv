@@ -61,16 +61,16 @@
                     padding: dp(10), dp(10), dp(10), dp(10)
                     refresh_callback: self.refresh_callback
                     GridLayout:
-                        cols:2
                         id: main_grid
                         row_force_default: True
+                        col_force_default:True
                         size_hint_y: None
                         size_hint_x: 1
                         height: self.minimum_height
-                        padding: dp(10), dp(10),dp(10),dp(10)
-                        spacing: dp(4)
-#                        col_default_width:root.comic_thumb_width + dp(30)
-#                        row_default_height:root.comic_thumb_height + dp(80)
+                        padding: dp(30), dp(30),dp(30),dp(30)
+                        spacing: dp(20)
+                        col_default_width:root.comic_thumb_width
+                        row_default_height:root.comic_thumb_height + dp(80)
 <ListItemWithCheckbox>:
     LeftCheckbox:
         on_active: root.on_checkbox_active(*args)
