@@ -199,7 +199,7 @@ class ReadingListScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = (Window.width - 10) // self.comic_thumb_width
+                #c.cols = (Window.width - 10) // self.comic_thumb_width
 
     def get_comicrack_list(self, new_page_num=0):
         def __get_comicrack_list(self, results):
@@ -288,7 +288,7 @@ class ReadingListScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                grid.cols = (Window.width - 30) // self.comic_thumb_width
+                #grid.cols = (Window.width - 30) // self.comic_thumb_width
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True
