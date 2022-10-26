@@ -147,7 +147,7 @@ class KomgaReader(MDApp):
     def set_value_from_config(self, *args):
         """Sets the values of variables from the settings
         file KomgaReader2.ini."""
-        self.config.read(os.path.join(self.directory, "komgareader.ini"))
+        #self.config.read(os.path.join(self.directory, "komgareader.ini"))
         self.lang = self.config.get("Language", "language")
         self.sync_folder = self.config.get("Sync", "sync_folder")
         self.store_dir = os.path.join(
