@@ -127,9 +127,11 @@ class StartScreenView(BaseScreenView):
         self.app.config.set("General", "password", pwd)
         url = self.app.myLoginPop.ids.url_field.text
         self.base_url = url.strip()
+        self.app.config.set("General", "base_url", self.base_url)
         self.username = user
         self.password = pwd
-        req_url = f"{self.app.base_url}/api/v1/login/set-cookie"
+
+        req_url = f"{self.base_url}/api/v1/login/set-cookie"
         head = {
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
