@@ -17,11 +17,10 @@ class ComicDataType:
 class ComicServerConn(EventDispatcher):
     def __init__(self, **kwargs):
         self.app = App.get_running_app()
-        self.session_cookie = self.app.config.get("General", "api_key")
 
     def get_page_size_data(self, req_url, callback):
         username = self.app.config.get("General", "username")
-        strCookie = 'SESSION=' + self.session_cookie
+        strCookie = 'SESSION=' + self.app.config.get("General", "api_key")
         head = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -41,7 +40,7 @@ class ComicServerConn(EventDispatcher):
         import json
         data_json = json.dumps(data)
         username = self.app.config.get("General", "username")
-        strCookie = 'SESSION=' + self.session_cookie
+        strCookie = 'SESSION=' + self.app.config.get("General", "api_key")
         head = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -59,7 +58,7 @@ class ComicServerConn(EventDispatcher):
         )
 
     def get_server_data_callback(self, req_url: object, callback: object) -> object:
-        str_cookie = "SESSION=" + self.session_cookie
+        str_cookie = "SESSION=" + self.app.config.get("General", "api_key")
         head = {
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
@@ -80,7 +79,7 @@ class ComicServerConn(EventDispatcher):
         )
 
     def get_server_data(self, req_url, instance):
-        str_cookie = "SESSION=" + self.session_cookie
+        str_cookie = "SESSION=" + self.app.config.get("General", "api_key")
         head = {
             "Content-type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
@@ -115,50 +114,12 @@ class ComicServerConn(EventDispatcher):
     #         on_redirect=self.got_redirect,
     #         on_failure=self.got_error,
     #     )
-    def login_test(self, req_url, username, password, callback):
-        str_cookie = ''
-        head = {
-            "Content-type": "application/x-www-form-urlencoded",
-            "Accept": "application/json",
-            "X-Auth-Token": "fbdd4f69-274d-4fd4-ad58-0932d20e37f6",
-            "Cookie": 'SESSION=ZmJkZDRmNjktMjc0ZC00ZmQ0LWFkNTgtMDkzMmQyMGUzN2Y2',
-        }
-
-        myUrlRequest(
-            req_url,
-            req_headers=head,
-            method="GET",
-            on_success=callback,
-            on_error=self.got_error,
-            on_redirect=self.got_redirect,
-            on_failure=self.got_error,
-
-            # auth=(username,password)
-        )
-
-    def get_list_count(self, req_url, instance):
-        username = self.app.config.get("General", "username")
-        api_key = self.app.config.get("General", "api_key")
-        str_cookie = f"API_apiKey={api_key}; BCR_username={username}"
-        head = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Cookie": str_cookie,
-        }
-        UrlRequest(
-            req_url,
-            req_headers=head,
-            on_success=instance.got_count,
-            on_error=self.got_error,
-            on_redirect=self.got_redirect,
-            on_failure=self.got_error,
-        )
 
     def get_server_file_download(self, req_url, callback, file_path):
         def update_progress(request, current_size, total_size):
             pass
 
-        str_cookie = "SESSION=" + self.session_cookie
+        str_cookie = "SESSION=" + self.app.config.get("General", "api_key")
         head = {
             "Cookie": str_cookie,
         }
