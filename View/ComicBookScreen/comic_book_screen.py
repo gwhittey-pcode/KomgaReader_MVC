@@ -1029,23 +1029,23 @@ class ComicBookScreenView(BaseScreenView):
             for key, value in key_val.items():
                 # setattr(db_item, key, value)
                 setattr(self.comic_obj, key, value)
-                if key == "UserLastPageRead":
-                    if self.view_mode == "FileOpen" or (
-                            self.view_mode == "Sync" and self.comic_obj.is_sync
-                    ):
-                        local_readinglists_screen = self.app.manager_screens.get_screen(
-                            "local_readinglists_screen"
-                        )
-                        local_readinglists_screen.page_turn(
-                            self.comic_obj.Id, value
-                        )
-                    else:
-                        server_readinglists_screen = self.app.manager_screens.get_screen(
-                            "r l comic books screen"
-                        )
-                        server_readinglists_screen.page_turn(
-                            self.comic_obj.Id, value
-                        )
+                # if key == "UserLastPageRead":
+                    # if self.view_mode == "FileOpen" or (
+                    #         self.view_mode == "Sync" and self.comic_obj.is_sync
+                    # ):
+                    #     local_readinglists_screen = self.app.manager_screens.get_screen(
+                    #         "local_readinglists_screen"
+                    #     )
+                    #     local_readinglists_screen.page_turn(
+                    #         self.comic_obj.Id, value
+                    #     )
+                    # else:
+                    #     server_readinglists_screen = self.app.manager_screens.get_screen(
+                    #         "r l comic books screen"
+                    #     )
+                    #     server_readinglists_screen.page_turn(
+                    #         self.comic_obj.Id, value
+                    #     )
             # db_item.save()
 
         if self.view_mode == "FileOpen" or (
@@ -1097,12 +1097,12 @@ class ComicBookScreenView(BaseScreenView):
                     completed=completed,
                     callback=lambda req, results: updated_progress(results),
                 )
-                server_readinglists_screen = self.app.manager_screens.get_screen(
-                    "r l comic books screen"
-                )
-                server_readinglists_screen.page_turn(
-                    self.comic_obj.Id, current_page
-                )
+                # server_readinglists_screen = self.app.manager_screens.get_screen(
+                #     "r l comic books screen"
+                # )
+                # server_readinglists_screen.page_turn(
+                #     self.comic_obj.Id, current_page
+                # )
                 for slide in comic_book_carousel.slides:
                     for child in slide.walk():
                         try:
