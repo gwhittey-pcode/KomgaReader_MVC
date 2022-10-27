@@ -216,7 +216,7 @@ class ComicBook(EventDispatcher):
             Logger.error("Somthing went wrong")
 
 
-class ComicReadingList(EventDispatcher):
+class ComicList(EventDispatcher):
 
     # ids = DictProperty({})
     name = StringProperty()

@@ -8,7 +8,7 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.utils import asynckivy
 
 from Utility.comic_functions import save_thumb
-from Utility.comic_json_to_class import ComicReadingList, ComicBook
+from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.komga_server_conn import ComicServerConn
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
@@ -106,7 +106,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 self.get_prev_reading_list_page()
             if not self.last:
                 self.get_next_reading_list_page()
-            self.new_readinglist = ComicReadingList(
+            self.new_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
@@ -142,7 +142,7 @@ class RLComicBooksScreenView(BaseScreenView):
     def get_next_reading_list_page(self):
         def __get_next_reading_list_page(self, results):
             next_rl_comics_json = results['content']
-            next_readinglist = ComicReadingList(
+            next_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
@@ -173,7 +173,7 @@ class RLComicBooksScreenView(BaseScreenView):
     def get_prev_reading_list_page(self):
         def __get_prev_reading_list_page(self, results):
             prev_rl_comics_json = results['content']
-            prev_readinglist = ComicReadingList(
+            prev_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
@@ -204,7 +204,7 @@ class RLComicBooksScreenView(BaseScreenView):
     def build_paginations(self):
         build_pageination_nav(screen_name="r l comic books screen")
 
-    def build_page(self, readinglist_obj):
+    def build_page(self, comiclist_obj):
         async def _build_page():
             grid = self.m_grid
             grid.clear_widgets()
@@ -216,12 +216,12 @@ class RLComicBooksScreenView(BaseScreenView):
             c_spacer.source = src_thumb
             grid.add_widget(c_spacer)
             c_spacer.opacity = 0
-            for comic in readinglist_obj:
+            for comic in comiclist_obj:
                 await asynckivy.sleep(0)
                 str_cookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(item_id=comic.Id, comic_obj=comic)
                 c.lines = 2
-                c.readinglist_obj = self.new_readinglist
+                c.comiclist_obj = self.new_readinglist
                 c.next_readinglist = self.next_readinglist
                 c.prev_readinglist = c.prev_readinglist
                 c.paginator_obj = self.paginator_obj

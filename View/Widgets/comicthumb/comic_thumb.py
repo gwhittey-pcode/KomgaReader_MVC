@@ -116,7 +116,7 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
         if self.comic_obj is not None:
             screen = app.manager_screens.get_screen("comic book screen")
             screen.setup_screen(
-                readinglist_obj=self.readinglist_obj,
+                comiclist_obj=self.comiclist_obj,
                 comic_obj=self.comic_obj,
                 paginator_obj=self.paginator_obj,
                 pag_pagenum=self.pag_pagenum,

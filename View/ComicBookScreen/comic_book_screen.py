@@ -21,7 +21,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.utils import asynckivy
 
 from Utility.comic_functions import get_comic_page, get_file_page_size
-from Utility.comic_json_to_class import ComicReadingList, ComicBook
+from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.db_functions import Comic
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myloader import Loader
@@ -77,7 +77,7 @@ class TopNavContent(MDBoxLayout):
     totalPages = NumericProperty()
     current_page = NumericProperty()
     item_per_page = NumericProperty()
-    readinglist_obj = ObjectProperty()
+    comiclist_obj = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(TopNavContent, self).__init__(**kwargs)
@@ -88,7 +88,7 @@ class TopNavContent(MDBoxLayout):
         if i.icon == "less-than":
             self.screen.collect_readinglist_data(
                 new_page_num=int(self.current_page) - 1,
-                readinglist_id=self.readinglist_obj.slug,
+                readinglist_id=self.comiclist_obj.slug,
                 current_page_num=self.current_page - 1,
 
             )
@@ -96,7 +96,7 @@ class TopNavContent(MDBoxLayout):
         elif i.icon == "greater-than":
             self.screen.collect_readinglist_data(
                 new_page_num=int(self.current_page) + 1,
-                readinglist_id=self.readinglist_obj.slug,
+                readinglist_id=self.comiclist_obj.slug,
                 current_page_num=self.current_page + 1,
             )
 
@@ -104,7 +104,7 @@ class TopNavContent(MDBoxLayout):
         self.screen.reload_top_nav = True
         self.screen.collect_readinglist_data(
             new_page_num=int(i.text) - 1,
-            readinglist_id=self.readinglist_obj.slug,
+            readinglist_id=self.comiclist_obj.slug,
             current_page_num=int(i.text) - 1,
         )
 
@@ -136,7 +136,7 @@ class ComicBookScreenView(BaseScreenView):
         self.screen_setup = False
         self.new_page_num = None
         self.readinglist_Id = None
-        self.readinglist_obj = None
+        self.comiclist_obj = None
         self.next_comic = None
         self.prev_comic = None
         self.reload_top_nav = False
@@ -176,7 +176,7 @@ class ComicBookScreenView(BaseScreenView):
 
     def setup_screen(
             self,
-            readinglist_obj=None,
+            comiclist_obj=None,
             comic_obj=None,  # noqa
             view_mode="Server",
             pag_pagenum=1,
@@ -192,7 +192,7 @@ class ComicBookScreenView(BaseScreenView):
         self.item_per_page = self.app.item_per_page
         self.pag_pagenum = 0
         self.last_load = 0
-        self.readinglist_obj = readinglist_obj
+        self.comiclist_obj = comiclist_obj
         self.comic_obj = comic_obj
         self.view_mode = view_mode
         self.app.config.write()
@@ -205,10 +205,10 @@ class ComicBookScreenView(BaseScreenView):
         self.app.config.set("Saved", "last_comic_id", self.comic_obj.Id)
         self.app.config.set("Saved", "last_comic_type", last_comic_type)
         self.app.config.set(
-            "Saved", "last_reading_list_id", self.readinglist_obj.slug
+            "Saved", "last_reading_list_id", self.comiclist_obj.slug
         )
         self.app.config.set(
-            "Saved", "last_reading_list_name", self.readinglist_obj.name
+            "Saved", "last_reading_list_name", self.comiclist_obj.name
         )
         if int(self.pag_pagenum):
             self.app.config.set(
@@ -311,7 +311,7 @@ class ComicBookScreenView(BaseScreenView):
         if self.top_pop:
             self.top_pop.dismiss()
         self.screen_setup = True
-        self.collect_readinglist_data(readinglist_id=self.readinglist_obj.slug,
+        self.collect_readinglist_data(readinglist_id=self.comiclist_obj.slug,
                                       current_page_num=self.current_page,
                                       new_page_num=self.current_page,
                                       )
@@ -457,8 +457,8 @@ class ComicBookScreenView(BaseScreenView):
         self.current_page = self.rl_json['pageable']['pageNumber']
         self.last = self.rl_json['last']
         self.first = self.rl_json['first']
-        self.new_readinglist = ComicReadingList(
-            name=self.readinglist_obj.name,
+        self.new_readinglist = ComicList(
+            name=self.comiclist_obj.name,
             data=results,
             slug=self.readinglist_Id,
         )
@@ -474,7 +474,7 @@ class ComicBookScreenView(BaseScreenView):
             else:
                 pass
         new_readinglist_reversed = self.new_readinglist.comics[::-1]
-        self.readinglist_obj = self.new_readinglist
+        self.comiclist_obj = self.new_readinglist
         self.build_top_nav()
         if self.screen_setup:
             self.get_next_comic()
@@ -506,7 +506,7 @@ class ComicBookScreenView(BaseScreenView):
         top_nav_content.current_page = self.new_page_num
         top_nav_content.item_per_page = self.item_per_page
         top_nav_content.totalPages = self.totalPages
-        top_nav_content.readinglist_obj = self.readinglist_obj
+        top_nav_content.comiclist_obj = self.comiclist_obj
         grid = CommonComicsOuterGrid(
             id="outtergrd",
             size_hint=(None, None),
@@ -514,11 +514,11 @@ class ComicBookScreenView(BaseScreenView):
             padding=(5, 5, 5, 5),
         )
         grid.bind(minimum_width=grid.setter("width"))
-        c_readinglist_name = self.readinglist_obj.name
-        group_str = f" - Page# {self.new_page_num} of {self.readinglist_obj.totalCount}"
+        c_readinglist_name = self.comiclist_obj.name
+        group_str = f" - Page# {self.new_page_num} of {self.comiclist_obj.totalCount}"
         c_title = f"{c_readinglist_name}{group_str}"
         self.top_pop.title = c_title
-        comics_list = self.readinglist_obj.comics[::-1]
+        comics_list = self.comiclist_obj.comics[::-1]
         page_num_grid = top_nav_content.ids.page_num_grid
         build_pageination_nav(widget=top_nav_content)
         for comic in comics_list:
@@ -547,7 +547,7 @@ class ComicBookScreenView(BaseScreenView):
                     comic_thumb.mode = "FileOpen"
                 elif self.view_mode == "Sync":
                     comic_thumb.mode = "Sync"
-                comic_thumb.readinglist_obj = self.readinglist_obj
+                comic_thumb.comiclist_obj = self.comiclist_obj
                 comic_thumb.new_page_num = self.current_page
                 comic_thumb.current_page = self.current_page
                 comic_thumb.comic_obj = comic
@@ -576,7 +576,7 @@ class ComicBookScreenView(BaseScreenView):
     def get_next_comic(self):
         async def __get_next_comic():
             comic_obj = self.comic_obj
-            comics_list = self.readinglist_obj.comics[::-1]
+            comics_list = self.comiclist_obj.comics[::-1]
             for comic in comics_list:
                 await asynckivy.sleep(0)
                 if comic.Id == comic_obj.Id:
@@ -609,7 +609,7 @@ class ComicBookScreenView(BaseScreenView):
 
     def get_prev_comic(self):
         comic_obj = self.comic_obj
-        comics_list = self.readinglist_obj.comics[::-1]
+        comics_list = self.comiclist_obj.comics[::-1]
         for comic in comics_list:
             if comic.Id == comic_obj.Id:
                 index = comics_list.index(comic)
@@ -634,7 +634,7 @@ class ComicBookScreenView(BaseScreenView):
         """ Make popup showing cover for next comic"""
         if next_comic is not None:
             comic_obj = self.comic_obj
-            comics_list = self.readinglist_obj.comics[::-1]
+            comics_list = self.comiclist_obj.comics[::-1]
             comic = next_comic
             for x in comics_list:
                 if x.Id == comic_obj.Id:
@@ -661,7 +661,7 @@ class ComicBookScreenView(BaseScreenView):
             )
             if self.view_mode == "FileOpen":
                 comic_thumb.mode = "FileOpen"
-            comic_thumb.readinglist_obj = self.readinglist_obj
+            comic_thumb.comiclist_obj = self.comiclist_obj
             comic_thumb.comic = comic
             comic_thumb.last_load = self.last_load
             if self.use_sections:
@@ -746,7 +746,7 @@ class ComicBookScreenView(BaseScreenView):
 
         if prev_comic is not None:
             comic_obj = self.comic_obj
-            comics_list = self.readinglist_obj.comics[::-1]
+            comics_list = self.comiclist_obj.comics[::-1]
             comic = prev_comic
             for x in comics_list:
                 if x.Id == comic_obj.Id:
@@ -777,7 +777,7 @@ class ComicBookScreenView(BaseScreenView):
                 comic_thumb.mode = "FileOpen"
             elif self.view_mode == "Sync":
                 comic_thumb.mode = "Sync"
-            comic_thumb.readinglist_obj = self.readinglist_obj
+            comic_thumb.comiclist_obj = self.comiclist_obj
             comic_thumb.comic = comic
             if self.use_sections:
                 comic_thumb.last_section = self.last_section
@@ -785,7 +785,7 @@ class ComicBookScreenView(BaseScreenView):
                 comic_thumb.new_page_num = prev_page_number
             else:
                 comic_thumb.new_page_num = self.current_page
-            comic_thumb.readinglist_obj = self.readinglist_obj
+            comic_thumb.comiclist_obj = self.comiclist_obj
             inner_grid.add_widget(comic_thumb)
 
             smbutton = ThumbPopPagebntlbl(
@@ -878,7 +878,7 @@ class ComicBookScreenView(BaseScreenView):
             c_pag_pagenum = self.current_page
         screen = self.app.manager_screens.get_screen("comic book screen")
         screen.setup_screen(
-            readinglist_obj=self.readinglist_obj,
+            comiclist_obj=self.comiclist_obj,
             comic_obj=instance.comic_obj,
             pag_pagenum=c_pag_pagenum,
             last_load=0,
@@ -898,7 +898,7 @@ class ComicBookScreenView(BaseScreenView):
             c_pag_pagenum = self.current_page
         screen = self.app.manager_screens.get_screen("comic book screen")
         screen.setup_screen(
-            readinglist_obj=self.readinglist_obj,
+            comiclist_obj=self.comiclist_obj,
             comic_obj=instance.comic_obj,
             pag_pagenum=c_pag_pagenum,
             last_load=0,
@@ -928,8 +928,8 @@ class ComicBookScreenView(BaseScreenView):
             prev_current_page = results['pageable']['pageNumber']
             prev_last = results['last']
             prev_first = results['first']
-            prev_new_readinglist = ComicReadingList(
-                name=self.readinglist_obj.name,
+            prev_new_readinglist = ComicList(
+                name=self.comiclist_obj.name,
                 data=results,
                 slug=self.readinglist_Id,
             )
@@ -949,7 +949,7 @@ class ComicBookScreenView(BaseScreenView):
                 i += 1
             prev_comic_obj = prev_new_readinglist.comics[::-1][-1]
             self.setup_screen(
-                readinglist_obj=prev_new_readinglist,
+                comiclist_obj=prev_new_readinglist,
                 comic_obj=prev_comic_obj,
                 pag_pagenum=prev_current_page,
                 first=prev_first,
@@ -981,8 +981,8 @@ class ComicBookScreenView(BaseScreenView):
             next_current_page = results['pageable']['pageNumber']
             next_last = results['last']
             next_first = results['first']
-            next_new_readinglist = ComicReadingList(
-                name=self.readinglist_obj.name,
+            next_new_readinglist = ComicList(
+                name=self.comiclist_obj.name,
                 data=results,
                 slug=self.readinglist_Id,
             )
@@ -1002,7 +1002,7 @@ class ComicBookScreenView(BaseScreenView):
                 i += 1
             next_comic_obj = next_new_readinglist.comics[::-1][0]
             self.setup_screen(
-                readinglist_obj=next_new_readinglist,
+                comiclist_obj=next_new_readinglist,
                 comic_obj=next_comic_obj,
                 pag_pagenum=next_current_page,
                 first=next_first,

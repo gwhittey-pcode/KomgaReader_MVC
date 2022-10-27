@@ -16,7 +16,7 @@ from kivymd.uix.tooltip import MDTooltip
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from Utility.comic_functions import save_thumb
-from Utility.comic_json_to_class import ComicReadingList, ComicBook
+from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.komga_server_conn import ComicServerConn
 from Utility.paginator import Paginator
 
@@ -288,7 +288,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 str_cookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(item_id=comic.Id, comic_obj=comic)
                 c.lines = 2
-                c.readinglist_obj = self.new_readinglist
+                c.comiclist_obj = self.new_readinglist
                 c.paginator_obj = self.paginator_obj
                 c.str_caption = f"  {comic.Series } \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 c.tooltip_text = f"{comic.Series }\n#{comic.Number} - {comic.Title}"
@@ -328,7 +328,7 @@ class RLComicBooksScreenView(BaseScreenView):
         """
 
         async def _do_readinglist():
-            self.new_readinglist = ComicReadingList(
+            self.new_readinglist = ComicList(
                 name=self.readinglist_name,
                 data="db_data",
                 slug=self.readinglist_Id,
@@ -381,7 +381,7 @@ class RLComicBooksScreenView(BaseScreenView):
         Clock.schedule_once(__refresh_callback, 1)
     def got_json2(self, req, results):
         async def _got_json():
-            self.new_readinglist = ComicReadingList(
+            self.new_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
