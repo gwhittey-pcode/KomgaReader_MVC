@@ -4,7 +4,11 @@
 <ComicThumb>
     _str_caption:self.str_caption
     _percent_read:self.percent_read
+    size_hint: None, None
     size: "156dp", "320dp"
+    orientation:"vertical"
+    pos_hint: {"x":1,"y":1}
+    spacing: 2
     TooltipMDBoxLayout:
         id:top_box
         md_bg_color:get_color_from_hex("#1e1e1e")
