@@ -231,6 +231,8 @@ class ReadingListScreenView(BaseScreenView):
         self.get_comicrack_list(new_page_num=int(i.text)-1)
     def build_page(self):
         async def _build_page():
+            def set_grid(dxt):
+                grid.cols = round((Window.width - 30) // self.comic_thumb_width)
             grid = self.m_grid
             grid.clear_widgets()
             i = 1
@@ -288,7 +290,7 @@ class ReadingListScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                grid.cols = round((Window.width - 30) // self.comic_thumb_width)
+                Clock.schedule_once(set_grid)
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True
