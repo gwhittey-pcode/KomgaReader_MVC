@@ -8,7 +8,7 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.utils import asynckivy
 
 from Utility.comic_functions import save_thumb
-from Utility.comic_json_to_class import ComicReadingList, ComicBook
+from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.komga_server_conn import ComicServerConn
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
@@ -106,7 +106,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 self.get_prev_reading_list_page()
             if not self.last:
                 self.get_next_reading_list_page()
-            self.new_readinglist = ComicReadingList(
+            self.new_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
@@ -142,7 +142,7 @@ class RLComicBooksScreenView(BaseScreenView):
     def get_next_reading_list_page(self):
         def __get_next_reading_list_page(self, results):
             next_rl_comics_json = results['content']
-            next_readinglist = ComicReadingList(
+            next_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,
@@ -173,7 +173,7 @@ class RLComicBooksScreenView(BaseScreenView):
     def get_prev_reading_list_page(self):
         def __get_prev_reading_list_page(self, results):
             prev_rl_comics_json = results['content']
-            prev_readinglist = ComicReadingList(
+            prev_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,

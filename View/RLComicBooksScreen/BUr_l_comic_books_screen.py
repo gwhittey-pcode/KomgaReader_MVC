@@ -16,7 +16,7 @@ from kivymd.uix.tooltip import MDTooltip
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from Utility.comic_functions import save_thumb
-from Utility.comic_json_to_class import ComicReadingList, ComicBook
+from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.komga_server_conn import ComicServerConn
 from Utility.paginator import Paginator
 
@@ -328,7 +328,7 @@ class RLComicBooksScreenView(BaseScreenView):
         """
 
         async def _do_readinglist():
-            self.new_readinglist = ComicReadingList(
+            self.new_readinglist = ComicList(
                 name=self.readinglist_name,
                 data="db_data",
                 slug=self.readinglist_Id,
@@ -381,7 +381,7 @@ class RLComicBooksScreenView(BaseScreenView):
         Clock.schedule_once(__refresh_callback, 1)
     def got_json2(self, req, results):
         async def _got_json():
-            self.new_readinglist = ComicReadingList(
+            self.new_readinglist = ComicList(
                 name=self.readinglist_name,
                 data=results,
                 slug=self.readinglist_Id,

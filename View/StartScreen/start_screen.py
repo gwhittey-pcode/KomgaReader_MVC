@@ -12,7 +12,7 @@ from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivymd.utils import asynckivy
-from Utility.comic_json_to_class import ComicReadingList
+from Utility.comic_json_to_class import ComicList
 from Utility.komga_server_conn import ComicServerConn
 from Utility.db_functions import ReadingList
 from Utility.paginator import Paginator
@@ -204,7 +204,7 @@ class StartScreenView(BaseScreenView):
                     mode = ""
                     if tmp_last_comic_type == "local_file":
                         mode = "local_file"
-                    self.new_readinglist = ComicReadingList(
+                    self.new_readinglist = ComicList(
                         name=self.readinglist_name,
                         data="db_data",
                         slug=self.readinglist_Id,

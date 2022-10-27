@@ -21,7 +21,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.utils import asynckivy
 
 from Utility.comic_functions import get_comic_page, get_file_page_size
-from Utility.comic_json_to_class import ComicReadingList, ComicBook
+from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.db_functions import Comic
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myloader import Loader
@@ -457,7 +457,7 @@ class ComicBookScreenView(BaseScreenView):
         self.current_page = self.rl_json['pageable']['pageNumber']
         self.last = self.rl_json['last']
         self.first = self.rl_json['first']
-        self.new_readinglist = ComicReadingList(
+        self.new_readinglist = ComicList(
             name=self.comiclist_obj.name,
             data=results,
             slug=self.readinglist_Id,
@@ -928,7 +928,7 @@ class ComicBookScreenView(BaseScreenView):
             prev_current_page = results['pageable']['pageNumber']
             prev_last = results['last']
             prev_first = results['first']
-            prev_new_readinglist = ComicReadingList(
+            prev_new_readinglist = ComicList(
                 name=self.comiclist_obj.name,
                 data=results,
                 slug=self.readinglist_Id,
@@ -981,7 +981,7 @@ class ComicBookScreenView(BaseScreenView):
             next_current_page = results['pageable']['pageNumber']
             next_last = results['last']
             next_first = results['first']
-            next_new_readinglist = ComicReadingList(
+            next_new_readinglist = ComicList(
                 name=self.comiclist_obj.name,
                 data=results,
                 slug=self.readinglist_Id,
