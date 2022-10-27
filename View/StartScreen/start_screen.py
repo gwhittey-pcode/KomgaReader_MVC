@@ -113,6 +113,7 @@ class StartScreenView(BaseScreenView):
                 if "SESSION" in cookie:
                     strkey = cookie.split('=')
                     app.config.set("General", "api_key", strkey[1])
+                    app.api_key = strkey[1]
                     app.config.write()
 
             app.myLoginPop.ids.info.text = "[color=#008000]\
