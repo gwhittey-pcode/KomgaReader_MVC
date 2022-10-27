@@ -48,29 +48,28 @@
 #                        on_release: root.filter_menu.open()
 
 
-            GridLayout:
-                #orientation: 'horizontal'
-                cols:3
-                rows:1
-                padding: dp(60), dp(60)
-                spacing: dp(10)
-                ScrollView:
-                    do_scroll_x: False
 
-                    id: main_scroll
-                    padding: dp(10), dp(10), dp(10), dp(10)
-                    refresh_callback: self.refresh_callback
-                    GridLayout:
-                        id: main_grid
-                        row_force_default: True
-                        col_force_default:True
-                        size_hint_y: None
-                        size_hint_x: 1
-                        height: self.minimum_height
-                        padding: dp(30), dp(30),dp(30),dp(30)
-                        spacing: dp(20)
-                        col_default_width:root.comic_thumb_width
-                        row_default_height:root.comic_thumb_height + dp(80)
+            ScrollView:
+                do_scroll_x: False
+                id: main_scroll
+                padding: dp(10), dp(10), dp(10), dp(10)
+                refresh_callback: self.refresh_callback
+                GridLayout:
+                    id: main_grid
+                    #row_force_default: True
+                    size_hint_y: None
+                    size_hint_x: 1
+                    height: self.minimum_height
+                    padding: dp(30), dp(30),dp(30),dp(30)
+                    spacing: dp(20)
+                    #col_default_width: root.comic_thumb_width
+                    row_default_height:root.comic_thumb_height + dp(80)
+                    canvas.after:
+                        Color:
+                            rgba: 1,.84,0,1
+                        Line:
+                            width: 2
+                            rectangle: self.x, self.y, self.width, self.height
 <ListItemWithCheckbox>:
     LeftCheckbox:
         on_active: root.on_checkbox_active(*args)
