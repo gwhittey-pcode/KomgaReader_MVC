@@ -211,7 +211,7 @@ class RLComicBooksScreenView(BaseScreenView):
             # add spacer so page forms right while lmgs are dl
             c_spacer = ComicThumb(item_id="NOID")
             c_spacer.lines = 1
-            c_spacer.padding = dp(60), dp(60)
+            c_spacer.padding = dp(10), dp(10)
             src_thumb = "assets/spacer.jpg"
             c_spacer.source = src_thumb
             grid.add_widget(c_spacer)
@@ -226,7 +226,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 c.prev_readinglist = c.prev_readinglist
                 c.paginator_obj = self.paginator_obj
                 c.str_caption = f"  {comic.Series} \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
-                c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
+                #c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
                 c.thumb_type = "ComicBook"
                 c.text_size = dp(8)
                 c.current_page = self.current_page
@@ -242,9 +242,8 @@ class RLComicBooksScreenView(BaseScreenView):
                 if os.path.isfile(t_file):
                     c_image_source = t_file
                 else:
-                    c_thumb_source = f"{self.base_url}/api/v1/books/{comic.Id}/thumbnail"
-                    asynckivy.start(save_thumb(comic.Id, c_thumb_source))
-                c_image_source = f"{self.base_url}/api/v1/books/{comic.Id}/thumbnail"
+                    c_image_source = f"{self.base_url}/api/v1/books/{comic.Id}/thumbnail"
+                    asynckivy.start(save_thumb(comic.Id, c_image_source))
                 c.source = c_image_source
 
                 def loaded():

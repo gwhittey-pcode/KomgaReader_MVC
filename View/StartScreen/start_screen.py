@@ -128,6 +128,7 @@ class StartScreenView(BaseScreenView):
         url = self.app.myLoginPop.ids.url_field.text
         self.base_url = url.strip()
         self.app.config.set("General", "base_url", self.base_url)
+        self.app.base_url = self.base_url
         self.username = user
         self.password = pwd
 

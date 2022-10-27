@@ -142,3 +142,4 @@ dmypy.json
 /.idea/vcs.xml
 .buildozer/
 /bin
+/komgareader.ini

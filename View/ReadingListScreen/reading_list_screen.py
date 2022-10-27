@@ -237,7 +237,7 @@ class ReadingListScreenView(BaseScreenView):
             # add spacer so page forms right while imgs are dl
             c_spacer = ComicThumb(item_id="NOID")
             c_spacer.lines = 1
-            c_spacer.padding = dp(60), dp(60)
+            c_spacer.padding = dp(10), dp(10)
             c_spacer.totalPages = self.totalPages
             src_thumb = "assets/spacer.jpg"
             c_spacer.source = src_thumb
@@ -247,25 +247,17 @@ class ReadingListScreenView(BaseScreenView):
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
                 rl_id = item['id']
-                book_ids = item['bookIds']
-                x = 0
-                for bookIds in item['bookIds']:
-                    x += 1
-                rl_book_count = x
+                rl_book_count = len( item['bookIds'])
                 self.rl_book_count = rl_book_count
-                strCookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
                 c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
-                c.book_ids = book_ids
+                # c.book_ids = book_ids
                 #c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
                 c.thumb_type = "ReadingList"
                 c.text_size = dp(8)
-                c_spacer.lines = 1
-                c_spacer.padding = dp(20), dp(20)
+                c.lines = 2
                 c.totalPages = self.totalPages
-                # c.extra_headers = {"X-Auth-Token":"fbdd4f69-274d-4fd4-ad58-0932d20e37f6",}
-                # c.readinglist_obj = self.new_readinglist
                 str_name = ""
                 self.dialog_load_comic_data.name_kv_file = str_name
                 self.dialog_load_comic_data.percent = str(
@@ -279,8 +271,7 @@ class ReadingListScreenView(BaseScreenView):
                 if os.path.isfile(t_file):
                     c_image_source = t_file
                 else:
-                    part_url = f"/api/v1/readlists/{rl_id}/thumbnail"
-                    c_image_source = f"{self.base_url}{part_url}"
+                    c_image_source = f"{self.base_url}/api/v1/readlists/{rl_id}/thumbnail"
                     asynckivy.start(save_thumb(rl_id, c_image_source))
                 c.source = c_image_source
 
