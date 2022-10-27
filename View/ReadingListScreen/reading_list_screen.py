@@ -1,4 +1,3 @@
-import math
 import ntpath
 import os
 from functools import partial
@@ -31,8 +30,8 @@ from Utility.comic_functions import save_thumb
 from Utility.db_functions import ReadingList
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
-from View.ReadingListScreen.components.readinglistimg.reading_list_image import MyReadingListImage
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
+from View.Widgets.custimagelist import RLTileLabel
 from View.Widgets.paginationwidgets import MyMDRaisedButton, MyMDIconRaisedButton
 from View.base_screen import BaseScreenView
 from kivymd.utils import asynckivy
@@ -81,22 +80,6 @@ class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
     """Custom right container."""
 
 
-# class  ReadingListImage(RLTileLabel):
-#     rl_name = StringProperty()
-#     rl_book_count = NumericProperty()
-#     rl_id = StringProperty()
-#     my_clock = ObjectProperty()
-#     do_action = StringProperty()
-#     extra_headers = DictProperty()
-#     totalPages = NumericProperty()
-#     item_id = StringProperty()
-#     thumb_type = StringProperty()
-#
-#     def __init__(self, rl_name=None, rl_book_count=0, **kwargs):
-#         super(ReadingListImage, self).__init__(**kwargs)
-#         self.rl_book_count = rl_book_count
-#         self.rl_name = rl_name
-
 class ReadingListScreenView(BaseScreenView):
     dynamic_ids = DictProperty({})
     comic_thumb_width = NumericProperty()
@@ -116,6 +99,8 @@ class ReadingListScreenView(BaseScreenView):
         self.Data = ""
         self.fetch_data = ComicServerConn()
         self.dialog_load_readlist_data = None
+        self.comic_thumb_height = 240
+        self.comic_thumb_width = 156
         self.m_grid = ''
         self.bind(width=self.my_width_callback)
         self.dialog_load_comic_data = None
@@ -127,8 +112,8 @@ class ReadingListScreenView(BaseScreenView):
         self.last = False
         self.first = False
         self.current_page = 1
-        self.comic_thumb_height = 320
-        self.comic_thumb_width = 200
+        self.comic_thumb_height = 240
+        self.comic_thumb_width = 156
         self.loading_done = False
         self.item_per_menu_build()
         # self.filter_menu_build()
@@ -214,8 +199,8 @@ class ReadingListScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = math.floor((Window.width - dp(200)) // self.comic_thumb_width)
-                print(f"c.cols:{c.cols}")
+                c.cols = (Window.width - 10) // self.comic_thumb_width
+
     def get_comicrack_list(self, new_page_num=0):
         def __get_comicrack_list(self, results):
             self.rl_comics_json = results['content']
@@ -250,11 +235,7 @@ class ReadingListScreenView(BaseScreenView):
             grid.clear_widgets()
             i = 1
             # add spacer so page forms right while imgs are dl
-            c_spacer = MyReadingListImage(rl_name="",
-                                        rl_book_count=0,
-                                        rl_id="NOID",
-
-                                        )
+            c_spacer = ComicThumb(item_id="NOID")
             c_spacer.lines = 1
             c_spacer.padding = dp(60), dp(60)
             c_spacer.totalPages = self.totalPages
@@ -272,22 +253,17 @@ class ReadingListScreenView(BaseScreenView):
                     x += 1
                 rl_book_count = x
                 self.rl_book_count = rl_book_count
-                session_cookie = MDApp.get_running_app().config.get("General", "api_key")
-                str_cookie = "SESSION=" + session_cookie
-                extra_headers = {"Cookie": str_cookie, }
-                c = MyReadingListImage(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'],
-                                     extra_headers=extra_headers)
+                strCookie = 'SESSION=' + self.session_cookie
+                c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
                 c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
                 c.book_ids = book_ids
                 #c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
-                # c.thumb_type = "ReadingList"
+                c.thumb_type = "ReadingList"
                 c.text_size = dp(8)
-                c.lines = 2
-                c.padding = dp(20), dp(20)
+                c_spacer.lines = 1
+                c_spacer.padding = dp(20), dp(20)
                 c.totalPages = self.totalPages
-                c.text = item['name']
-
                 # c.extra_headers = {"X-Auth-Token":"fbdd4f69-274d-4fd4-ad58-0932d20e37f6",}
                 # c.readinglist_obj = self.new_readinglist
                 str_name = ""
@@ -312,8 +288,7 @@ class ReadingListScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                grid.cols = math.floor((Window.width - dp(200)) // self.comic_thumb_width)
-                print(f"grid.cols:{grid.cols}")
+                grid.cols = (Window.width - 30) // self.comic_thumb_width
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True
