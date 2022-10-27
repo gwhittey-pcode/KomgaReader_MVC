@@ -149,7 +149,7 @@ class ReadingListScreenView(BaseScreenView):
         self.item_per_page = int(text_item)
         self.app.config.set("General", "max_item_per_page", self.item_per_page)
         self.app.config.write()
-        self.get_comicrack_list(new_page_num=self.current_page)
+        self.get_server_lists(new_page_num=self.current_page)
         self.item_per_menu_build()
 
     # def filter_menu_build(self):
@@ -193,7 +193,7 @@ class ReadingListScreenView(BaseScreenView):
         # self.next_button = self.ids["next_button"]
         if self.loading_done is True:
             return
-        self.get_comicrack_list()
+        self.get_server_lists()
 
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():
@@ -201,8 +201,8 @@ class ReadingListScreenView(BaseScreenView):
                 c = val
                 c.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
 
-    def get_comicrack_list(self, new_page_num=0):
-        def __get_comicrack_list(self, results):
+    def get_server_lists(self, new_page_num=0):
+        def __get_server_lists(self, results):
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
@@ -217,18 +217,18 @@ class ReadingListScreenView(BaseScreenView):
             url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
             fetch_data.get_server_data_callback(
                 url_send,
-                callback=lambda url_send, results: __get_comicrack_list(self, results))
+                callback=lambda url_send, results: __get_server_lists(self, results))
 
     def build_paginations(self):
         build_pageination_nav(screen_name="reading list screen")
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":
-            self.get_comicrack_list(new_page_num=int(self.current_page) - 1)
+            self.get_server_lists(new_page_num=int(self.current_page) - 1)
         elif i.icon == "greater-than":
-            self.get_comicrack_list(new_page_num=int(self.current_page) + 1)
+            self.get_server_lists(new_page_num=int(self.current_page) + 1)
     def pag_num_press(self,i):
-        self.get_comicrack_list(new_page_num=int(i.text)-1)
+        self.get_server_lists(new_page_num=int(i.text)-1)
     def build_page(self):
         async def _build_page():
             grid = self.m_grid
@@ -310,7 +310,7 @@ class ReadingListScreenView(BaseScreenView):
         #     self.prev_button.opacity = 0
         #     self.prev_button.disabled = True
         #     self.prev_button.page_num = ""
-        self.get_comicrack_list(new_page_num=this_page)
+        self.get_server_lists(new_page_num=this_page)
 
     def model_is_changed(self) -> None:
         """
