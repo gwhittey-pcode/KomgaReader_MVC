@@ -135,9 +135,11 @@ dmypy.json
 /KomgaReader2.ini
 /.idea/KomgaReader_MVC.iml
 /komgareader_mvc.ini
-/Controller/login_screen.py
-/Model/login_screen.py
+
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/vcs.xml
+.buildozer/
+/bin
+/komgareader.ini

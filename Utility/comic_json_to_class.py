@@ -64,6 +64,8 @@ COMIC_DB_KEYS = [
     "data",
     "is_sync",
 
+    "rl_number",
+
 ]
 
 
@@ -123,7 +125,7 @@ class ComicBook(EventDispatcher):
                 self.data = comic_data
                 self.Id = comic_data["id"]
                 self.__str__ = "{} #{}".format(
-                    comic_data["seriesTitle"], str(comic_data["number"])
+                    comic_data["seriesTitle"], str(comic_data['metadata']['number'])
                 )
                 self.slug = str(comic_data["id"])
                 self.name = f"{comic_data['seriesTitle']} #{str(comic_data['number'])}"
@@ -144,16 +146,17 @@ class ComicBook(EventDispatcher):
                 self.comic_jsonstore = app.comic_db
                 self.readlist_obj = readlist_obj
                 self.comic_index = comic_index
+                self.rl_number = data['number']
                 self.local_file = ""
-                if mode != "FileOpen":
-                    Clock.schedule_once(
-                        lambda dt: self.get_or_create_db_item())
+                # if mode != "FileOpen":
+                #     Clock.schedule_once(
+                #         lambda dt: self.get_or_create_db_item())
         if mode == "db_data":
             self.Id = comic_Id
-        if mode != "FileOpen":
-            # Clock.schedule_once(
-            #    lambda dt: self.get_or_create_db_item())
-            self.get_or_create_db_item()
+        # if mode != "FileOpen":
+        #     # Clock.schedule_once(
+        #     #    lambda dt: self.get_or_create_db_item())
+        #     self.get_or_create_db_item()
 
     def get_or_create_db_item(self):
         tmp_defaults = {}
@@ -238,11 +241,11 @@ class ComicReadingList(EventDispatcher):
     totalCount = NumericProperty()
     pickled_data = ObjectProperty()
     sync_list = ListProperty()
-
     def __init__(self, name="", data=None, slug="", mode="Server"):
         self.slug = slug
         self.name = name
         self.event = None
+
         if data != "db_data":
             self.pickled_data = pickle.dumps(data, -1)
             self.data = pickle.loads(self.pickled_data)
@@ -252,8 +255,8 @@ class ComicReadingList(EventDispatcher):
                     self.totalCount = 0
                 else:
                     self.totalCount = self.data["totalElements"]
-        if mode != "FileOpen":
-            self.get_or_create_db_item(mode=mode)
+        # if mode != "FileOpen":
+        #     self.get_or_create_db_item(mode=mode)
 
     def add_comic(self, comic, index=0):
         """

@@ -2,7 +2,7 @@ import importlib
 from kivymd.app import MDApp
 import View.StartScreen.start_screen
 from kivy.metrics import dp
-
+from kivy.config import Config
 # We have to manually reload the view module in order to apply the
 # changes made to the code on a subsequent hot reload.
 # If you no longer need a hot reload, you can delete this instruction.
@@ -31,6 +31,7 @@ class StartScreenController:
         self.view.manager_screens.current = "login screen"
 
     def validate_user(self):
-        print("OK")
+        set_usernam = self.app.current_screen.ids.username_field.text
+        self.app.config.set("General", "username",set_usernam)
     def get_view(self) -> View.StartScreen.start_screen:
         return self.view

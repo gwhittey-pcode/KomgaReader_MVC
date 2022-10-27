@@ -4,7 +4,7 @@ from kivy.properties import (
     StringProperty,
     ListProperty,
     NumericProperty,
-    DictProperty,
+    DictProperty, BooleanProperty,
 )
 from kivy.uix.carousel import Carousel
 from Utility.myimage import Image, MyAsyncImage
@@ -172,8 +172,8 @@ class ComicBookPageScatter(ScatterLayout):
         if pos[0] > 0 or pos[1] > 0:
             return False
         elif (
-            pos[0] + self.width * self.scale < Window.size[0]
-            or pos[1] + self.height * self.scale < Window.size[1]
+                pos[0] + self.width * self.scale < Window.size[0]
+                or pos[1] + self.height * self.scale < Window.size[1]
         ):
             return False
         return True
@@ -185,11 +185,11 @@ class ComicBookPageScatter(ScatterLayout):
             # _last_touch_pos has last pos in correct parent space,
             # just like incoming touch
             dx = (
-                touch.x - self._last_touch_pos[touch][0]
-            ) * self.do_translation_x
+                         touch.x - self._last_touch_pos[touch][0]
+                 ) * self.do_translation_x
             dy = (
-                touch.y - self._last_touch_pos[touch][1]
-            ) * self.do_translation_y
+                         touch.y - self._last_touch_pos[touch][1]
+                 ) * self.do_translation_y
             dx = dx / self.translation_touches
             dy = dy / self.translation_touches
             m = Matrix().translate(dx, dy, 0)
@@ -261,15 +261,17 @@ class ComicBookPageImage(MyAsyncImage):
     proxyImage = ObjectProperty()
     id = StringProperty()
     extra_headers = DictProperty()
+
     def __init__(self, **kwargs):
         super(ComicBookPageImage, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
+
     def _new_image_downloaded(
-        self, scatter, outer_grid, comic_obj, var_i, src_url, proxyImage
+            self, scatter, outer_grid, comic_obj, var_i, src_url, proxyImage
     ):
         """Fired once the image is downloaded and ready to use"""
         Logger.debug("_new_image_downloaded")
-        
+
         def _remove_widget():
             carousel.remove_widget(scatter)
 
@@ -289,7 +291,7 @@ class ComicBookPageImage(MyAsyncImage):
                 comic_page=var_i,
                 allow_stretch=s_allow_stretch,
                 keep_ratio=s_keep_ratio,
-                extra_headers = self.extra_headers
+                extra_headers=self.extra_headers
             )
             part_2 = ComicBookPageImage(
                 comic_slug=comic_obj.slug,
@@ -297,7 +299,7 @@ class ComicBookPageImage(MyAsyncImage):
                 comic_page=var_i,
                 allow_stretch=s_allow_stretch,
                 keep_ratio=s_keep_ratio,
-                extra_headers = self.extra_headers
+                extra_headers=self.extra_headers
             )
             scatter_1 = ComicBookPageScatter(
                 id="comic_scatter" + str(var_i),
@@ -368,16 +370,16 @@ class ComicCarousel(Carousel):
     def on_touch_move(self, touch):  # noqa
         if not self.touch_mode_change:
             if self.ignore_perpendicular_swipes and self.direction in (
-                "top",
-                "bottom",
+                    "top",
+                    "bottom",
             ):
                 if abs(touch.oy - touch.y) < self.scroll_distance:
                     if abs(touch.ox - touch.x) > self.scroll_distance:
                         self._change_touch_mode()
                         self.touch_mode_change = True
             elif self.ignore_perpendicular_swipes and self.direction in (
-                "right",
-                "left",
+                    "right",
+                    "left",
             ):
                 if abs(touch.ox - touch.x) < self.scroll_distance:
                     if abs(touch.oy - touch.y) > self.scroll_distance:
@@ -402,8 +404,8 @@ class ComicCarousel(Carousel):
                 if self.index is not None:
                     current_slide = self.current_slide
                     if (
-                        current_slide == self.slides[-1]
-                        and self.next_slide is None
+                            current_slide == self.slides[-1]
+                            and self.next_slide is None
                     ):
                         app = App.get_running_app()
                         comic_book_screen = app.manager_screens.current_screen
@@ -577,9 +579,11 @@ class ComicBookPageThumb(ButtonBehavior, MyAsyncImage):
     extra_headers = DictProperty()
     id = StringProperty()
     extra_headers = DictProperty()
+
     def __init__(self, **kwargs):
         super(ComicBookPageThumb, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
+
     def click(self, instance):
         app = App.get_running_app()
         page_nav_popup = app.manager_screens.current_screen.page_nav_popup
@@ -620,9 +624,16 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
     mode = StringProperty()
     id = StringProperty()
     extra_headers = DictProperty()
+    current_page = NumericProperty()
+    first = BooleanProperty(False)
+    last = BooleanProperty(False)
+    totalPages = NumericProperty()
+    item_per_page = NumericProperty
+
     def __init__(self, **kwargs):
         super(CommonComicsCoverImage, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
+
     def enable_me(self, instance):
         self.disabled = False
 
@@ -660,6 +671,11 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             paginator_obj=self.paginator_obj,
             pag_pagenum=self.new_page_num,
             view_mode=view_mode,
+            current_page=self.current_page,
+            first=self.first,
+            last=self.last,
+            totalPages=self.totalPages,
+            item_per_page=self.item_per_page,
         )
         app.manager_screens.current = "comic book screen"
 

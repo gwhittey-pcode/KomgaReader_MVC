@@ -82,10 +82,10 @@ settings_json_server = json.dumps(
         #  'key':     'use_pagination'},
         {
             "type": "numeric",
-            "title": "Max ComicBooks",
-            "desc": "Number of books to show on list page(turn pagination on)",
+            "title": "Max Items",
+            "desc": "Number of items to show on comic lists",
             "section": "General",
-            "key": "max_books_page",
+            "key": "max_item_per_page",
         },
         {
             "type": "bool",

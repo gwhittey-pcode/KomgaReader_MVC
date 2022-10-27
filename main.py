@@ -42,7 +42,7 @@ class KomgaReader(MDApp):
     username = StringProperty()
     password = StringProperty()
     api_key = StringProperty()
-    max_books_page = NumericProperty()
+    max_item_per_page = NumericProperty()
     open_last_comic_startup = NumericProperty()
     how_to_open_comic = StringProperty()
     app_started = BooleanProperty(False)
@@ -59,6 +59,7 @@ class KomgaReader(MDApp):
         self.username = ""
         self.comic_thumb_height = 240
         self.comic_thumb_width = 156
+        self.item_per_page = 20
         self.title = ""
         self.settings_cls = MySettings
         # This is the screen manager that will contain all the screens of your
@@ -93,7 +94,7 @@ class KomgaReader(MDApp):
                 "open_last_comic_startup": 0,
                 "how_to_open_comic": "Open Local Copy",
                 # 'use_pagination':   '1',
-                "max_books_page": 25,
+                "max_item_per_page": 25,
             },
         )
         config.setdefaults(
@@ -146,7 +147,7 @@ class KomgaReader(MDApp):
     def set_value_from_config(self, *args):
         """Sets the values of variables from the settings
         file KomgaReader2.ini."""
-        self.config.read(os.path.join(self.directory, "komgareader.ini"))
+        #self.config.read(os.path.join(self.directory, "komgareader.ini"))
         self.lang = self.config.get("Language", "language")
         self.sync_folder = self.config.get("Sync", "sync_folder")
         self.store_dir = os.path.join(
@@ -165,7 +166,7 @@ class KomgaReader(MDApp):
         if not os.path.isdir(self.my_data_dir):
             os.makedirs(self.my_data_dir)
 
-        self.max_books_page = int(self.config.get("General", "max_books_page"))
+        self.max_item_per_page = int(self.config.get("General", "max_item_per_page"))
         self.open_last_comic_startup = self.config.get(
             "General", "open_last_comic_startup"
         )
@@ -179,7 +180,6 @@ class KomgaReader(MDApp):
                 if args[0] == "Delete Database":
                     self.stop()
                 elif args[0] == "Move Database":
-                    print("move")
                     db_folder = self.my_data_dir
                     old_dbfile = os.path.join(db_folder, "KomgaReader.db")
                     store_dir = os.path.join(value, "store_dir")
@@ -211,7 +211,7 @@ class KomgaReader(MDApp):
                 "sync_folder": "sync_folder",
                 "password": "password",
                 "username": "username",
-                "max_books_page": "max_books_page",
+                "max_item_per_page": "max_item_per_page",
                 "sync_folder": "sync_folder",
             }
             item_list = list(config_items.keys())
