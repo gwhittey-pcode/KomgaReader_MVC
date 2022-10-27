@@ -253,7 +253,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 c.on_load = (loaded())
                 c.PageCount = comic.PageCount
                 c.pag_pagenum = self.current_page
-                grid.cols = (Window.width - 10) // self.comic_thumb_width
+                grid.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
                 self.dynamic_ids[id] = c
 
             self.loading_done = True
@@ -291,7 +291,7 @@ class RLComicBooksScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = (Window.width - 10) // self.comic_thumb_width
+                c.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
 
     def item_per_menu_build(self):
         item_per_menu_numbers = ("20", "50", "100", "200", "500")
