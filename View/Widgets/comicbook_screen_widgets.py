@@ -482,7 +482,7 @@ class ComicBookPageControlButton(Button):
         elif tap_option == "Open Page Nav":
             comic_book_screen.page_nav_popup_open()
         elif tap_option == "Open Collection Browser":
-            if len(comic_book_screen.readinglist_obj.comics) > 1:
+            if len(comic_book_screen.comiclist_obj.comics) > 1:
                 comic_book_screen.comicscreen_open_collection_popup()
             else:
                 return
@@ -614,7 +614,7 @@ class CommonComicsCoverInnerGrid(GridLayout):
 
 class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
     comic_obj = ObjectProperty()
-    readinglist_obj = ObjectProperty()
+    comiclist_obj = ObjectProperty()
     paginator_obj = ObjectProperty()
     new_page_num = NumericProperty()
     clock_set = StringProperty()
@@ -666,7 +666,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
 
         screen = app.manager_screens.get_screen("comic book screen")
         screen.setup_screen(
-            readinglist_obj=self.readinglist_obj,
+            comiclist_obj=self.comiclist_obj,
             comic_obj=self.comic_obj,
             paginator_obj=self.paginator_obj,
             pag_pagenum=self.new_page_num,
@@ -693,7 +693,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             view_mode = "Server"
         screen = app.manager_screens.get_screen("comic book screen")
         screen.setup_screen(
-            readinglist_obj=self.readinglist_obj,
+            comiclist_obj=self.comiclist_obj,
             comic_obj=self.comic_obj,
             paginator_obj=self.paginator_obj,
             view_mode=view_mode,
@@ -714,7 +714,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             view_mode = "Server"
         screen = app.manager_screens.get_screen("comic book screen")
         screen.setup_screen(
-            readinglist_obj=self.readinglist_obj,
+            comiclist_obj=self.comiclist_obj,
             comic_obj=self.comic_obj,
             paginator_obj=self.paginator_obj,
             pag_pagenum=self.new_page_num,

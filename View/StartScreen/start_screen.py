@@ -94,7 +94,7 @@ class StartScreenView(BaseScreenView):
             view_mode = "Server"
         screen = self.app.manager_screens.get_screen("comic book screen")
         screen.setup_screen(
-            readinglist_obj=self.new_readinglist,
+            comiclist_obj=self.new_readinglist,
             comic_obj=comic,
             paginator_obj=paginator_obj,
             pag_pagenum=tmp_last_pag_pagnum,
@@ -247,7 +247,7 @@ class StartScreenView(BaseScreenView):
                         for comic in self.new_readinglist.comics:
                             if comic.slug == tmp_last_comic_id:
                                 c = ReadingListComicImage(comic_obj=comic)
-                                c.readinglist_obj = self.new_readinglist
+                                c.comiclist_obj = self.new_readinglist
                                 c.paginator_obj = paginator_obj
                                 x = self.app.comic_thumb_width
                                 y = self.app.comic_thumb_height

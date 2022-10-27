@@ -288,7 +288,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 str_cookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(item_id=comic.Id, comic_obj=comic)
                 c.lines = 2
-                c.readinglist_obj = self.new_readinglist
+                c.comiclist_obj = self.new_readinglist
                 c.paginator_obj = self.paginator_obj
                 c.str_caption = f"  {comic.Series } \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 c.tooltip_text = f"{comic.Series }\n#{comic.Number} - {comic.Title}"
