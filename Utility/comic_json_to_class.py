@@ -63,7 +63,7 @@ COMIC_DB_KEYS = [
     "local_file",
     "data",
     "is_sync",
-
+    "Series_id",
     "rl_number",
 
 ]
@@ -92,6 +92,7 @@ class ComicBook(EventDispatcher):
     name = StringProperty()
     Number = StringProperty()
     Series = StringProperty()
+    Series_id = StringProperty()
     date = StringProperty()
     Year = NumericProperty()
     Month = NumericProperty()
@@ -131,22 +132,31 @@ class ComicBook(EventDispatcher):
                 self.name = f"{comic_data['seriesTitle']} #{str(comic_data['number'])}"
                 self.Number = str(comic_data['metadata']['number'])
                 self.Series = comic_data["seriesTitle"]
+                self.Series_id = comic_data["seriesId"]
                 self.date = f"{comic_data['metadata']['releaseDate']}"
-                self.Year = comic_data['metadata']['releaseDate'][0]
-                self.Month = comic_data['metadata']['releaseDate'][2]
+                if comic_data['metadata']['releaseDate'] is not None:
+
+                    self.Year = comic_data['metadata']['releaseDate'][0]
+                    self.Month = comic_data['metadata']['releaseDate'][2]
+                else:
+                    self.Year = 2000
+                    self.Month = 1
                 if comic_data['readProgress']:
                     self.UserLastPageRead = comic_data['readProgress']['page']
                     self.UserCurrentPage = comic_data['readProgress']['page']
                 self.PageCount = comic_data['media']["pagesCount"]
                 self.Title = comic_data['metadata']['title']
-                self.Summary = comic_data["metadata"]['summary']
-                self.FilePath = comic_data["url"]
+                if comic_data["metadata"]['summary'] is not None:
+                    self.Summary = comic_data["metadata"]['summary']
+                if comic_data["url"] is not None:
+                    self.FilePath = comic_data["url"]
                 self.Volume = 'None'
                 app = App.get_running_app()
                 self.comic_jsonstore = app.comic_db
                 self.readlist_obj = readlist_obj
                 self.comic_index = comic_index
-                self.rl_number = data['number']
+                if data['number'] is not None:
+                    self.rl_number = data['number']
                 self.local_file = ""
                 # if mode != "FileOpen":
                 #     Clock.schedule_once(
@@ -301,7 +311,6 @@ class ComicList(EventDispatcher):
                         ).order_by(  # noqa
                             comicindex_db.index
                         )
-                        print(f"len:{len(list_comics)}")
                     else:
                         list_comics = self.db.comics.order_by(
                             comicindex_db.index

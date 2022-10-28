@@ -44,6 +44,7 @@ class Comic(BaseModel):
     Id = CharField(primary_key=True)
     Number = CharField()
     Series = CharField(null=True)
+    Series_id = CharField(null=True)
     Year = IntegerField(null=True)
     Month = IntegerField(null=True)
     UserLastPageRead = IntegerField()
@@ -57,6 +58,7 @@ class Comic(BaseModel):
     local_file = CharField(null=True)
     is_sync = BooleanField(default=False)
     been_sync = BooleanField(default=False)
+
 
 
 ComicIndexDeferred = DeferredThroughModel()

@@ -1,3 +1,4 @@
+from View.base_screen import BaseScreenView
 import ntpath
 import os
 from functools import partial
@@ -33,61 +34,19 @@ from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.custimagelist import RLTileLabel
 from View.Widgets.paginationwidgets import MyMDRaisedButton, MyMDIconRaisedButton
-from View.base_screen import BaseScreenView
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
 
 
-class CustomMDFillRoundFlatIconButton(MDIconButton):
-    pass
-
-
-class Tooltip(Label):
-    pass
-
-class MDRaisedIconButton(BaseButton, ButtonElevationBehaviour, ButtonContentsText):
-    """
-    A flat button with (by default) a primary color fill and matching
-    color text.
-    """
-
-    # FIXME: Move the underlying attributes to the :class:`~BaseButton` class.
-    #  This applies to all classes of buttons that have similar attributes.
-    _default_md_bg_color = None
-    _default_md_bg_color_disabled = None
-    _default_theme_text_color = "Custom"
-    _default_text_color = "PrimaryHue"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.shadow_softness = 8
-        self.shadow_offset = (0, 2)
-        self.shadow_radius = self._radius * 2
-class ListItemWithCheckbox(OneLineAvatarIconListItem):
-    """Custom list item."""
-    icon = StringProperty("android")
-
-    def on_checkbox_active(self, checkbox, value):
-        if value:
-            print('The checkbox', checkbox, 'is active', 'and', checkbox.state, 'state')
-            print(self.text)
-        else:
-            print('The checkbox', checkbox, 'is inactive', 'and', checkbox.state, 'state')
-
-
-class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
-    """Custom right container."""
-
-
-class ReadingListScreenView(BaseScreenView):
+class SeriesScreenView(BaseScreenView):
     dynamic_ids = DictProperty({})
     comic_thumb_width = NumericProperty()
     comic_thumb_height = NumericProperty()
 
     def __init__(self, **kwargs):
-        super(ReadingListScreenView, self).__init__(**kwargs)
-        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page",  App.get_running_app().config)
+        super(SeriesScreenView, self).__init__(**kwargs)
+        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page", App.get_running_app().config)
         self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
@@ -118,7 +77,6 @@ class ReadingListScreenView(BaseScreenView):
         self.item_per_menu_build()
         # self.filter_menu_build()
 
-
     def item_per_menu_build(self):
         item_per_menu_numbers = ("20", "50", "100", "200", "500")
         item_per_menu_items = []
@@ -132,7 +90,7 @@ class ReadingListScreenView(BaseScreenView):
                     "text": f"{nums}",
                     "viewclass": "OneLineListItem",
                     "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-                    "bg_color":background_color
+                    "bg_color": background_color
                 }
             )
 
@@ -178,8 +136,6 @@ class ReadingListScreenView(BaseScreenView):
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()
 
-
-
     def callback_for_menu_items(self, *args):
         pass
 
@@ -214,21 +170,23 @@ class ReadingListScreenView(BaseScreenView):
 
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
+            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size={self.item_per_page}"
             fetch_data.get_server_data_callback(
                 url_send,
                 callback=lambda url_send, results: __get_server_lists(self, results))
 
     def build_paginations(self):
-        build_pageination_nav(screen_name="reading list screen")
+        build_pageination_nav(screen_name=self.name)
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":
             self.get_server_lists(new_page_num=int(self.current_page) - 1)
         elif i.icon == "greater-than":
             self.get_server_lists(new_page_num=int(self.current_page) + 1)
-    def pag_num_press(self,i):
-        self.get_server_lists(new_page_num=int(i.text)-1)
+
+    def pag_num_press(self, i):
+        self.get_server_lists(new_page_num=int(i.text) - 1)
+
     def build_page(self):
         async def _build_page():
             grid = self.m_grid
@@ -247,14 +205,14 @@ class ReadingListScreenView(BaseScreenView):
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
                 rl_id = item['id']
-                rl_book_count = len( item['bookIds'])
+                rl_book_count = item['booksCount']
                 self.rl_book_count = rl_book_count
                 c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
                 c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
                 # c.book_ids = book_ids
-                #c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
+                # c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
-                c.thumb_type = "ReadingList"
+                c.thumb_type = "Series"
                 c.text_size = dp(8)
                 c.lines = 2
                 c.totalPages = self.totalPages
@@ -271,7 +229,7 @@ class ReadingListScreenView(BaseScreenView):
                 if os.path.isfile(t_file):
                     c_image_source = t_file
                 else:
-                    c_image_source = f"{self.base_url}/api/v1/readlists/{rl_id}/thumbnail"
+                    c_image_source = f"{self.base_url}/api/v1/series/{rl_id}/thumbnail"
                     asynckivy.start(save_thumb(rl_id, c_image_source))
                 c.source = c_image_source
 
@@ -288,6 +246,7 @@ class ReadingListScreenView(BaseScreenView):
             for child in grid.children:
                 if child.item_id == first_item:
                     scroll.scroll_to(child)
+
         self.dialog_load_comic_data = DialogLoadKvFiles()
         self.dialog_load_comic_data.open()
         asynckivy.start(_build_page())
