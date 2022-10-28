@@ -25,10 +25,11 @@ from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.db_functions import Comic
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myloader import Loader
-from View.base_screen import BaseScreenView
+
 from View.Widgets.comicbook_screen_widgets import ComicBookPageScatter, ComicBookPageImage, ThumbPopPageInnerGrid, \
     ComicBookPageThumb, ThumbPopPagebntlbl, CommonComicsScroll, CommonComicsOuterGrid, CommonComicsCoverInnerGrid, \
     CommonComicsCoverImage
+from View.base_screen import BaseScreenView
 from mysettings.settingsjson import settings_json_screen_tap_control
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
 

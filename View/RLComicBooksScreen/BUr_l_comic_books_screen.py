@@ -20,7 +20,7 @@ from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.komga_server_conn import ComicServerConn
 from Utility.paginator import Paginator
 
-from View.base_screen import BaseScreenView
+
 import json
 from functools import partial
 

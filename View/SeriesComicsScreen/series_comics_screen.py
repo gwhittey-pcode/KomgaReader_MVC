@@ -1,6 +1,7 @@
 import math
 
-from View.base_screen import BaseScreenView
+from View.ComicListsBaseScreen import ComicListsBaseScreenView
+
 import os
 
 from kivy.core.window import Window
@@ -18,7 +19,7 @@ from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
 
 
-class SeriesComicsScreenView(BaseScreenView):
+class SeriesComicsScreenView(ComicListsBaseScreenView):
     reading_list_title = StringProperty()
     page_number = NumericProperty()
     max_item_per_page = NumericProperty()

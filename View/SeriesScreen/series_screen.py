@@ -1,6 +1,7 @@
 import math
 
-from View.base_screen import BaseScreenView
+
+from View.ComicListsBaseScreen import ComicListsBaseScreenView
 import ntpath
 import os
 from functools import partial
@@ -41,7 +42,7 @@ from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
 
 
-class SeriesScreenView(BaseScreenView):
+class SeriesScreenView(ComicListsBaseScreenView):
     dynamic_ids = DictProperty({})
     comic_thumb_width = NumericProperty()
     comic_thumb_height = NumericProperty()

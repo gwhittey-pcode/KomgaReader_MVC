@@ -1,6 +1,6 @@
 from kivymd.app import MDApp
 
-from View.base_screen import BaseScreenView
+
 import inspect
 from kivy.properties import ConfigParserProperty
 from kivy.app import App
@@ -17,6 +17,7 @@ from Utility.komga_server_conn import ComicServerConn
 from Utility.db_functions import ReadingList
 from Utility.paginator import Paginator
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
+from View.base_screen import BaseScreenView
 
 
 class LoginPopupContent(BoxLayout):

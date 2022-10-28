@@ -1,7 +1,7 @@
-from View.ComicListsBaseScreen import ComicListsBaseScreenView
+from View.base_screen import BaseScreenView
 
 
-class CollectionComicsScreenView(ComicListsBaseScreenView):
+class ComicListsBaseScreenView(BaseScreenView):
     def model_is_changed(self) -> None:
         """
         Called whenever any change has occurred in the data model.

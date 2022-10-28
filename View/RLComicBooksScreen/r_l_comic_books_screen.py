@@ -11,13 +11,14 @@ from kivymd.utils import asynckivy
 from Utility.comic_functions import save_thumb
 from Utility.comic_json_to_class import ComicList, ComicBook
 from Utility.komga_server_conn import ComicServerConn
+from View.ComicListsBaseScreen import ComicListsBaseScreenView
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
-from View.base_screen import BaseScreenView
 
 
-class RLComicBooksScreenView(BaseScreenView):
+
+class RLComicBooksScreenView(ComicListsBaseScreenView):
     reading_list_title = StringProperty()
     page_number = NumericProperty()
     max_item_per_page = NumericProperty()

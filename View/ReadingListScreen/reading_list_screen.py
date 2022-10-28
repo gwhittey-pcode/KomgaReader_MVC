@@ -31,10 +31,11 @@ from Utility.comic_functions import save_thumb
 from Utility.db_functions import ReadingList
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
+from View.ComicListsBaseScreen import ComicListsBaseScreenView
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.custimagelist import RLTileLabel
 from View.Widgets.paginationwidgets import MyMDRaisedButton, MyMDIconRaisedButton
-from View.base_screen import BaseScreenView
+
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
@@ -81,7 +82,7 @@ class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
     """Custom right container."""
 
 
-class ReadingListScreenView(BaseScreenView):
+class ReadingListScreenView(ComicListsBaseScreenView):
     dynamic_ids = DictProperty({})
     comic_thumb_width = NumericProperty()
     comic_thumb_height = NumericProperty()
