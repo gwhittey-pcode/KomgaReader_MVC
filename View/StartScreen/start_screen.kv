@@ -242,7 +242,7 @@
                 hint_text: "ComicRack Server URL"
                 multiline: False
                 mode:'rectangle'
-                on_text_validate:root.validate_user()
+                on_text_validate:app.manager_screens.current_screen.validate_user()
                 text:app.base_url
 
         Label:
