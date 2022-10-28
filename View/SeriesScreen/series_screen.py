@@ -1,3 +1,5 @@
+import math
+
 from View.base_screen import BaseScreenView
 import ntpath
 import os
@@ -58,8 +60,6 @@ class SeriesScreenView(BaseScreenView):
         self.Data = ""
         self.fetch_data = ComicServerConn()
         self.dialog_load_readlist_data = None
-        self.comic_thumb_height = 240
-        self.comic_thumb_width = 156
         self.m_grid = ''
         self.bind(width=self.my_width_callback)
         self.dialog_load_comic_data = None
@@ -71,8 +71,6 @@ class SeriesScreenView(BaseScreenView):
         self.last = False
         self.first = False
         self.current_page = 1
-        self.comic_thumb_height = 240
-        self.comic_thumb_width = 156
         self.loading_done = False
         self.item_per_menu_build()
         # self.filter_menu_build()
@@ -155,7 +153,7 @@ class SeriesScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = round((Window.width - dp(50)) // self.comic_thumb_width)
+                c.cols = math.floor((Window.width - dp(20)) //  self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0):
         def __get_server_lists(self, results):
@@ -221,7 +219,7 @@ class SeriesScreenView(BaseScreenView):
                 self.dialog_load_comic_data.percent = str(
                     i * 100 // int(self.item_per_page)
                 )
-                y = self.comic_thumb_height
+                y = self.app.comic_thumb_height
                 thumb_filename = f"{rl_id}.jpg"
                 id_folder = self.app.store_dir
                 my_thumb_dir = os.path.join(id_folder, "comic_thumbs")
@@ -237,7 +235,7 @@ class SeriesScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                grid.cols = round((Window.width - dp(50)) // self.comic_thumb_width)
+                grid.cols = math.floor((Window.width - dp(20)) //  self.app.comic_thumb_width)
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True

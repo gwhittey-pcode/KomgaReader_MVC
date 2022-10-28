@@ -5,7 +5,7 @@
     _str_caption:self.str_caption
     _percent_read:self.percent_read
     size_hint: None, None
-    size: "156dp", "320dp"
+    size: "200dp", "390dp"
     orientation:"vertical"
     pos_hint: {"x":1,"y":1}
     spacing: 2
@@ -13,7 +13,7 @@
         id:top_box
         md_bg_color:get_color_from_hex("#1e1e1e")
         size_hint: None, None
-        size: "156dp", "320dp"
+        size: "200dp", "390dp"
         orientation:"vertical"
         pos_hint: {"right": 1, "top": 1}
         spacing: 2
@@ -30,7 +30,8 @@
             source:root.source
             pos_hint: {"right": 1, "top": 1}
             size_hint: None, None
-            size: "156dp", "240dp"
+            size: "200dp", "300dp"
+            box_position: "header"
             on_release:root.on_short_touch()
             MDIconButton:
                 icon: "checkbox-blank-circle-outline"
@@ -72,6 +73,5 @@
                 size: self.texture_size
                 font_style:"Body2"
                 pos_hint: {"center_x": .5, "center_y": .5}
-
                 halign: "left"
 

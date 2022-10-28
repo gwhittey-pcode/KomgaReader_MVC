@@ -57,8 +57,8 @@ class KomgaReader(MDApp):
         self.base_url = ""
         self.password = ""
         self.username = ""
-        self.comic_thumb_height = 240
-        self.comic_thumb_width = 156
+        self.comic_thumb_height = 300
+        self.comic_thumb_width = 200
         self.item_per_page = 20
         self.title = ""
         self.settings_cls = MySettings
