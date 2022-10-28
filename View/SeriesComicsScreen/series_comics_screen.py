@@ -90,6 +90,7 @@ class SeriesComicsScreenView(BaseScreenView):
             self.new_page_num = new_page_num
             fetch_data = ComicServerConn()
             url_send_current = f"{self.base_url}/api/v1/series/{self.series_Id}/books?page={new_page_num}&size={self.item_per_page}"
+            print(f"{url_send_current}")
             fetch_data.get_server_data(url_send_current, self)
 
         asynckivy.start(collect_series_data())
@@ -231,6 +232,7 @@ class SeriesComicsScreenView(BaseScreenView):
                 c.str_caption = f"  {comic.Series} \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 # c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
                 c.thumb_type = "ComicBook"
+                c.comic_list_type = "series"
                 c.text_size = dp(8)
                 c.current_page = self.current_page
                 c.first = self.first

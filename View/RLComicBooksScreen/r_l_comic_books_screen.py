@@ -228,6 +228,7 @@ class RLComicBooksScreenView(BaseScreenView):
                 c.str_caption = f"  {comic.Series} \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 #c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
                 c.thumb_type = "ComicBook"
+                c.comic_list_type = "reading_list_comic_books"
                 c.text_size = dp(8)
                 c.current_page = self.current_page
                 c.first = self.first

@@ -629,7 +629,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
     last = BooleanProperty(False)
     totalPages = NumericProperty()
     item_per_page = NumericProperty
-
+    comic_list_type = StringProperty()
     def __init__(self, **kwargs):
         super(CommonComicsCoverImage, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
@@ -676,6 +676,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             last=self.last,
             totalPages=self.totalPages,
             item_per_page=self.item_per_page,
+            comic_list_type = self.comic_list_type,
         )
         app.manager_screens.current = "comic book screen"
 

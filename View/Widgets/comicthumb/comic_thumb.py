@@ -35,6 +35,7 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     book_ids = ListProperty()
     next_readinglist = ObjectProperty()
     prev_readinglist = ObjectProperty()
+    comic_list_type = StringProperty()
 
     def __init__(self, comic_obj=None, current_page=1, **kwargs):
         super(ComicThumb, self).__init__(**kwargs)
@@ -56,10 +57,12 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
 
     def on_short_touch(self):
         if self.thumb_type == "ReadingList":
+            self.comic_list_type = "r l comic books screen "
             self.open_readinglist()
         elif self.thumb_type == "ComicBook":
             self.open_comic()
         elif self.thumb_type == "Series":
+            self.comic_list_type = "series comics screen"
             self.open_series()
         else:
             print("No Item")
@@ -130,7 +133,8 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
                 totalPages=self.totalPages,
                 next_readinglist=self.next_readinglist,
                 prev_readinglist=self.prev_readinglist,
-                current_page=self.current_page
+                current_page=self.current_page,
+                comic_list_type=self.comic_list_type
 
             )
             Clock.schedule_once(lambda dt: self.open_comic_callback(), 0.1)

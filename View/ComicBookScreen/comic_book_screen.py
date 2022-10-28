@@ -130,12 +130,13 @@ class ComicBookScreenView(BaseScreenView):
     comic_obj = ObjectProperty()
     id = StringProperty()
     item_per_page = NumericProperty(20)
+    comic_list_type = StringProperty()
 
     def __init__(self, **kwargs):
         super(ComicBookScreenView, self).__init__(**kwargs)
         self.screen_setup = False
         self.new_page_num = None
-        self.readinglist_Id = None
+        self.comiclist_id = None
         self.comiclist_obj = None
         self.next_comic = None
         self.prev_comic = None
@@ -183,10 +184,10 @@ class ComicBookScreenView(BaseScreenView):
             last_load=0,
             current_page=0,
             totalPages=1,
-            next_readinglist=None,
-            prev_readinglist=None,
+            comic_list_type="",
             **kwargs,
     ):
+        self.comic_list_type = comic_list_type
         self.current_page = current_page
         self.totalPages = totalPages
         self.item_per_page = self.app.item_per_page
@@ -315,8 +316,8 @@ class ComicBookScreenView(BaseScreenView):
                                       current_page_num=self.current_page,
                                       new_page_num=self.current_page,
                                       )
-        # self.build_next_comic_dialog()
-        # self.build_prev_comic_dialog()
+        self.build_next_comic_dialog()
+        self.build_prev_comic_dialog()
         self.app.open_comic_screen = self.comic_obj.Id
 
     def add_pages(self, comic_book_carousel, outer_grid, comic_obj, i):
@@ -444,10 +445,14 @@ class ComicBookScreenView(BaseScreenView):
 
     def collect_readinglist_data(self, readinglist_id="", current_page_num=0, new_page_num=0, screen_setup=False):
         """Collect Reaing List Date From Server """
-        self.readinglist_Id = readinglist_id
+        self.comiclist_id = readinglist_id
         self.new_page_num = new_page_num
         fetch_data = ComicServerConn()
-        url_send = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
+        if self.comic_list_type == "reading_list_comic_books":
+            comic_list_type = "readinglist"
+        elif self.comic_list_type == "series":
+            comic_list_type = "series"
+        url_send = f"{self.base_url}/api/v1/{comic_list_type}/{self.comiclist_id}/books?page={new_page_num}&size={self.item_per_page}"
         fetch_data.get_server_data(url_send, self)
 
     def got_json2(self, req, results):
@@ -460,7 +465,7 @@ class ComicBookScreenView(BaseScreenView):
         self.new_readinglist = ComicList(
             name=self.comiclist_obj.name,
             data=results,
-            slug=self.readinglist_Id,
+            slug=self.comiclist_id,
         )
         for item in self.new_readinglist.comic_json:
             comic_index = self.new_readinglist.comic_json.index(item)
@@ -547,6 +552,7 @@ class ComicBookScreenView(BaseScreenView):
                     comic_thumb.mode = "FileOpen"
                 elif self.view_mode == "Sync":
                     comic_thumb.mode = "Sync"
+                comic_thumb.comic_list_type = self.comic_list_type
                 comic_thumb.comiclist_obj = self.comiclist_obj
                 comic_thumb.new_page_num = self.current_page
                 comic_thumb.current_page = self.current_page
@@ -917,8 +923,12 @@ class ComicBookScreenView(BaseScreenView):
             pass
         else:
             fetch_data = ComicServerConn()
-            url_get_next_readinglist_page = f"{self.base_url}/api/v1/readlists/" \
-                                            f"{self.readinglist_Id}/books?page={self.current_page - 1}&size={self.item_per_page}"
+            if self.comic_list_type == "reading_list_comic_books":
+                comic_list_type = "readinglist"
+            elif self.comic_list_type == "series":
+                comic_list_type = "series"
+            url_get_next_readinglist_page = f"{self.base_url}/api/v1/{comic_list_type}/" \
+                                            f"{self.comiclist_id}/books?page={self.current_page - 1}&size={self.item_per_page}"
             fetch_data.get_server_data_callback(
                 url_get_next_readinglist_page,
                 callback=lambda url_send, results: self.got_prev_readinglist_page(results))
@@ -931,7 +941,7 @@ class ComicBookScreenView(BaseScreenView):
             prev_new_readinglist = ComicList(
                 name=self.comiclist_obj.name,
                 data=results,
-                slug=self.readinglist_Id,
+                slug=self.comiclist_id,
             )
             total_count = prev_new_readinglist.totalCount
             i = 1
@@ -968,8 +978,12 @@ class ComicBookScreenView(BaseScreenView):
             print("End of ReadingList")
         else:
             fetch_data = ComicServerConn()
-            url_get_next_readinglist_page = f"{self.base_url}/api/v1/readlists/" \
-                                            f"{self.readinglist_Id}/books?page={self.current_page + 1}" \
+            if self.comic_list_type == "reading_list_comic_books":
+                comic_list_type = "readinglist"
+            elif self.comic_list_type == "series":
+                comic_list_type = "series"
+            url_get_next_readinglist_page = f"{self.base_url}/api/v1/{comic_list_type}/" \
+                                            f"{self.comiclist_id}/books?page={self.current_page + 1}" \
                                             f"&size={self.item_per_page}"
             fetch_data.get_server_data_callback(
                 url_get_next_readinglist_page,
@@ -984,7 +998,7 @@ class ComicBookScreenView(BaseScreenView):
             next_new_readinglist = ComicList(
                 name=self.comiclist_obj.name,
                 data=results,
-                slug=self.readinglist_Id,
+                slug=self.comiclist_id,
             )
             total_count = next_new_readinglist.totalCount
             i = 1
