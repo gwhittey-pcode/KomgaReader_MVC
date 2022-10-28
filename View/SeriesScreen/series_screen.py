@@ -153,7 +153,7 @@ class SeriesScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = math.floor((Window.width - dp(20)) //  self.app.comic_thumb_width)
+                c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0):
         def __get_server_lists(self, results):
@@ -198,7 +198,7 @@ class SeriesScreenView(BaseScreenView):
             src_thumb = "assets/spacer.jpg"
             c_spacer.source = src_thumb
             c_spacer.opacity = 0
-            grid.add_widget(c_spacer)
+            #grid.add_widget(c_spacer)
             first_item = self.rl_comics_json[0]['id']
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
@@ -235,7 +235,7 @@ class SeriesScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                grid.cols = math.floor((Window.width - dp(20)) //  self.app.comic_thumb_width)
+                grid.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True

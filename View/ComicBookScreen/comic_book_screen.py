@@ -449,7 +449,7 @@ class ComicBookScreenView(BaseScreenView):
         self.new_page_num = new_page_num
         fetch_data = ComicServerConn()
         if self.comic_list_type == "reading_list_comic_books":
-            comic_list_type = "readinglist"
+            comic_list_type = "readlists"
         elif self.comic_list_type == "series":
             comic_list_type = "series"
         url_send = f"{self.base_url}/api/v1/{comic_list_type}/{self.comiclist_id}/books?page={new_page_num}&size={self.item_per_page}"

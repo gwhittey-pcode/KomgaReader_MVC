@@ -1,3 +1,5 @@
+import math
+
 from View.base_screen import BaseScreenView
 import os
 
@@ -257,7 +259,7 @@ class SeriesComicsScreenView(BaseScreenView):
                 c.on_load = (loaded())
                 c.PageCount = comic.PageCount
                 c.pag_pagenum = self.current_page
-                grid.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
+                grid.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
                 self.dynamic_ids[id] = c
 
             self.loading_done = True
@@ -295,7 +297,7 @@ class SeriesComicsScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
+                c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def item_per_menu_build(self):
         item_per_menu_numbers = ("20", "50", "100", "200", "500")

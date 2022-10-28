@@ -1,3 +1,4 @@
+import math
 import ntpath
 import os
 from functools import partial
@@ -199,7 +200,7 @@ class ReadingListScreenView(BaseScreenView):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
-                c.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
+                c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0):
         def __get_server_lists(self, results):
@@ -279,7 +280,7 @@ class ReadingListScreenView(BaseScreenView):
                     grid.add_widget(c)
 
                 c.on_load = (loaded())
-                grid.cols = round((Window.width - dp(200)) // self.comic_thumb_width)
+                grid.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
                 self.dynamic_ids[id] = c
                 i += 1
             self.loading_done = True
