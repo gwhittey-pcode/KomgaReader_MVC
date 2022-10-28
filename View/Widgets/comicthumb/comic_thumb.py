@@ -64,6 +64,8 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
         elif self.thumb_type == "Series":
             self.comic_list_type = "series comics screen"
             self.open_series()
+        elif self.thumb_type == "Collections":
+            self.open_collection()
         else:
             print("No Item")
 
@@ -117,6 +119,7 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             app.manager_screens.current = "r l comic books screen"
 
     def open_comic(self):
+
         app = MDApp.get_running_app()
         if self.comic_obj is not None:
             screen = app.manager_screens.get_screen("comic book screen")
@@ -140,6 +143,10 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             Clock.schedule_once(lambda dt: self.open_comic_callback(), 0.1)
         else:
             pass
+
+    def open_comic_callback(self, *args):
+        app = MDApp.get_running_app()
+        app.manager_screens.current = "comic book screen"
 
     def open_series(self):
         app = MDApp.get_running_app()
@@ -181,7 +188,39 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
 
             app.manager_screens.current = "series comics screen"
 
-    def open_comic_callback(self, *args):
-
+    def open_collection(self):
         app = MDApp.get_running_app()
-        app.manager_screens.current = "comic book screen"
+        if self.item_id == "NOID":
+            pass
+        else:
+            def __wait_for_open(dt):
+                if server_readinglists_screen.loading_done is True:
+                    app.manager_screens.current = "collection comics screen"
+
+            server_readinglists_screen = app.manager_screens.get_screen(
+                "collection comics screen"
+            )
+            server_readinglists_screen.page_number = 1
+            readinglist_id = self.item_id
+            readinglist_name = self.rl_name
+            server_readinglists_screen.list_loaded = False
+            query = ReadingList.select().where(ReadingList.slug == readinglist_id)
+            if query.exists():
+                Logger.info(f"{readinglist_name} already in Database")
+                set_mode = "From DataBase"
+            else:
+                Logger.info(
+                    "{} not in Database getting info from server".format(
+                        readinglist_name
+                    )
+                )
+                set_mode = "From Server"
+            # set_mode = 'From Server'
+            Clock.schedule_once(
+                lambda dt: server_readinglists_screen.get_server_lists(
+                    new_page_num=self.current_page-1,
+                    collection_id=self.item_id
+                )
+            )
+
+            app.manager_screens.current = "collection comics screen"
