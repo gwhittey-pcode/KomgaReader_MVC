@@ -15,6 +15,7 @@
                 spacing: dp(10)
                 size_hint_y:None
                 height:dp(50)
+                #page_num_grid used to add pagination top buttons
                 MDGridLayout:
                     id:page_num_grid
                     rows : 1
@@ -46,23 +47,23 @@
 #                        on_release: root.filter_menu.open()
 
 
-            GridLayout:
-                #orientation: 'horizontal'
-                cols:3
-                rows:1
-                padding: dp(10), dp(60)
-                spacing: dp(10)
-                ScrollView:
-                    do_scroll_x: False
-                    id: main_scroll
-                    padding: dp(10), dp(10), dp(10), dp(10)
-                    refresh_callback: self.refresh_callback
-                    GridLayout:
-                        id: main_grid
-                        size_hint_y: None
-                        size_hint_x: 1
-                        height: self.minimum_height
-                        padding: dp(10), dp(10),dp(30),dp(50)
-                        spacing: dp(10)
-                        col_default_width:root.comic_thumb_width
-                        row_default_height:root.comic_thumb_height + dp(80)
+#            GridLayout:
+#                #orientation: 'horizontal'
+#                cols:3
+#                rows:1
+#                padding: dp(10), dp(60)
+#                spacing: dp(10)
+            ScrollView:
+                do_scroll_x: False
+                id: main_scroll
+                padding: dp(10), dp(10), dp(10), dp(10)
+                refresh_callback: self.refresh_callback
+                GridLayout:
+                    id: main_grid
+                    size_hint_y: None
+                    size_hint_x: 1
+                    height: self.minimum_height
+                    padding: dp(10), dp(10),dp(10),dp(10)
+                    spacing: dp(10)
+                    col_default_width:root.comic_thumb_width
+                    row_default_height:root.comic_thumb_height
