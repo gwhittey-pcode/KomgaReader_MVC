@@ -95,78 +95,6 @@
                     row_default_height:app.comic_thumb_height
 
 
-                #     MDIconButton:
-                #         icon: 'sd'
-                #         theme_text_color: 'Custom'
-                #         text_color: app.theme_cls.primary_color
-
-                # MDFlatButton:
-                #     text: 'MDFlatButton'
-                #     pos_hint: {'center_x': .5}
-
-                # MDRaisedButton:
-                #     text: "MDRaisedButton"
-                #     elevation_normal: 2
-                #     opposite_colors: True
-                #     pos_hint: {'center_x': .5}
-
-                # MDRectangleFlatButton:
-                #     text: "MDRectangleFlatButton"
-                #     pos_hint: {'center_x': .5}
-
-                # MDRectangleFlatIconButton:
-                #     text: "MDRectangleFlatIconButton"
-                #     icon: "language-python"
-                #     width: dp(230)
-                #     pos_hint: {'center_x': .5}
-
-                # MDRoundFlatButton:
-                #     text: "MDRoundFlatButton"
-                #     pos_hint: {'center_x': .5}
-
-                # MDRoundFlatIconButton:
-                #     text: "MDRoundFlatIconButton"
-                #     icon: "language-python"
-                #     width: dp(200)
-                #     pos_hint: {'center_x': .5}
-
-                # MDFillRoundFlatButton:
-                #     text: "MDFillRoundFlatButton"
-                #     pos_hint: {'center_x': .5}
-
-                # MDRoundFlatIconButton:
-                #     text: "MDRoundFlatIconButton"
-                #     icon: "language-python"
-                #     width: dp(200)
-                #     pos_hint: {'center_x': .5}
-
-                # MDFillRoundFlatIconButton:
-                #     text: "MDFillRoundFlatIconButton"
-                #     icon: "language-python"
-                #     pos_hint: {'center_x': .5}
-
-                # MDTextButton:
-                #     text: "MDTextButton"
-                #     pos_hint: {'center_x': .5}
-            # do_scroll_x: False
-
-            # MDList:
-            #     id: ml
-
-            #     OneLineListItem:
-            #         text: "One-line item"
-
-
-
-<Folder@MDAccordionListItem>
-    icon: 'android'
-
-    IconLeftSampleWidget:
-        icon: root.icon
-
-
-<SubFolderContent>
-    GridLayout:
 
 
 <FlatButton@ButtonBehavior+Label>:
@@ -200,7 +128,7 @@
         FlatButton:#TODO:Change to MDFlatIconButton
             text: "x"
             size_hint_x: .1
-            on_release: app.ids.base.close_popup()
+            on_release: app.popup.dismiss()
     BoxLayout:
         orientation: 'vertical'
         padding: main_win.space_x, dp(60)

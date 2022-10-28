@@ -1,42 +1,17 @@
 import math
-
-
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
-import ntpath
 import os
-from functools import partial
-from pathlib import Path
-
-from kivy.animation import Animation
 from kivy.app import App
-from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty, DictProperty, BooleanProperty, \
-    ConfigParserProperty
-from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.label import Label
-from kivy.utils import get_hex_from_color
+from kivy.properties import \
+    StringProperty, NumericProperty, ObjectProperty, DictProperty, \
+    BooleanProperty, ConfigParserProperty
 from kivymd.app import MDApp
-from kivy import Logger
 from kivymd.material_resources import dp
-from kivymd.toast import toast
-from kivymd.uix.behaviors import CommonElevationBehavior, CircularRippleBehavior, RectangularRippleBehavior
-from kivymd.uix.button import MDIconButton, BaseButton
-from kivymd.uix.button.button import ButtonElevationBehaviour, ButtonContentsText
-from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.label import MDLabel
-from kivymd.uix.list import OneLineAvatarIconListItem, IRightBodyTouch, ILeftBodyTouch
 from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.selectioncontrol import MDCheckbox
-from kivymd.uix.widget import MDWidget
-
 from Utility.comic_functions import save_thumb
-from Utility.db_functions import ReadingList
 from Utility.komga_server_conn import ComicServerConn
-from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
-from View.Widgets.custimagelist import RLTileLabel
-from View.Widgets.paginationwidgets import MyMDRaisedButton, MyMDIconRaisedButton
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
