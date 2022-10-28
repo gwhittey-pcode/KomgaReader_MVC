@@ -8,51 +8,42 @@
             padding: dp(10), dp(10)
             spacing: dp(10)
             disabled:False
+            canvas.after:
+                Color:
+                    rgba: 1,.84,0,1
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
+
             GridLayout:
                 #orientation: 'horizontal'
-                cols:9
+                cols:2
                 rows:1
-                spacing: dp(10)
+                size_hint_x:1
                 size_hint_y:None
                 height:dp(50)
                 #page_num_grid used to add pagination top buttons
                 MDGridLayout:
                     id:page_num_grid
                     rows : 1
-                    size_hint:(None, None)
-                    spacing:5
-                    padding:(5, 5, 5, 5)
-                MDGridLayout:
-                    id:item_sel_grid
-                    cols: 3
-                    rows : 1
-                    size_hint:(None, None)
-                    spacing:5
-                    padding:(5, 5, 5, 5)
+                    size_hint:(.5, .5)
+                    pos_hint:{"left":1,"top":1}
+                MDBoxLayout:
+                    adaptive_size:True
                     MyMDRaisedButton:
-                        width : dp(400) + (self.ids.lbl_txt.texture_size[0] - self.ids.lbl_txt.texture_size[0])
+                        width : dp(50) + (self.ids.lbl_txt.texture_size[0] - self.ids.lbl_txt.texture_size[0])
                         opacity : 0
                     MDIconButtonTooltip:
                         tooltip_text: "Items Per Page"
                         icon: "table-plus"
                         id: item_per_menu_button
-                        pos_hint: {"center_x": 1, "center_y": .5}
                         on_release: root.item_per_menu.open()
-    #
-    #                    MDIconButtonTooltip:
-    #                        tooltip_text: "Filter"
-    #                        icon: "filter-variant"
-    #                        id: filter_menu_button
-    #                        pos_hint: {"center_x": 1, "center_y": .5}
-    #                        on_release: root.filter_menu.open()
+                    MDIconButtonTooltip:
+                        tooltip_text: "Filter"
+                        icon: "filter-variant"
+                        id: filter_menu_button
+                        on_release: root.filter_menu.open()
 
-
-    #            GridLayout:
-    #                #orientation: 'horizontal'
-    #                cols:3
-    #                rows:1
-    #                padding: dp(10), dp(60)
-    #                spacing: dp(10)
             ScrollView:
                 #do_scroll_x: False
                 id: main_scroll
@@ -69,9 +60,3 @@
                     spacing: dp(10)
                     #col_default_width:root.width
                     row_default_height:app.comic_thumb_height
-                    canvas.after:
-                        Color:
-                            rgba: 1,.84,0,1
-                        Line:
-                            width: 2
-                            rectangle: self.x, self.y, self.width, self.height

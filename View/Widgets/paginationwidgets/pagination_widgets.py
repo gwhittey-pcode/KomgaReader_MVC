@@ -76,9 +76,9 @@ def build_pageination_nav(widget=None,screen_name=""):
         the_widget = widget
     grid = the_widget.ids.page_num_grid
     grid.clear_widgets()
-    c = MyMDRaisedButton(opacity=0)
-    c.width = dp(500) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
-    the_widget.ids.page_num_grid.add_widget(c)
+    # c = MyMDRaisedButton(opacity=0)
+    # c.width = dp(40) + (c.ids.lbl_txt.texture_size[0] - c.ids.lbl_txt.texture_size[0])
+    # the_widget.ids.page_num_grid.add_widget(c)
     grid.bind(minimum_width=grid.setter("width"))
     ltbutton = MyMDIconRaisedButton(
         icon="less-than",
