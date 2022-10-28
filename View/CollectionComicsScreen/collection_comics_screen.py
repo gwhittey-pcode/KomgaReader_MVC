@@ -124,8 +124,6 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
         # self.next_button = self.ids["next_button"]
         if self.loading_done is True:
             return
-        self.get_server_lists()
-
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():
             if key == "main_grid":
@@ -133,7 +131,7 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0, collection_id=""):
-        self.collection_id = collection_id
+        
 
         def __get_server_lists(self, results):
             self.rl_comics_json = results['content']
@@ -146,6 +144,7 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
             self.build_page()
 
         if self.lists_loaded is False:
+            self.collection_id = collection_id
             fetch_data = ComicServerConn()
             url_send = f"{self.base_url}/api/v1/collections/{collection_id}/series" \
                        f"?page={new_page_num}&size={self.item_per_page}"
@@ -154,19 +153,23 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
                 callback=lambda url_send, results: __get_server_lists(self, results))
 
     def build_paginations(self):
-        print(f"self.name{self.name}")
         build_pageination_nav(screen_name=self.name)
 
     def ltgtbutton_press(self, i):
-        print("ltgtbutton_press")
         if i.icon == "less-than":
-            self.get_server_lists(new_page_num=int(self.current_page) - 1)
+            self.get_server_lists(new_page_num=int(self.current_page) - 1,
+                                  collection_id=self.collection_id
+                                  )
         elif i.icon == "greater-than":
-            self.get_server_lists(new_page_num=int(self.current_page) + 1)
+            self.get_server_lists(new_page_num=int(self.current_page) + 1,
+                                  collection_id=self.collection_id
+                                  )
 
     def pag_num_press(self, i):
-        print(f"i:{i.text}")
-        self.get_server_lists(new_page_num=int(i.text) - 1)
+
+        self.get_server_lists(new_page_num=int(i.text) - 1,
+                              collection_id=self.collection_id
+                              )
 
     def build_page(self):
         async def _build_page():
