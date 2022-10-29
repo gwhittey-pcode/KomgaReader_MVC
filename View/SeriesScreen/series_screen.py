@@ -49,6 +49,7 @@ class SeriesScreenView(ComicListsBaseScreenView):
         self.current_page = 1
         self.loading_done = False
         self.item_per_menu_build()
+        self.page_title = "Series"
         # self.filter_menu_build()
 
     def item_per_menu_build(self):

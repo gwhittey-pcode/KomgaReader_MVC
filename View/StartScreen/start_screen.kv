@@ -21,22 +21,20 @@
                 spacing: dp(10)
                 orientation: 'vertical'
                 pos_hint: {'center_x': .5}
-
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width
                     height: dp(56)
                     spacing: '10dp'
-
                     MDFillRoundFlatIconButton:
-                        icon: 'server'
+                        icon: 'format-list-group-plus'
                         text: 'Open ReadingLists'
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
                         on_press:root.manager_screens.current = "reading list screen"
                     MDFillRoundFlatIconButton:
-                        icon: 'server'
+                        icon: 'bookshelf'
                         text: 'Open Series'
                         height: dp(50)
                         opposite_colors: True
@@ -49,6 +47,20 @@
                         opposite_colors: True
                         elevation_normal: 8
                         on_press:root.manager_screens.current = "collections screen"
+                BoxLayout:
+                    size_hint: None, None
+                    width: self.minimum_width
+                    height: dp(56)
+                    spacing: '10dp'
+                    MDFillRoundFlatIconButton:
+                        icon: 'cog-outline'
+                        text: 'Open Settings'
+                        height:dp(50)
+                        opposite_colors: True
+                        elevation_normal: 8
+                        md_bg_color: app.theme_cls.primary_color
+                        on_press: app.open_settings()
+
                     MDFillRoundFlatIconButton:
                         icon: 'login'
                         text: 'Open Login'
@@ -81,7 +93,7 @@
 #                        on_press: app.get_server_data()
                 MDLabel:
                     id: last_comic_label
-                    text: 'Last Comic Loaded'
+                    text: 'Last Comic Loaded\n Coming Soon'
                     size_hint_y: None
                     height: self.texture_size[1]
                     font_style: 'Caption'

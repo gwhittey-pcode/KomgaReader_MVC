@@ -36,6 +36,32 @@
                         icon: "filter-variant"
                         id: filter_menu_button
                         on_release: root.filter_menu.open()
+            MDBoxLayout:
+                adaptive_height:True
+                orientation: 'vertical'
+#                canvas.after:
+#                    Color:
+#                        rgba: 0,0,0,1
+#                    Line:
+#                        width: 2
+#                        rectangle: 0, self.y, self.width, 0
+                spacing:4
+                MDLabel:
+                    text: root.page_title
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: "blue"
+                    adaptive_height: True
+                    font_style: "H2"
+
+                MDLabel:
+                    text: root.page_year + "\n"
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: "blue"
+                    adaptive_height: True
+                    font_style: "Body2"
+                    spacing:4
 
             ScrollView:
                 #do_scroll_x: False

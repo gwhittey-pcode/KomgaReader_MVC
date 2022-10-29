@@ -118,6 +118,7 @@ class ReadingListScreenView(ComicListsBaseScreenView):
         self.comic_thumb_width = 156
         self.loading_done = False
         self.item_per_menu_build()
+        self.page_title = "Reading Lists"
         # self.filter_menu_build()
 
 

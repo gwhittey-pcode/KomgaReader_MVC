@@ -86,6 +86,8 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
             self.readinglist_name = readinglist_name
             # self.app.set_screen(self.readinglist_name + " Page 1")
             self.reading_list_title = self.readinglist_name + " Page 1"
+            self.page_title = self.readinglist_name
+            self.toolbar_tittle = self.page_title
             self.readinglist_Id = readinglist_Id
             self.page_number = current_page_num
             self.new_page_num = new_page_num
@@ -104,6 +106,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
             self.last = self.rl_json['last']
             self.first = self.rl_json['first']
             self.build_paginations()
+
             if not self.first:
                 self.get_prev_reading_list_page()
             if not self.last:

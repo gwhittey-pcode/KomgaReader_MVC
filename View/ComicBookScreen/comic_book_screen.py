@@ -176,6 +176,10 @@ class ComicBookScreenView(BaseScreenView):
         self.topbar_state = False
         self.top_pop = None
 
+    def on_pre_leave(self, *args):
+        self.top_pop.dismiss()
+        self.popup.dismiss()
+
     def setup_screen(
             self,
             comiclist_obj=None,
@@ -590,13 +594,14 @@ class ComicBookScreenView(BaseScreenView):
                     index = comics_list.index(comic)
             if comic_obj.Id == comics_list[0].Id and index + 1 != self.item_per_page \
                     and self.last is not True:
-                next_comic = comics_list[+1]
+                next_comic = comics_list[index+1]
+            elif index != len(comics_list)-1 and self.totalPages == 1:
+                next_comic = comics_list[index+1]
             elif index + 1 != self.item_per_page and self.last is not True:
                 if index + 1 != self.item_per_page:
                     if index == 0:
                         if self.section == "Section" or self.section == "Last":
                             next_comic = self.comic_obj
-
                         else:
                             next_comic = comics_list[index]
                     else:
@@ -607,7 +612,10 @@ class ComicBookScreenView(BaseScreenView):
             if index + 1 != self.item_per_page and self.last is not True:
                 self.build_next_comic_dialog(next_comic)
             else:
-                self.build_next_comic_dialog()
+                if self.first and self.last and index != len(comics_list)-1:
+                    self.build_next_comic_dialog(next_comic)
+                else:
+                    self.build_next_comic_dialog()
 
         asynckivy.start(__get_next_comic())
         # next and prev comic.
@@ -638,7 +646,6 @@ class ComicBookScreenView(BaseScreenView):
             self.build_prev_comic_dialog(prev_comic)
 
     def build_next_comic_dialog(self, next_comic=None):
-
         """ Make popup showing cover for next comic"""
         if next_comic is not None:
             comic_obj = self.comic_obj
@@ -752,7 +759,6 @@ class ComicBookScreenView(BaseScreenView):
             comic_thumb.bind(on_release=self.load_readinglist_next_page)
 
     def build_prev_comic_dialog(self, prev_comic=None):
-
         if prev_comic is not None:
             comic_obj = self.comic_obj
             comics_list = self.comiclist_obj.comics[::-1]
@@ -979,7 +985,14 @@ class ComicBookScreenView(BaseScreenView):
         asynckivy.start(__got_prev_readinglist_page())
 
     def load_readinglist_next_page(self, instance):
-        if self.current_page + 1 == self.totalPages:
+        # comic_obj = self.comic_obj
+        # comics_list = self.comiclist_obj.comics[::-1]
+        # for comic in comics_list:
+        #     if comic.Id == comic_obj.Id:
+        #         index = comics_list.index(comic)
+        if self.current_page + 1 == self.totalPages or self.totalPages != 1:
+            print(f"{self.current_page =}")
+            print(f"{self.totalPages =}")
             print("End of ReadingList")
         else:
             fetch_data = ComicServerConn()

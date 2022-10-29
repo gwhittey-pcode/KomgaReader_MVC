@@ -15,34 +15,31 @@ class MyToolBar(MDTopAppBar):
 
     def __init__(self, **kwargs):
         super(MyToolBar, self).__init__(**kwargs)
-        self.title_text = "Komga Reader"
-        app=MDApp.get_running_app()
+
+        app = MDApp.get_running_app()
+        specific_text_color =  MDApp.get_running_app().theme_cls.accent_color
         self.left_action_items = [
             ["home", lambda x: self.switch_base_screen(), "Home"],
-            ["cog-outline",lambda x: app.open_settings(),"Settings"],
+            ["cog-outline", lambda x: app.open_settings(), "Settings"],
             # ["fullscreen",lambda x: app.toggle_full_screen(), "Full Screen"]
         ]
         self.right_action_items = [
             [
-                "server",
+                "format-list-group-plus",
                 lambda x: self.switch_readinglists_screen(),
                 "Reading Lists"
             ],
             [
-                "view-list",
+                "format-list-numbered",
                 lambda x: self.switch_r_l_comic_books_screen(),
-                "Current Server Reading List"
+                "Reading List Comics"
             ],
-            # [
-            #     "folder-sync",
-            #     "Local Reading Lists",
-            #     lambda x: self.switch_local_lists_screen(),
-            # ],
-            # [
-            #     "playlist-check",
-            #     "Current Local Reading List",
-            #     lambda x: self.switch_local_readinglists_screen(),
-            # ],
+            [
+                "bookshelf",
+                lambda x: self.switch_series_screen(),
+                "Series"
+            ],
+
             [
                 "book-open-page-variant",
                 lambda x: self.switch_comic_reader(),
@@ -50,13 +47,18 @@ class MyToolBar(MDTopAppBar):
             ],
             ["close-box-outline", lambda x: app.stop(), "Exit App"],
         ]
+
     def switch_base_screen(self):
         MDApp.get_running_app().manager_screens.current = "start screen"
+
     def switch_r_l_comic_books_screen(self):
         MDApp.get_running_app().manager_screens.current = "r l comic books screen"
 
     def switch_readinglists_screen(self):
         MDApp.get_running_app().manager_screens.current = "reading list screen"
+
+    def switch_series_screen(self):
+        MDApp.get_running_app().manager_screens.current = "series screen"
 
     def switch_comic_reader(self):
         MDApp.get_running_app().manager_screens.current = "comic book screen"

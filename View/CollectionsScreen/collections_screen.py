@@ -45,6 +45,7 @@ class CollectionsScreenView(ComicListsBaseScreenView):
         self.current_page = 0
         self.loading_done = False
         self.item_per_menu_build()
+        self.page_title = "Collections"
         # self.filter_menu_build()
 
     def item_per_menu_build(self):

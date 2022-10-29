@@ -88,6 +88,7 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
             self.series_name = series_name
             # self.app.set_screen(self.series_name + " Page 1")
             self.reading_list_title = self.series_name + " Page 1"
+            self.page_title = self.series_name
             self.series_Id = series_Id
             self.page_number = current_page_num
             self.new_page_num = new_page_num
