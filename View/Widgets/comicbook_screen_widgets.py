@@ -630,6 +630,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
     totalPages = NumericProperty()
     item_per_page = NumericProperty
     comic_list_type = StringProperty()
+
     def __init__(self, **kwargs):
         super(CommonComicsCoverImage, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
@@ -676,7 +677,7 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             last=self.last,
             totalPages=self.totalPages,
             item_per_page=self.item_per_page,
-            comic_list_type = self.comic_list_type,
+            comic_list_type=self.comic_list_type,
         )
         app.manager_screens.current = "comic book screen"
 
@@ -697,9 +698,14 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             comiclist_obj=self.comiclist_obj,
             comic_obj=self.comic_obj,
             paginator_obj=self.paginator_obj,
-            view_mode=view_mode,
             pag_pagenum=self.new_page_num,
-            last_load=self.last_load,
+            view_mode=view_mode,
+            current_page=self.current_page,
+            first=self.first,
+            last=self.last,
+            totalPages=self.totalPages,
+            item_per_page=self.item_per_page,
+            comic_list_type=self.comic_list_type,
         )
         app.manager_screens.current = "comic book screen"
 
@@ -719,8 +725,13 @@ class CommonComicsCoverImage(ButtonBehavior, MyAsyncImage):
             comic_obj=self.comic_obj,
             paginator_obj=self.paginator_obj,
             pag_pagenum=self.new_page_num,
-            last_load=self.last_section,
             view_mode=view_mode,
+            current_page=self.current_page,
+            first=self.first,
+            last=self.last,
+            totalPages=self.totalPages,
+            item_per_page=self.item_per_page,
+            comic_list_type=self.comic_list_type,
         )
         app.manager_screens.current = "comic book screen"
 

@@ -237,14 +237,6 @@ class ReadingListScreenView(ComicListsBaseScreenView):
             grid.clear_widgets()
             i = 1
             # add spacer so page forms right while imgs are dl
-            c_spacer = ComicThumb(item_id="NOID")
-            c_spacer.lines = 1
-            c_spacer.padding = dp(10), dp(10)
-            c_spacer.totalPages = self.totalPages
-            src_thumb = "assets/spacer.jpg"
-            c_spacer.source = src_thumb
-            c_spacer.opacity = 0
-            grid.add_widget(c_spacer)
             first_item = self.rl_comics_json[0]['id']
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)

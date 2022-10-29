@@ -608,6 +608,7 @@ class ComicBookScreenView(BaseScreenView):
                 self.build_next_comic_dialog(next_comic)
             else:
                 self.build_next_comic_dialog()
+
         asynckivy.start(__get_next_comic())
         # next and prev comic.
 
@@ -668,6 +669,7 @@ class ComicBookScreenView(BaseScreenView):
             )
             if self.view_mode == "FileOpen":
                 comic_thumb.mode = "FileOpen"
+            comic_thumb.comic_list_type = self.comic_list_type
             comic_thumb.comiclist_obj = self.comiclist_obj
             comic_thumb.comic = comic
             comic_thumb.last_load = self.last_load
@@ -784,6 +786,7 @@ class ComicBookScreenView(BaseScreenView):
                 comic_thumb.mode = "FileOpen"
             elif self.view_mode == "Sync":
                 comic_thumb.mode = "Sync"
+            comic_thumb.comic_list_type = self.comic_list_type
             comic_thumb.comiclist_obj = self.comiclist_obj
             comic_thumb.comic = comic
             if self.use_sections:
@@ -893,8 +896,8 @@ class ComicBookScreenView(BaseScreenView):
             first=self.first,
             last=self.last,
             item_per_page=self.item_per_page,
-            totalPages=self.totalPages
-
+            totalPages=self.totalPages,
+            comic_list_type=self.comic_list_type,
         )
         self.app.manager_screens.current = "comic book screen"
 
@@ -913,7 +916,8 @@ class ComicBookScreenView(BaseScreenView):
             first=self.first,
             last=self.last,
             item_per_page=self.item_per_page,
-            totalPages=self.totalPages
+            totalPages=self.totalPages,
+            comic_list_type=self.comic_list_type,
 
         )
         self.app.manager_screens.current = "comic book screen"
@@ -1045,22 +1049,22 @@ class ComicBookScreenView(BaseScreenView):
                 # setattr(db_item, key, value)
                 setattr(self.comic_obj, key, value)
                 # if key == "UserLastPageRead":
-                    # if self.view_mode == "FileOpen" or (
-                    #         self.view_mode == "Sync" and self.comic_obj.is_sync
-                    # ):
-                    #     local_readinglists_screen = self.app.manager_screens.get_screen(
-                    #         "local_readinglists_screen"
-                    #     )
-                    #     local_readinglists_screen.page_turn(
-                    #         self.comic_obj.Id, value
-                    #     )
-                    # else:
-                    #     server_readinglists_screen = self.app.manager_screens.get_screen(
-                    #         "r l comic books screen"
-                    #     )
-                    #     server_readinglists_screen.page_turn(
-                    #         self.comic_obj.Id, value
-                    #     )
+                # if self.view_mode == "FileOpen" or (
+                #         self.view_mode == "Sync" and self.comic_obj.is_sync
+                # ):
+                #     local_readinglists_screen = self.app.manager_screens.get_screen(
+                #         "local_readinglists_screen"
+                #     )
+                #     local_readinglists_screen.page_turn(
+                #         self.comic_obj.Id, value
+                #     )
+                # else:
+                #     server_readinglists_screen = self.app.manager_screens.get_screen(
+                #         "r l comic books screen"
+                #     )
+                #     server_readinglists_screen.page_turn(
+                #         self.comic_obj.Id, value
+                #     )
             # db_item.save()
 
         if self.view_mode == "FileOpen" or (
