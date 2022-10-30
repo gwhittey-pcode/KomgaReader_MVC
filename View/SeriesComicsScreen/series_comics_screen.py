@@ -219,13 +219,6 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
             grid = self.m_grid
             grid.clear_widgets()
             # add spacer so page forms right while lmgs are dl
-            c_spacer = ComicThumb(item_id="NOID")
-            c_spacer.lines = 1
-            c_spacer.padding = dp(10), dp(10)
-            src_thumb = "assets/spacer.jpg"
-            c_spacer.source = src_thumb
-            grid.add_widget(c_spacer)
-            c_spacer.opacity = 0
             for comic in comiclist_obj:
                 await asynckivy.sleep(0)
                 str_cookie = 'SESSION=' + self.session_cookie
