@@ -29,6 +29,7 @@ from kivymd.uix.widget import MDWidget
 
 from Utility.comic_functions import save_thumb
 from Utility.db_functions import ReadingList
+from Utility.items_per_page_menu import item_per_menu_build
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
@@ -48,6 +49,7 @@ class CustomMDFillRoundFlatIconButton(MDIconButton):
 class Tooltip(Label):
     pass
 
+
 class MDRaisedIconButton(BaseButton, ButtonElevationBehaviour, ButtonContentsText):
     """
     A flat button with (by default) a primary color fill and matching
@@ -66,6 +68,8 @@ class MDRaisedIconButton(BaseButton, ButtonElevationBehaviour, ButtonContentsTex
         self.shadow_softness = 8
         self.shadow_offset = (0, 2)
         self.shadow_radius = self._radius * 2
+
+
 class ListItemWithCheckbox(OneLineAvatarIconListItem):
     """Custom list item."""
     icon = StringProperty("android")
@@ -89,7 +93,7 @@ class ReadingListScreenView(ComicListsBaseScreenView):
 
     def __init__(self, **kwargs):
         super(ReadingListScreenView, self).__init__(**kwargs)
-        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page",  App.get_running_app().config)
+        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page", App.get_running_app().config)
         self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
@@ -117,43 +121,9 @@ class ReadingListScreenView(ComicListsBaseScreenView):
         self.comic_thumb_height = 240
         self.comic_thumb_width = 156
         self.loading_done = False
-        self.item_per_menu_build()
+
         self.page_title = "Reading Lists"
         # self.filter_menu_build()
-
-
-    def item_per_menu_build(self):
-        item_per_menu_numbers = ("20", "50", "100", "200", "500")
-        item_per_menu_items = []
-        for nums in item_per_menu_numbers:
-            if int(nums) == int(self.item_per_page):
-                background_color = self.app.theme_cls.primary_color
-            else:
-                background_color = (1, 1, 1, 1)
-            item_per_menu_items.append(
-                {
-                    "text": f"{nums}",
-                    "viewclass": "OneLineListItem",
-                    "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-                    "bg_color":background_color
-                }
-            )
-
-        self.item_per_menu = MDDropdownMenu(
-            caller=self.ids.item_per_menu_button,
-            items=item_per_menu_items,
-            width_mult=1.6,
-            radius=[24, 0, 24, 0],
-            max_height=dp(240),
-        )
-
-    def item_per_menu_callback(self, text_item):
-        self.item_per_menu.dismiss()
-        self.item_per_page = int(text_item)
-        self.app.config.set("General", "max_item_per_page", self.item_per_page)
-        self.app.config.write()
-        self.get_server_lists(new_page_num=self.current_page)
-        self.item_per_menu_build()
 
     # def filter_menu_build(self):
     #     def __got_publisher_data(results):
@@ -181,22 +151,15 @@ class ReadingListScreenView(ComicListsBaseScreenView):
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()
 
-
-
     def callback_for_menu_items(self, *args):
         pass
 
-    def on_pre_enter(self):
+    def on_enter(self):
         self.m_grid = self.ids["main_grid"]
-
-    def on_enter(self, *args):
-        self.base_url = self.app.base_url
-        self.api_url = self.app.api_url
-        # self.prev_button = self.ids["prev_button"]
-        # self.next_button = self.ids["next_button"]
         if self.loading_done is True:
             return
         self.get_server_lists()
+        print(f"{self.apps =}")
 
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():
@@ -230,8 +193,10 @@ class ReadingListScreenView(ComicListsBaseScreenView):
             self.get_server_lists(new_page_num=int(self.current_page) - 1)
         elif i.icon == "greater-than":
             self.get_server_lists(new_page_num=int(self.current_page) + 1)
-    def pag_num_press(self,i):
-        self.get_server_lists(new_page_num=int(i.text)-1)
+
+    def pag_num_press(self, i):
+        self.get_server_lists(new_page_num=int(i.text) - 1)
+
     def build_page(self):
         async def _build_page():
             grid = self.m_grid
@@ -242,12 +207,12 @@ class ReadingListScreenView(ComicListsBaseScreenView):
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
                 rl_id = item['id']
-                rl_book_count = len( item['bookIds'])
+                rl_book_count = len(item['bookIds'])
                 self.rl_book_count = rl_book_count
                 c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
                 c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
                 # c.book_ids = book_ids
-                #c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
+                # c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
                 c.thumb_type = "ReadingList"
                 c.text_size = dp(8)
@@ -283,6 +248,7 @@ class ReadingListScreenView(ComicListsBaseScreenView):
             for child in grid.children:
                 if child.item_id == first_item:
                     scroll.scroll_to(child)
+
         self.dialog_load_comic_data = DialogLoadKvFiles()
         self.dialog_load_comic_data.open()
         asynckivy.start(_build_page())

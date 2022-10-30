@@ -1,9 +1,10 @@
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, NumericProperty, StringProperty
 
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.screen import MDScreen
 
+from Utility.items_per_page_menu import item_per_menu_build
 from Utility.observer import Observer
 
 
@@ -41,6 +42,8 @@ class BaseScreenView(ThemableBehavior, MDScreen, Observer):
         super().__init__(**kw)
         # Often you need to get access to the application object from the view
         # class. You can do this using this attribute.
-        self.app = MDApp.get_running_app()
+        self.apps = MDApp.get_running_app()
         # Adding a view class as observer.
         self.model.add_observer(self)
+
+

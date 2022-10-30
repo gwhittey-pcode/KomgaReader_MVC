@@ -15,16 +15,16 @@ class ComicDataType:
 
 
 class ComicServerConn(EventDispatcher):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.app = App.get_running_app()
 
     def get_page_size_data(self, req_url, callback):
-        username = self.app.config.get("General", "username")
-        strCookie = 'SESSION=' + self.app.config.get("General", "api_key")
+        str_cookie = 'SESSION=' + self.app.config.get("General", "api_key")
         head = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Cookie": strCookie,
+            "Cookie": str_cookie,
         }
         UrlRequest(
             req_url,
@@ -39,12 +39,11 @@ class ComicServerConn(EventDispatcher):
         data = {'page': index, 'completed': completed}
         import json
         data_json = json.dumps(data)
-        username = self.app.config.get("General", "username")
-        strCookie = 'SESSION=' + self.app.config.get("General", "api_key")
+        str_cookie = 'SESSION=' + self.app.config.get("General", "api_key")
         head = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Cookie": strCookie,
+            "Cookie": str_cookie,
         }
         UrlRequest(
             req_url,
@@ -64,9 +63,6 @@ class ComicServerConn(EventDispatcher):
             "Accept": "application/json",
             "Cookie": str_cookie,
         }
-        username = self.app.config.get("General", "username")
-        password = self.app.config.get("General", "password")
-        # api_key = self.app.config.get("General", "api_key")
 
         myUrlRequest(
             req_url,
@@ -85,9 +81,6 @@ class ComicServerConn(EventDispatcher):
             "Accept": "application/json",
             "Cookie": str_cookie,
         }
-        username = self.app.config.get("General", "username")
-        password = self.app.config.get("General", "password")
-        # api_key = self.app.config.get("General", "api_key")
         myUrlRequest(
             req_url,
             req_headers=head,
@@ -123,9 +116,6 @@ class ComicServerConn(EventDispatcher):
         head = {
             "Cookie": str_cookie,
         }
-        username = self.app.config.get("General", "username")
-        password = self.app.config.get("General", "password")
-        # api_key = self.app.config.get("General", "api_key")
         req = myUrlRequest(
             req_url,
             req_headers=head,

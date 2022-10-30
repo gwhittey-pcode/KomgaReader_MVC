@@ -218,8 +218,9 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             # set_mode = 'From Server'
             Clock.schedule_once(
                 lambda dt: server_readinglists_screen.get_server_lists(
-                    new_page_num=self.current_page-1,
-                    collection_id=self.item_id
+                    new_page_num=self.current_page - 1,
+                    collection_id=self.item_id,
+                    collection_name=self.rl_name
                 )
             )
 

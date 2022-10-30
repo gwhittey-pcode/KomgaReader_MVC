@@ -1,4 +1,6 @@
 import math
+
+from Utility.items_per_page_menu import item_per_menu_build
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
 import os
 from kivy.app import App
@@ -24,66 +26,25 @@ class SeriesScreenView(ComicListsBaseScreenView):
 
     def __init__(self, **kwargs):
         super(SeriesScreenView, self).__init__(**kwargs)
-        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page", App.get_running_app().config)
         self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
-        self.base_url = self.app.base_url
-        self.api_url = self.app.api_url
-        self.session_cookie = self.app.config.get("General", "api_key")
         self.rl_page = 1
-        self.fetch_data = None
         self.Data = ""
         self.fetch_data = ComicServerConn()
         self.dialog_load_readlist_data = None
         self.m_grid = ''
         self.bind(width=self.my_width_callback)
         self.dialog_load_comic_data = None
-        self.item_per_page = self.app.config.get("General", "max_item_per_page")
-        self.rl_book_count = 25
         self.totalPages = 0
-        self.prev_button = ""
-        self.next_button = ""
         self.last = False
         self.first = False
         self.current_page = 1
         self.loading_done = False
-        self.item_per_menu_build()
         self.page_title = "Series"
         # self.filter_menu_build()
 
-    def item_per_menu_build(self):
-        item_per_menu_numbers = ("20", "50", "100", "200", "500")
-        item_per_menu_items = []
-        for nums in item_per_menu_numbers:
-            if int(nums) == int(self.item_per_page):
-                background_color = self.app.theme_cls.primary_color
-            else:
-                background_color = (1, 1, 1, 1)
-            item_per_menu_items.append(
-                {
-                    "text": f"{nums}",
-                    "viewclass": "OneLineListItem",
-                    "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-                    "bg_color": background_color
-                }
-            )
 
-        self.item_per_menu = MDDropdownMenu(
-            caller=self.ids.item_per_menu_button,
-            items=item_per_menu_items,
-            width_mult=1.6,
-            radius=[24, 0, 24, 0],
-            max_height=dp(240),
-        )
-
-    def item_per_menu_callback(self, text_item):
-        self.item_per_menu.dismiss()
-        self.item_per_page = int(text_item)
-        self.app.config.set("General", "max_item_per_page", self.item_per_page)
-        self.app.config.write()
-        self.get_server_lists(new_page_num=self.current_page)
-        self.item_per_menu_build()
 
     # def filter_menu_build(self):
     #     def __got_publisher_data(results):
@@ -114,14 +75,9 @@ class SeriesScreenView(ComicListsBaseScreenView):
     def callback_for_menu_items(self, *args):
         pass
 
-    def on_pre_enter(self):
-        self.m_grid = self.ids["main_grid"]
 
     def on_enter(self, *args):
-        self.base_url = self.app.base_url
-        self.api_url = self.app.api_url
-        # self.prev_button = self.ids["prev_button"]
-        # self.next_button = self.ids["next_button"]
+        self.m_grid = self.ids["main_grid"]
         if self.loading_done is True:
             return
         self.get_server_lists()

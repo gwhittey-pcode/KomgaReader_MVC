@@ -10,12 +10,12 @@ from kivymd.utils import asynckivy
 
 from Utility.comic_functions import save_thumb
 from Utility.comic_json_to_class import ComicList, ComicBook
+from Utility.items_per_page_menu import item_per_menu_build
 from Utility.komga_server_conn import ComicServerConn
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
-
 
 
 class RLComicBooksScreenView(ComicListsBaseScreenView):
@@ -59,11 +59,12 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
         self.dialog_load_comic_data = None
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.item_per_menu = None
-        self.item_per_menu_build()
+
         # self.filter_menu_build()
         self.rl_comics_json = ""
         self.next_readinglist = ObjectProperty()
         self.prev_readinglist = ObjectProperty()
+
     def setup_screen(self):
         self.session_cookie = self.app.config.get("General", "api_key")
         self.main_stack = self.ids["main_stack"]
@@ -170,11 +171,13 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
                     next_readinglist.add_comic(new_comic)
                 i += 1
             self.next_readinglist = next_readinglist
+
         fetch_data = ComicServerConn()
         url_send_next = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={self.new_page_num + 1}&size={self.item_per_page}"
         fetch_data.get_server_data_callback(
             url_send_next,
             callback=lambda url_send, results: __get_next_reading_list_page(self, results))
+
     def get_prev_reading_list_page(self):
         def __get_prev_reading_list_page(self, results):
             prev_rl_comics_json = results['content']
@@ -201,11 +204,13 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
                     prev_readinglist.add_comic(new_comic)
                 i += 1
             self.prev_readinglist = prev_readinglist
+
         fetch_data = ComicServerConn()
         url_send_next = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={self.new_page_num - 1}&size={self.item_per_page}"
         fetch_data.get_server_data_callback(
             url_send_next,
             callback=lambda url_send, results: __get_prev_reading_list_page(self, results))
+
     def build_paginations(self):
         build_pageination_nav(screen_name="r l comic books screen")
 
@@ -223,7 +228,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
                 c.prev_readinglist = c.prev_readinglist
                 c.paginator_obj = self.paginator_obj
                 c.str_caption = f"  {comic.Series} \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
-                #c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
+                # c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
                 c.thumb_type = "ComicBook"
                 c.comic_list_type = "reading_list_comic_books"
                 c.text_size = dp(8)
@@ -259,7 +264,8 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":
-            self.collect_readinglist_data(new_page_num=int(self.current_page) - 1, readinglist_Id=self.readinglist_Id)
+            self.collect_readinglist_data(new_page_num=int(self.current_page) - 1,
+                                          readinglist_Id=self.readinglist_Id)
         elif i.icon == "greater-than":
             self.collect_readinglist_data(new_page_num=int(self.current_page) + 1, readinglist_Id=self.readinglist_Id)
 
@@ -303,7 +309,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
                     "text": f"{nums}",
                     "viewclass": "OneLineListItem",
                     "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-                    "bg_color":background_color
+                    "bg_color": background_color
                 }
             )
 
@@ -314,6 +320,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
             radius=[24, 0, 24, 0],
             max_height=dp(240),
         )
+
     def item_per_menu_callback(self, text_item):
         self.item_per_menu.dismiss()
         self.item_per_page = int(text_item)
@@ -321,6 +328,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
         self.app.config.write()
         self.collect_readinglist_data(current_page_num=self.current_page, readinglist_Id=self.readinglist_Id)
         self.item_per_menu_build()
+
     # def filter_menu_build(self):
     #     def __got_publisher_data(results):
     #         filter_menu_items = results

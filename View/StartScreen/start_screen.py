@@ -8,11 +8,7 @@ from kivy.metrics import dp
 from kivy.properties import StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
-from kivymd.utils import asynckivy
-from Utility.comic_json_to_class import ComicList
 from Utility.komga_server_conn import ComicServerConn
-from Utility.db_functions import ReadingList
-from Utility.paginator import Paginator
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.base_screen import BaseScreenView
 
@@ -48,6 +44,7 @@ class StartScreenView(BaseScreenView):
         self.username = self.app.username
         self.base_url = self.app.base_url
         self.open_last_comic_startup = self.app.open_last_comic_startup
+
     def on_pre_enter(self, *args):
         self.check_login()
 
@@ -58,60 +55,17 @@ class StartScreenView(BaseScreenView):
             self.app.myLoginPop.ids.info.text = "[color=#FF0000]\
                     No API key stored login to get one\
                         [/color]"
-            # self.open_popup()
-            # self.fetch_data.get_api_key(req_url,self.username,self.password,self)
-        else:
-
-            tmp_readinglist_name = self.app.config.get(
-                "Saved", "last_reading_list_name"
-            )
-            tmp_readinglist_Id = self.app.config.get(
-                "Saved", "last_reading_list_id"
-            )
-            if tmp_readinglist_Id == "":
-                return
-            else:
-                pass
-                # Clock.schedule_once(
-                #     lambda dt: self.build_last_comic_section(
-                #         tmp_readinglist_name, tmp_readinglist_Id
-                #     )
-                # )
-
-    def open_comic(
-            self,
-            tmp_last_comic_id="",
-            tmp_last_comic_type="",
-            paginator_obj=None,
-            comic=None,
-            tmp_last_pag_pagnum=None,
-    ):
-        if tmp_last_comic_type == "local_file":
-            view_mode = "Sync"
-        else:
-            view_mode = "Server"
-        screen = self.app.manager_screens.get_screen("comic book screen")
-        screen.setup_screen(
-            comiclist_obj=self.new_readinglist,
-            comic_obj=comic,
-            paginator_obj=paginator_obj,
-            pag_pagenum=tmp_last_pag_pagnum,
-            last_load=0,
-            view_mode=view_mode,
-        )
-        self.app.manager_screens.current = "comic book screen"
-        self.app.app_started = True
-
+            
     def validate_user(self):
         def got_api(self, *args):
             results = self.result
-            app = App.get_running_app()
+            app = MDApp.get_running_app()
             ary_cookie = self.resp_headers['Set-Cookie']
-            for cookie in self.resp_headers['Set-Cookie'].split(';'):
+            for cookie in ary_cookie.split(';'):
                 if "SESSION" in cookie:
-                    strkey = cookie.split('=')
-                    app.config.set("General", "api_key", strkey[1])
-                    app.api_key = strkey[1]
+                    str_key = cookie.split('=')
+                    app.config.set("General", "api_key", str_key[1])
+                    app.api_key = str_key[1]
                     app.config.write()
 
             app.myLoginPop.ids.info.text = "[color=#008000]\

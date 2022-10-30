@@ -1,5 +1,6 @@
 import math
 
+from Utility.items_per_page_menu import item_per_menu_build
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
 
 import os
@@ -60,7 +61,6 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
         self.dialog_load_comic_data = None
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.item_per_menu = None
-        self.item_per_menu_build()
         # self.filter_menu_build()
         self.rl_comics_json = ""
         self.next_series = ObjectProperty()
@@ -226,7 +226,8 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
                 c.lines = 2
                 c.comiclist_obj = self.new_series
                 c.paginator_obj = self.paginator_obj
-                c.str_caption = f"  {comic.Series} \n  #{comic.Number} - {comic.Title[:12]}... \n  {comic.PageCount} Pages"
+                c.str_caption = f"  {comic.Series} \n  #{comic.Number} - " \
+                                f"{comic.Title[:12]}... \n  {comic.PageCount} Pages"
                 # c.tooltip_text = f"{comic.Series}\n#{comic.Number} - {comic.Title}"
                 c.thumb_type = "ComicBook"
                 c.comic_list_type = "series"

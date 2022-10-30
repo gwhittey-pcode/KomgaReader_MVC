@@ -173,7 +173,7 @@ class KomgaReader(MDApp):
         self.how_to_open_comic = self.config.get(
             "General", "how_to_open_comic"
         )
-
+        self.item_per_page = self.config.get("General", "max_item_per_page")
     def config_callback(self, section, key, value):
         if key == "storagedir":
             def __callback_for_please_wait_dialog(*args):

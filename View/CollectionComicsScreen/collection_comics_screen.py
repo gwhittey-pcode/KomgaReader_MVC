@@ -24,22 +24,14 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
     def __init__(self, **kwargs):
         super(CollectionComicsScreenView, self).__init__(**kwargs)
         self.collection_id = None
-        self.item_per_menu = None
-        self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
-        self.base_url = self.app.base_url
-        self.api_url = self.app.api_url
-        self.session_cookie = self.app.config.get("General", "api_key")
-        self.rl_page = 1
-        self.fetch_data = None
         self.Data = ""
         self.fetch_data = ComicServerConn()
         self.dialog_load_readlist_data = None
         self.m_grid = ''
         self.bind(width=self.my_width_callback)
         self.dialog_load_comic_data = None
-        self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.rl_book_count = 25
         self.totalPages = 0
         self.prev_button = ""
@@ -48,98 +40,30 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
         self.first = False
         self.current_page = 1
         self.loading_done = False
-        self.item_per_menu_build()
+        self.page_title =""
 
-        # self.filter_menu_build()
-
-    def item_per_menu_build(self):
-        item_per_menu_numbers = ("20", "50", "100", "200", "500")
-        item_per_menu_items = []
-        for nums in item_per_menu_numbers:
-            if int(nums) == int(self.item_per_page):
-                background_color = self.app.theme_cls.primary_color
-            else:
-                background_color = (1, 1, 1, 1)
-            item_per_menu_items.append(
-                {
-                    "text": f"{nums}",
-                    "viewclass": "OneLineListItem",
-                    "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-                    "bg_color": background_color
-                }
-            )
-
-        self.item_per_menu = MDDropdownMenu(
-            caller=self.ids.item_per_menu_button,
-            items=item_per_menu_items,
-            width_mult=1.6,
-            radius=[24, 0, 24, 0],
-            max_height=dp(240),
-        )
-
-    def item_per_menu_callback(self, text_item):
-        self.item_per_menu.dismiss()
-        self.item_per_page = int(text_item)
-        self.app.config.set("General", "max_item_per_page", self.item_per_page)
-        self.app.config.write()
-        self.get_server_lists(new_page_num=self.current_page)
-        self.item_per_menu_build()
-
-        # def filter_menu_build(self):
-        #     def __got_publisher_data(results):
-        #         filter_menu_items = results
-        #         item_per_menu_items = [
-        #             {
-        #                 "text": f"{item}",
-        #                 "viewclass": "ListItemWithCheckbox",
-        #                 "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
-        #             } for item in filter_menu_items
-        #         ]
-        #         self.filter_menu = MDDropdownMenu(
-        #             caller=self.ids.filter_menu_button,
-        #             items=item_per_menu_items,
-        #             width_mult=5,
-        #             # max_height=dp(240)
-        #         )
-        #
-        #     fetch_data = ComicServerConn()
-        #     url_send = f"{self.base_url}/api/v1/publishers"
-        #     fetch_data.get_server_data_callback(
-        #         url_send,
-        #         callback=lambda url_send, results: __got_publisher_data(results))
-
-    def filter_menu_callback(self, text_item):
-        self.filter_menu.dismiss()
-
-    def callback_for_menu_items(self, *args):
-        pass
-
-    def on_pre_enter(self):
-        self.m_grid = self.ids["main_grid"]
 
     def on_enter(self, *args):
-        self.base_url = self.app.base_url
-        self.api_url = self.app.api_url
-        # self.prev_button = self.ids["prev_button"]
-        # self.next_button = self.ids["next_button"]
+
         if self.loading_done is True:
             return
+
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():
             if key == "main_grid":
                 c = val
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
-    def get_server_lists(self, new_page_num=0, collection_id=""):
-        
+    def get_server_lists(self, new_page_num=0, collection_id="",collection_name=""):
 
-        def __get_server_lists(self, results):
+        def __get_server_lists(self: object, results: object) -> object:
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
             self.current_page = self.rl_json['pageable']['pageNumber']
             self.last = self.rl_json['last']
             self.first = self.rl_json['first']
+            self.page_title = collection_name
             self.build_paginations()
             self.build_page()
 
@@ -166,17 +90,17 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
                                   )
 
     def pag_num_press(self, i):
-
         self.get_server_lists(new_page_num=int(i.text) - 1,
                               collection_id=self.collection_id
                               )
 
     def build_page(self):
         async def _build_page():
+            self.m_grid = self.ids["main_grid"]
             grid = self.m_grid
             grid.clear_widgets()
             i = 1
-            # add spacer so page forms right while imgs are dl
+            # add spacer so page forms right while img are dl
             c_spacer = ComicThumb(item_id="NOID")
             c_spacer.lines = 1
             c_spacer.padding = dp(10), dp(10)
@@ -205,7 +129,6 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
                 self.dialog_load_comic_data.percent = str(
                     i * 100 // int(self.item_per_page)
                 )
-                y = self.app.comic_thumb_height
                 thumb_filename = f"{rl_id}.jpg"
                 id_folder = self.app.store_dir
                 my_thumb_dir = os.path.join(id_folder, "comic_thumbs")

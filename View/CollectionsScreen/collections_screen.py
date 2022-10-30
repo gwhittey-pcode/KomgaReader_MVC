@@ -44,80 +44,11 @@ class CollectionsScreenView(ComicListsBaseScreenView):
         self.first = False
         self.current_page = 0
         self.loading_done = False
-        self.item_per_menu_build()
         self.page_title = "Collections"
         # self.filter_menu_build()
 
-    def item_per_menu_build(self):
-        item_per_menu_numbers = ("20", "50", "100", "200", "500")
-        item_per_menu_items = []
-        for nums in item_per_menu_numbers:
-            if int(nums) == int(self.item_per_page):
-                background_color = self.app.theme_cls.primary_color
-            else:
-                background_color = (1, 1, 1, 1)
-            item_per_menu_items.append(
-                {
-                    "text": f"{nums}",
-                    "viewclass": "OneLineListItem",
-                    "on_release": lambda x=f"{nums}": self.item_per_menu_callback(x),
-                    "bg_color": background_color
-                }
-            )
-
-        self.item_per_menu = MDDropdownMenu(
-            caller=self.ids.item_per_menu_button,
-            items=item_per_menu_items,
-            width_mult=1.6,
-            radius=[24, 0, 24, 0],
-            max_height=dp(240),
-        )
-
-    def item_per_menu_callback(self, text_item):
-        self.item_per_menu.dismiss()
-        self.item_per_page = int(text_item)
-        self.app.config.set("General", "max_item_per_page", self.item_per_page)
-        self.app.config.write()
-        self.get_server_lists(new_page_num=self.current_page)
-        self.item_per_menu_build()
-
-    # def filter_menu_build(self):
-    #     def __got_publisher_data(results):
-    #         filter_menu_items = results
-    #         item_per_menu_items = [
-    #             {
-    #                 "text": f"{item}",
-    #                 "viewclass": "ListItemWithCheckbox",
-    #                 "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
-    #             } for item in filter_menu_items
-    #         ]
-    #         self.filter_menu = MDDropdownMenu(
-    #             caller=self.ids.filter_menu_button,
-    #             items=item_per_menu_items,
-    #             width_mult=5,
-    #             # max_height=dp(240)
-    #         )
-    #
-    #     fetch_data = ComicServerConn()
-    #     url_send = f"{self.base_url}/api/v1/publishers"
-    #     fetch_data.get_server_data_callback(
-    #         url_send,
-    #         callback=lambda url_send, results: __got_publisher_data(results))
-
-    def filter_menu_callback(self, text_item):
-        self.filter_menu.dismiss()
-
-    def callback_for_menu_items(self, *args):
-        pass
-
-    def on_pre_enter(self):
-        self.m_grid = self.ids["main_grid"]
-
     def on_enter(self, *args):
-        self.base_url = self.app.base_url
-        self.api_url = self.app.api_url
-        # self.prev_button = self.ids["prev_button"]
-        # self.next_button = self.ids["next_button"]
+        self.m_grid = self.ids["main_grid"]
         if self.loading_done is True:
             return
         self.get_server_lists()
@@ -164,14 +95,6 @@ class CollectionsScreenView(ComicListsBaseScreenView):
             grid.clear_widgets()
             i = 1
             # add spacer so page forms right while imgs are dl
-            c_spacer = ComicThumb(item_id="NOID")
-            c_spacer.lines = 1
-            c_spacer.padding = dp(10), dp(10)
-            c_spacer.totalPages = self.totalPages
-            src_thumb = "assets/spacer.jpg"
-            c_spacer.source = src_thumb
-            c_spacer.opacity = 0
-            #grid.add_widget(c_spacer)
             first_item = self.rl_comics_json[0]['id']
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
@@ -179,7 +102,7 @@ class CollectionsScreenView(ComicListsBaseScreenView):
                 rl_book_count = len(item['seriesIds'])
                 self.rl_book_count = rl_book_count
                 c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
-                c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
+                c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Series"
                 # c.book_ids = book_ids
                 # c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
