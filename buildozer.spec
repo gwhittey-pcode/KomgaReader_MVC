@@ -29,7 +29,7 @@ source.exclude_dirs = tests, bin, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.23.1
+version = 0.23.2
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -49,7 +49,7 @@ requirements = python3,kivy,kivymd,natsort,peewee,pygments,sdl2_ttf==2.0.15,pill
 icon.filename = %(source.dir)s/assets/icon.png
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
-orientation = portrait
+orientation = all
 
 # (list) List of service to declare
 #services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY
