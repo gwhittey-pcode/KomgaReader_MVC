@@ -998,8 +998,6 @@ class ComicBookScreenView(BaseScreenView):
         #     if comic.Id == comic_obj.Id:
         #         index = comics_list.index(comic)
         if self.current_page + 1 == self.totalPages or self.totalPages != 1:
-            print(f"{self.current_page =}")
-            print(f"{self.totalPages =}")
             print("End of ReadingList")
         else:
             fetch_data = ComicServerConn()
@@ -1093,9 +1091,7 @@ class ComicBookScreenView(BaseScreenView):
 
     def load_user_current_page(self,dt):
         for slide in self.ids.comic_book_carousel.slides:
-            print(f"{slide.open_this_page}")
             if slide.open_this_page:
-                print(slide.comic_page)
                 self.ids.comic_book_carousel.load_slide(slide)
 
     def page_nav_popup_open(self):
