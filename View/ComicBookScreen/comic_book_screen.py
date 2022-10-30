@@ -323,6 +323,9 @@ class ComicBookScreenView(BaseScreenView):
                                       )
         self.build_next_comic_dialog()
         self.build_prev_comic_dialog()
+
+        Clock.schedule_once(self.load_user_current_page,.5)
+
         self.app.open_comic_screen = self.comic_obj.Id
 
     def add_pages(self, comic_book_carousel, outer_grid, comic_obj, i):
@@ -346,6 +349,7 @@ class ComicBookScreenView(BaseScreenView):
                         i,
                         comic_page_source,
                         comic_page_image.proxyImage,
+                        open_this_page=open_this_page
                     )
                 else:
                     comic_page_image.proxyImage.bind(
@@ -355,15 +359,19 @@ class ComicBookScreenView(BaseScreenView):
                             outer_grid,
                             comic_obj,
                             i,
-                            comic_page_source
+                            comic_page_source,
+                            open_this_page=open_this_page
                         )
                     )
-
         strech_image = MDApp.get_running_app().config.get(
             "Display", "stretch_image"
         )
 
         max_height = MDApp.get_running_app().config.get("Display", "max_height")
+        if comic_obj.readProgress_page -1 == i:
+            open_this_page = True
+        else:
+            open_this_page= False
         comic_page_scatter = ComicBookPageScatter(
             id="comic_scatter" + str(i),
             comic_page=i,
@@ -372,6 +380,7 @@ class ComicBookScreenView(BaseScreenView):
             size_hint=(1, 1),
             auto_bring_to_front=True,
             scale_min=1,
+            open_this_page=open_this_page
         )
         if strech_image == "1":
             s_allow_stretch = True
@@ -434,8 +443,6 @@ class ComicBookScreenView(BaseScreenView):
         inner_grid.add_widget(smbutton)
         smbutton.bind(on_release=smbutton.click)
         outer_grid.add_widget(inner_grid)
-        if comic_obj.PageCount - 1 == i:
-            self.load_user_current_page()
         s_url_part = f"/api/v1/books/{comic_obj.Id}/pages"
         get_size_url = f"{self.app.base_url}{s_url_part}"
         if self.view_mode == "FileOpen" or self.comic_obj.is_sync:
@@ -1055,54 +1062,9 @@ class ComicBookScreenView(BaseScreenView):
     def slide_changed(self, index):  # noqa
         if self.app.open_comic_screen == "None":
             return
-
-        def __update_page(key_val=None):
-            # db_item = Comic.get(Comic.Id == self.comic_obj.Id)
-            for key, value in key_val.items():
-                # setattr(db_item, key, value)
-                setattr(self.comic_obj, key, value)
-                # if key == "UserLastPageRead":
-                # if self.view_mode == "FileOpen" or (
-                #         self.view_mode == "Sync" and self.comic_obj.is_sync
-                # ):
-                #     local_readinglists_screen = self.app.manager_screens.get_screen(
-                #         "local_readinglists_screen"
-                #     )
-                #     local_readinglists_screen.page_turn(
-                #         self.comic_obj.Id, value
-                #     )
-                # else:
-                #     server_readinglists_screen = self.app.manager_screens.get_screen(
-                #         "r l comic books screen"
-                #     )
-                #     server_readinglists_screen.page_turn(
-                #         self.comic_obj.Id, value
-                #     )
-            # db_item.save()
-
-        if self.view_mode == "FileOpen" or (
-                self.view_mode == "Sync" and self.comic_obj.is_sync
-        ):
-            if index is not None:
-                comic_book_carousel = self.ids.comic_book_carousel
-                current_page = comic_book_carousel.current_slide.comic_page
-                comic_obj = self.comic_obj
-                comic_Id = comic_obj.Id
-                if self.comic_obj.is_sync:
-                    if current_page + 1 > self.comic_obj.UserLastPageRead:
-                        key_val = {
-                            "UserLastPageRead": current_page + 1,
-                            "UserCurrentPage": current_page + 1,
-                        }
-                    else:
-                        key_val = {"UserCurrentPage": current_page + 1}
-                    Clock.schedule_once(
-                        lambda dt, key_value={}: __update_page(key_val=key_val)
-                    )
         else:
             def updated_progress(results):
                 pass
-
             if index is not None:
                 comic_book_carousel = self.ids.comic_book_carousel
                 current_page = comic_book_carousel.current_slide.comic_page + 1
@@ -1113,28 +1075,12 @@ class ComicBookScreenView(BaseScreenView):
                     completed = 'false'
                 comic_Id = comic_obj.Id
                 update_url = f"{self.app.base_url}/api/v1/books/{comic_Id}/read-progress"
-                if current_page > self.comic_obj.UserLastPageRead:
-                    key_val = {
-                        "UserLastPageRead": current_page,
-                        "UserCurrentPage": current_page,
-                    }
-                else:
-                    key_val = {"UserCurrentPage": current_page}
-                Clock.schedule_once(
-                    lambda dt, key_value={}: __update_page(key_val=key_val)
-                )
                 self.fetch_data.update_progress(
                     update_url,
                     current_page,
                     completed=completed,
                     callback=lambda req, results: updated_progress(results),
                 )
-                # server_readinglists_screen = self.app.manager_screens.get_screen(
-                #     "r l comic books screen"
-                # )
-                # server_readinglists_screen.page_turn(
-                #     self.comic_obj.Id, current_page
-                # )
                 for slide in comic_book_carousel.slides:
                     for child in slide.walk():
                         try:
@@ -1145,9 +1091,11 @@ class ComicBookScreenView(BaseScreenView):
                         except AttributeError:
                             pass
 
-    def load_user_current_page(self):
+    def load_user_current_page(self,dt):
         for slide in self.ids.comic_book_carousel.slides:
-            if slide.comic_page + 1 == self.comic_obj.UserCurrentPage:
+            print(f"{slide.open_this_page}")
+            if slide.open_this_page:
+                print(slide.comic_page)
                 self.ids.comic_book_carousel.load_slide(slide)
 
     def page_nav_popup_open(self):

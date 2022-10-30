@@ -46,11 +46,11 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             pass
         else:
             self.comic_obj = comic_obj
-            UserLastPageRead = self.comic_obj.UserLastPageRead
+            readProgress_page = self.comic_obj.readProgress_page
             PageCount = comic_obj.PageCount
 
             self.percent_read = round(
-                UserLastPageRead
+                readProgress_page
                 / PageCount
                 * 100
             )

@@ -54,8 +54,7 @@ COMIC_DB_KEYS = [
     "Volume",
     "Year",
     "Month",
-    "UserCurrentPage",
-    "UserLastPageRead",
+    "readProgress_page",
     "PageCount",
     "Title",
     "Summary",
@@ -96,8 +95,7 @@ class ComicBook(EventDispatcher):
     date = StringProperty()
     Year = NumericProperty()
     Month = NumericProperty()
-    UserLastPageRead = NumericProperty()
-    UserCurrentPage = NumericProperty()
+    readProgress_page = NumericProperty()
     PageCount = NumericProperty()
     Summary = StringProperty()
     Title = StringProperty()
@@ -142,8 +140,7 @@ class ComicBook(EventDispatcher):
                     self.Year = 2000
                     self.Month = 1
                 if comic_data['readProgress']:
-                    self.UserLastPageRead = comic_data['readProgress']['page']
-                    self.UserCurrentPage = comic_data['readProgress']['page']
+                    self.readProgress_page = comic_data['readProgress']['page']
                 self.PageCount = comic_data['media']["pagesCount"]
                 self.Title = comic_data['metadata']['title']
                 if comic_data["metadata"]['summary'] is not None:
@@ -337,234 +334,6 @@ class ComicList(EventDispatcher):
             rl.save()
         except peewee.OperationalError:
             pass
-
-    def do_db_refresh(self, screen=None):
-        def __finish_toast(dt):
-            app = App.get_running_app()
-            screen = app.manager_screens.get_screen("r l comic books screen")
-            screen.refresh_callback()
-            toast("DataBase Refresh Complete")
-
-        def __got_readlist_data(results):
-            def __updated_progress(results):
-                pass
-
-            the_keys = [
-                "Id",
-                "Series",
-                "Number",
-                "Volume",
-                "Year",
-                "Month",
-                "UserCurrentPage",
-                "UserLastPageRead",
-                "PageCount",
-                "Summary",
-                "FilePath",
-            ]
-            for server_comic in results["items"]:
-                for db_comic in self.comics:
-                    if db_comic.Id == server_comic["Id"]:
-                        for key in the_keys:
-                            if getattr(db_comic, key) != server_comic[key]:
-                                if key in (
-                                    "UserCurrentPage",
-                                    "UserLastPageRead",
-                                ) and (db_comic.is_sync):
-                                    if (
-                                        db_comic.UserLastPageRead
-                                        > server_comic["UserLastPageRead"]
-                                    ) or (
-                                        db_comic.UserCurrentPage
-                                        > server_comic["UserCurrentPage"]
-                                    ):
-                                        if (
-                                            db_comic.UserCurrentPage
-                                            > db_comic.UserLastPageRead
-                                        ):
-                                            current_page = (
-                                                db_comic.UserCurrentPage
-                                            )  # noqa
-                                        else:
-                                            current_page = (
-                                                db_comic.UserLastPageRead
-                                            )  # noqa
-                                        update_url = "{}/Comics/{}/Progress".format(
-                                            api_url, db_comic.Id
-                                        )
-                                        self.fetch_data.update_progress(
-                                            update_url,
-                                            current_page,
-                                            callback=lambda req, results: __updated_progress(
-                                                results
-                                            ),
-                                        )
-                                    else:
-                                        x_str = db_comic.__str__
-                                        Logger.info(
-                                            "Updating DB Record for {} of {}".format(
-                                                key, x_str
-                                            )
-                                        )
-                                        toast(
-                                            "Updating DB Record for {} of {}".format(
-                                                key, x_str
-                                            )
-                                        )
-                                        db_item = Comic.get(
-                                            Comic.Id == db_comic.Id
-                                        )
-                                        if db_item:
-                                            setattr(
-                                                db_item, key, server_comic[key]
-                                            )
-                                            db_item.save()
-                                            setattr(self, key, db_item)
-
-            Clock.schedule_once(__finish_toast, 3)
-
-        self.fetch_data = ComicServerConn()
-        app = App.get_running_app()
-        api_url = app.api_url
-        server_url = f"{api_url}/Lists/{self.slug}/Comics/"
-
-        self.fetch_data.get_server_data_callback(
-            server_url,
-            callback=lambda req, results: __got_readlist_data(results),
-        )
-
-    def get_last_comic_read(self):
-        last_read_comic = 0
-        for comic in self.comics:
-            if (
-                comic.UserLastPageRead == comic.PageCount - 1
-                and comic.PageCount > 1
-            ):
-                last_read_comic = self.comics.index(comic)
-        return last_read_comic
-
-    def do_sync(self):
-        def _syncrun_callback(*args):
-            pass
-
-        app = MDApp.get_running_app()
-        if app.sync_is_running is True:
-            self.please_wait_dialog = MDDialog(
-                title="Sync Already in Progress",
-                size_hint=(0.8, 0.4),
-                text_button_ok="Ok",
-                text=f"Please wait till current Sync is done",
-                events_callback=_syncrun_callback,
-            )
-            self.please_wait_dialog.open()
-            return
-        self.num_file_done = 0
-        sync_range = 0
-        self.fetch_data = ComicServerConn()
-        rl_db = ReadingList.get(ReadingList.slug == self.slug)
-
-        end_last_sync_num = rl_db.end_last_sync_num
-        if end_last_sync_num != 0:
-            end_last_sync_num = end_last_sync_num - 1
-        comicindex_db = ComicIndex.get(ComicIndex.readinglist == self.slug)
-        last_read_comic_db = self.db.comics.where(
-            (Comic.UserLastPageRead == Comic.PageCount - 1)
-            & (Comic.PageCount > 1)
-        ).order_by(comicindex_db.index)
-        if len(last_read_comic_db) > 1:
-            last_read_index = ComicIndex.get(
-                ComicIndex.comic == last_read_comic_db[-1].Id,
-                ComicIndex.readinglist == self.slug,
-            ).index
-        elif len(last_read_comic_db) != 0:
-            last_read_index = ComicIndex.get(
-                ComicIndex.comic == last_read_comic_db[0].Id,
-                ComicIndex.readinglist == self.slug,
-            ).index
-        else:
-            last_read_index = 0
-        if self.cb_limit_active:
-            if self.cb_only_read_active:
-                list_comics = self.db.comics.where(
-                    ~(Comic.UserLastPageRead == Comic.PageCount - 1)
-                    & (Comic.PageCount > 1)
-                    & (Comic.been_sync)
-                    != True
-                ).order_by(
-                    comicindex_db.index
-                )  # noqa: E712
-                if last_read_index < end_last_sync_num:
-                    sync_range = int(self.limit_num)
-                    tmp_comic_list = list_comics[0:int(sync_range)]
-                else:
-                    sync_range = int(end_last_sync_num) + int(self.limit_num)
-                    tmp_comic_list = list_comics[end_last_sync_num:int(sync_range)]
-                purge_list = self.db.comics.where(
-                    (Comic.UserLastPageRead == Comic.PageCount - 1)
-                    & (Comic.PageCount > 1)
-                    & (Comic.is_sync == True)
-                ).order_by(
-                    comicindex_db.index
-                )  # noqa: E712
-            else:
-                list_comics = (
-                    Comic.select()
-                    .where(
-                        (Comic.is_sync == False) & (Comic.been_sync == False)
-                    )
-                    .order_by(comicindex_db.index)
-                )  # noqa: E712,E501
-                sync_range = int(self.limit_num)
-                tmp_comic_list = list_comics[0:int(sync_range)]
-                purge_list = self.db.comics.where(
-                    Comic.is_sync == True
-                ).order_by(
-                    comicindex_db.index
-                )  # noqa: E712
-        else:
-            sync_range = int(len(self.comics))
-            # rl_db.end_last_sync_num = new_end_last_sync_num
-            # rl_db.save()
-            if self.cb_only_read_active:
-                list_comics = self.db.comics.where(
-                    ~(Comic.UserLastPageRead == Comic.PageCount - 1)
-                    & (Comic.PageCount > 1)
-                ).order_by(
-                    comicindex_db.index
-                )  # noqa: E712
-                tmp_comic_list = list_comics[0:int(sync_range)]
-            else:
-                list_comics = self.db.comics.where(
-                    (Comic.is_sync == False) & (Comic.been_sync == False)
-                ).order_by(
-                    comicindex_db.index
-                )  # noqa: E712,E501
-                tmp_comic_list = list_comics
-        db_item = ReadingList.get(ReadingList.slug == self.slug)
-        for key in READINGLIST_SETTINGS_KEYS:
-            v = getattr(db_item, key)
-            globals()["%s" % key] = v
-        app = App.get_running_app()
-        id_folder = os.path.join(app.sync_folder, self.slug)
-        my_comic_dir = Path(os.path.join(id_folder, "comics"))
-        if os.path.isdir(my_comic_dir):
-            print(f"{get_size(my_comic_dir)/1000000} MB")
-        sync_comic_list = []
-        for comic in tmp_comic_list:
-            if comic.is_sync is False:
-                sync_comic_list.append(comic)
-        if self.cb_purge_active:
-            for item in purge_list:
-                os.remove(item.local_file)
-                db_comic = Comic.get(Comic.Id == item.Id)
-                db_comic.is_sync = False
-                db_comic.local_file = ""
-                db_comic.save()
-                server_readinglists_screen = app.manager_screens.get_screen(
-                    "r l comic books screen"
-                )
-                server_readinglists_screen.file_sync_update(item.Id, False)
-        self.sync_readinglist(comic_list=sync_comic_list)
 
     def get_server_file_download(self, req_url, callback, file_path):
         def is_finished(dt):

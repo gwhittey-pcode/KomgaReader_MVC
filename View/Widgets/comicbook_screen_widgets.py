@@ -7,6 +7,8 @@ from kivy.properties import (
     DictProperty, BooleanProperty,
 )
 from kivy.uix.carousel import Carousel
+from kivymd.app import MDApp
+
 from Utility.myimage import Image, MyAsyncImage
 from kivy.uix.button import Button, ButtonBehavior
 from kivy.uix.label import Label
@@ -71,6 +73,7 @@ class ComicBookPageScatter(ScatterLayout):
     zoom_state = StringProperty()
     comic_page = NumericProperty()
     id = StringProperty()
+    open_this_page = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super(ComicBookPageScatter, self).__init__(**kwargs)
@@ -267,10 +270,11 @@ class ComicBookPageImage(MyAsyncImage):
         extra_headers = kwargs.get('extra_headers')
 
     def _new_image_downloaded(
-            self, scatter, outer_grid, comic_obj, var_i, src_url, proxyImage
+            self, scatter, outer_grid, comic_obj, var_i, src_url, proxyImage, open_this_page=False
     ):
         """Fired once the image is downloaded and ready to use"""
         Logger.debug("_new_image_downloaded")
+        open_this_page = open_this_page
 
         def _remove_widget():
             carousel.remove_widget(scatter)
@@ -307,6 +311,8 @@ class ComicBookPageImage(MyAsyncImage):
                 do_rotation=False,
                 do_translation=False,
                 scale_min=1,
+                open_this_page=open_this_page
+
             )
             scatter_2 = ComicBookPageScatter(
                 id="comic_scatter" + str(var_i) + "b",
@@ -354,7 +360,8 @@ class ComicBookPageImage(MyAsyncImage):
                         _remove_widget()
                         _add_parts()
                     i += 1
-
+                screen = MDApp.get_running_app().manager_screens.current_screen
+                Clock.schedule_once(screen.load_user_current_page)
             else:
                 if p_width > p_height:
                     scatter.size_hint = (2, 1)
