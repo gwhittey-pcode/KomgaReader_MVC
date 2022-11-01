@@ -56,15 +56,16 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             )
 
     def on_short_touch(self):
-        if self.thumb_type == "ReadingList":
+        print(f"{self.thumb_type =}")
+        if self.thumb_type == "Reading List":
             self.comic_list_type = "r l comic books screen "
             self.open_readinglist()
         elif self.thumb_type == "ComicBook":
             self.open_comic()
-        elif self.thumb_type == "Series":
+        elif self.thumb_type == "Series List":
             self.comic_list_type = "series comics screen"
             self.open_series()
-        elif self.thumb_type == "Collections":
+        elif self.thumb_type == "Collection List":
             self.open_collection()
         else:
             print("No Item")

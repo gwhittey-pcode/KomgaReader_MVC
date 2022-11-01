@@ -1,8 +1,8 @@
 
-from View.ComicListScreen.comic_list_screen import ComicListScreenView
+from View.ObjectListScreen.object_list_screen import ObjectListScreenView
 
 
-class ComicListScreenController:
+class ObjectListScreenController:
     """
     The `ComicListScreenController` class represents a controller implementation.
     Coordinates work of the view with the model.
@@ -12,7 +12,7 @@ class ComicListScreenController:
 
     def __init__(self, model):
         self.model = model  # Model.comic_list_screen.ComicListScreenModel
-        self.view = ComicListScreenView(controller=self, model=self.model)
+        self.view = ObjectListScreenView(controller=self, model=self.model)
 
-    def get_view(self) -> ComicListScreenView:
+    def get_view(self) -> ObjectListScreenView:
         return self.view

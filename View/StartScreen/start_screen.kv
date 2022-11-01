@@ -32,21 +32,21 @@
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
-                        on_press:root.manager_screens.current = "reading list screen"
+                        on_press:app.open_object_list_screen("Reading List")
                     MDFillRoundFlatIconButton:
                         icon: 'bookshelf'
                         text: 'Open Series'
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
-                        on_press:root.manager_screens.current = "series screen"
+                        on_press:app.open_object_list_screen("Series List")
                     MDFillRoundFlatIconButton:
                         icon: 'server'
                         text: 'Open Collections'
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
-                        on_press:root.manager_screens.current = "collections screen"
+                        on_press:app.open_object_list_screen("Collection List")
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width

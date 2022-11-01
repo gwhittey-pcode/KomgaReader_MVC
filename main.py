@@ -8,6 +8,7 @@ To run the application in hot boot mode, execute the command in the console:
 DEBUG=1 python main.py
 """
 from kivy import Logger
+from kivy.clock import Clock
 
 from kivy.core.window import Window, Keyboard
 from kivy.properties import (
@@ -34,6 +35,7 @@ from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
 from Utility.db_functions import start_db
 from View.Widgets.mytoolbar import MyToolBar
+
 
 class KomgaReader(MDApp):
     title = StringProperty
@@ -147,7 +149,7 @@ class KomgaReader(MDApp):
     def set_value_from_config(self, *args):
         """Sets the values of variables from the settings
         file KomgaReader2.ini."""
-        #self.config.read(os.path.join(self.directory, "komgareader.ini"))
+        # self.config.read(os.path.join(self.directory, "komgareader.ini"))
         self.lang = self.config.get("Language", "language")
         self.sync_folder = self.config.get("Sync", "sync_folder")
         self.store_dir = os.path.join(
@@ -174,6 +176,7 @@ class KomgaReader(MDApp):
             "General", "how_to_open_comic"
         )
         self.item_per_page = self.config.get("General", "max_item_per_page")
+
     def config_callback(self, section, key, value):
         if key == "storagedir":
             def __callback_for_please_wait_dialog(*args):
@@ -367,6 +370,11 @@ class KomgaReader(MDApp):
             except:  # noqa
                 self.manager.current = "base"
             # self.screen.ids.action_bar.title = self.title
+
+    def open_object_list_screen(self, object_type):
+        screen = self.manager_screens.get_screen("object list screen")
+        screen.setup_screen(object_type=object_type)
+        self.manager_screens.current = "object list screen"
 
 
 KomgaReader().run()

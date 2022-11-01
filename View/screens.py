@@ -1,6 +1,8 @@
 # The screens dictionary contains the objects of the models and controllers
 # of the screens of the application.
+from Controller.object_list_screen import ObjectListScreenController
 from Controller.comic_lists_base_screen import ComicListsBaseScreenController
+from Model.object_list_screen import ObjectListScreenModel
 from Model.comic_lists_base_screen import ComicListsBaseScreenModel
 from Model.start_screen import StartScreenModel
 from Controller.start_screen import StartScreenController
@@ -67,6 +69,10 @@ screens = {
     "comic book screen": {
         "model": ComicBookScreenModel,
         "controller": ComicBookScreenController,
+    },
+    "object list screen": {
+        "model": ObjectListScreenModel,
+        "controller": ObjectListScreenController,
     },
 
 }
