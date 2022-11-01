@@ -1,7 +1,6 @@
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivymd.app import MDApp
 
-from Utility.filter_menu import filter_menu_build
 from Utility.items_per_page_menu import item_per_menu_build
 from View.base_screen import BaseScreenView
 
@@ -17,9 +16,8 @@ class ComicListsBaseScreenView(BaseScreenView):
         self.app = MDApp.get_running_app()
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.base_url = self.app.base_url
-        filter_menu_build()
         item_per_menu_build()
-
+        self.app.filter_nav_drawer.filter_menu_build()
     def model_is_changed(self) -> None:
         """
         Called whenever any change has occurred in the data model.

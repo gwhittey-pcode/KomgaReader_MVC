@@ -19,8 +19,10 @@ class MyToolBar(MDTopAppBar):
         app = MDApp.get_running_app()
         specific_text_color =  MDApp.get_running_app().theme_cls.accent_color
         self.left_action_items = [
+
             ["home", lambda x: self.switch_base_screen(), "Home"],
             ["cog-outline", lambda x: app.open_settings(), "Settings"],
+
             # ["fullscreen",lambda x: app.toggle_full_screen(), "Full Screen"]
         ]
         self.right_action_items = [

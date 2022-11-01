@@ -18,6 +18,8 @@ from kivy.properties import (
     BooleanProperty
 )
 from kivymd.app import MDApp
+from kivymd.uix.navigationdrawer import MDNavigationLayout, MDNavigationDrawer
+from kivymd.uix.screen import MDScreen
 from kivymd.uix.screenmanager import MDScreenManager
 from View.screens import screens
 import os
@@ -35,6 +37,7 @@ from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
 from Utility.db_functions import start_db
 from View.Widgets.mytoolbar import MyToolBar
+from View.Widgets.filternavdrawer import MyMDNavigationDrawer
 
 
 class KomgaReader(MDApp):
@@ -55,6 +58,7 @@ class KomgaReader(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.filter_nav_drawer = None
         self.load_all_kv_files(self.directory)
         self.base_url = ""
         self.password = ""
@@ -68,6 +72,7 @@ class KomgaReader(MDApp):
         # application.
         self.manager_screens = MDScreenManager()
         self.config = ConfigParser()
+        self.filter_string = ""
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
 
@@ -233,8 +238,13 @@ class KomgaReader(MDApp):
         self.theme_cls.primary_palette = "Cyan"
         self.theme_cls.theme_style = "Light"
         self.generate_application_screens()
-
-        return self.manager_screens
+        first_screen = MDScreen()
+        nav_layout = MDNavigationLayout()
+        first_screen.add_widget(nav_layout)
+        self.filter_nav_drawer = MyMDNavigationDrawer()
+        nav_layout.add_widget(self.manager_screens)
+        nav_layout.add_widget(self.filter_nav_drawer)
+        return first_screen
 
     def generate_application_screens(self) -> None:
         """

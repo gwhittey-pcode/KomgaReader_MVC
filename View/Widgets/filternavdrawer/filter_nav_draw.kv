@@ -1,0 +1,38 @@
+<MyMDNavigationDrawer>
+    anchor: "right"
+    id: nav_drawer
+    radius: (0, 16, 16, 0)
+
+    MDNavigationDrawerMenu:
+        id:filter_nav_draw
+        MDNavigationDrawerHeader:
+            title: "Filter"
+            title_color: "#4a4939"
+            spacing: "4dp"
+            padding: "12dp", 0, 0, "56dp"
+
+<PublisherPanel>
+    id:publisher_panel
+    adaptive_height: True
+    MDList:
+        id: pub_list
+
+<DrawerClickableItem@MDNavigationDrawerItem>
+    focus_color: "#e7e4c0"
+    text_color: "#4a4939"
+    icon_color: "#4a4939"
+    ripple_color: "#c5bdd2"
+    selected_color: "#0c6c4d"
+
+
+<DrawerLabelItem@MDNavigationDrawerItem>
+    text_color: "#4a4939"
+    icon_color: "#4a4939"
+    focus_behavior: False
+    selected_color: "#4a4939"
+    _no_ripple_effect: True
+<ListItemWithCheckbox>:
+    IconRightWidget:
+        icon: root.icon
+    LeftCheckbox:
+        on_active:root.check_box_active(root.check_box_value)

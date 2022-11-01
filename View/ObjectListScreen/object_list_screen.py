@@ -50,20 +50,7 @@ class MDRaisedIconButton(BaseButton, ButtonElevationBehaviour, ButtonContentsTex
         self.shadow_radius = self._radius * 2
 
 
-class ListItemWithCheckbox(OneLineAvatarIconListItem):
-    """Custom list item."""
-    icon = StringProperty("android")
 
-    def on_checkbox_active(self, checkbox, value):
-        if value:
-            print('The checkbox', checkbox, 'is active', 'and', checkbox.state, 'state')
-            print(self.text)
-        else:
-            print('The checkbox', checkbox, 'is inactive', 'and', checkbox.state, 'state')
-
-
-class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
-    """Custom right container."""
 
 
 class ObjectListScreenView(ComicListsBaseScreenView):
@@ -107,7 +94,7 @@ class ObjectListScreenView(ComicListsBaseScreenView):
         self.comic_thumb_width = 156
         self.loading_done = False
         self.page_year=""
-        self.page_title = "Reading Lists"
+
 
     def callback_for_menu_items(self, *args):
         pass
@@ -148,10 +135,15 @@ class ObjectListScreenView(ComicListsBaseScreenView):
             self.build_page()
 
         if self.object_type == "Reading List":
+            self.page_title = "Reading Lists"
             url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
         elif self.object_type == "Series List":
-            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size={self.item_per_page}"
+            self.page_title = "Series Lists"
+            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}" \
+                       f"&size={self.item_per_page}" \
+                       f"&publisher={self.app.filter_string}"
         elif self.object_type == "Collection List":
+            self.page_title = "Collection Lists"
             url_send = f"{self.base_url}/api/v1/collections?page={new_page_num}&size={self.item_per_page}"
 
         if self.lists_loaded is False:
@@ -217,7 +209,13 @@ class ObjectListScreenView(ComicListsBaseScreenView):
                 if os.path.isfile(t_file):
                     c_image_source = t_file
                 else:
-                    c_image_source = f"{self.base_url}/api/v1/readlists/{rl_id}/thumbnail"
+                    if self.object_type == "Reading List":
+                        url_image = f"{self.base_url}/api/v1/{rl_id}/thumbnail"
+                    elif self.object_type == "Series List":
+                        url_image = f"{self.base_url}/api/v1/series/{rl_id}/thumbnail"
+                    elif self.object_type == "Collection List":
+                        url_image = f"{self.base_url}/api/v1/collections/{rl_id}/thumbnail"
+                    c_image_source = url_image
                     asynckivy.start(save_thumb(rl_id, c_image_source))
                 c.source = c_image_source
 

@@ -35,7 +35,7 @@
                         tooltip_text: "Filter"
                         icon: "filter-variant"
                         id: filter_menu_button
-                        on_release: root.filter_menu.open()
+                        on_release: app.filter_nav_drawer.set_state("open")
             MDBoxLayout:
                 adaptive_height:True
                 orientation: 'vertical'
