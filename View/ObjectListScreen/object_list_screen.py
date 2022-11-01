@@ -1,45 +1,27 @@
 import math
-import ntpath
 import os
-from functools import partial
-from pathlib import Path
 
-from kivy.animation import Animation
+
 from kivy.app import App
-from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty, DictProperty, BooleanProperty, \
     ConfigParserProperty
-from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.label import Label
-from kivy.utils import get_hex_from_color
 from kivymd.app import MDApp
-from kivy import Logger
 from kivymd.material_resources import dp
-from kivymd.toast import toast
-from kivymd.uix.behaviors import CommonElevationBehavior, CircularRippleBehavior, RectangularRippleBehavior
 from kivymd.uix.button import MDIconButton, BaseButton
 from kivymd.uix.button.button import ButtonElevationBehaviour, ButtonContentsText
-from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineAvatarIconListItem, IRightBodyTouch, ILeftBodyTouch
-from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.selectioncontrol import MDCheckbox
-from kivymd.uix.widget import MDWidget
-
 from Utility.comic_functions import save_thumb
-from Utility.db_functions import ReadingList
+from Utility.filter_menu import filter_menu_build
 from Utility.items_per_page_menu import item_per_menu_build
 from Utility.komga_server_conn import ComicServerConn
-from Utility.myUrlrequest import UrlRequest as myUrlRequest
-from View.ComicListsBaseScreen import ComicListsBaseScreenView
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
-from View.Widgets.custimagelist import RLTileLabel
-from View.Widgets.paginationwidgets import MyMDRaisedButton, MyMDIconRaisedButton
-
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
+from View.ComicListsBaseScreen import ComicListsBaseScreenView
 
 
 class CustomMDFillRoundFlatIconButton(MDIconButton):
@@ -86,13 +68,18 @@ class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
     """Custom right container."""
 
 
-class ReadingListScreenView(ComicListsBaseScreenView):
+class ObjectListScreenView(ComicListsBaseScreenView):
     dynamic_ids = DictProperty({})
     comic_thumb_width = NumericProperty()
     comic_thumb_height = NumericProperty()
-
+    page_year = StringProperty("")
+    page_title = StringProperty("")
+    item_per_page = NumericProperty()
+    base_url = StringProperty()
+    app = ObjectProperty()
     def __init__(self, **kwargs):
-        super(ReadingListScreenView, self).__init__(**kwargs)
+        super(ObjectListScreenView, self).__init__(**kwargs)
+        self.object_type = None
         self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page", App.get_running_app().config)
         self.app = MDApp.get_running_app()
         self.lists_loaded = BooleanProperty()
@@ -121,35 +108,8 @@ class ReadingListScreenView(ComicListsBaseScreenView):
         self.comic_thumb_height = 240
         self.comic_thumb_width = 156
         self.loading_done = False
-
+        self.page_year=""
         self.page_title = "Reading Lists"
-        # self.filter_menu_build()
-
-    # def filter_menu_build(self):
-    #     def __got_publisher_data(results):
-    #         filter_menu_items = results
-    #         item_per_menu_items = [
-    #             {
-    #                 "text": f"{item}",
-    #                 "viewclass": "ListItemWithCheckbox",
-    #                 "on_release": lambda x=f"{item}": self.filter_menu_callback(x),
-    #             } for item in filter_menu_items
-    #         ]
-    #         self.filter_menu = MDDropdownMenu(
-    #             caller=self.ids.filter_menu_button,
-    #             items=item_per_menu_items,
-    #             width_mult=5,
-    #             # max_height=dp(240)
-    #         )
-    #
-    #     fetch_data = ComicServerConn()
-    #     url_send = f"{self.base_url}/api/v1/publishers"
-    #     fetch_data.get_server_data_callback(
-    #         url_send,
-    #         callback=lambda url_send, results: __got_publisher_data(results))
-
-    def filter_menu_callback(self, text_item):
-        self.filter_menu.dismiss()
 
     def callback_for_menu_items(self, *args):
         pass
@@ -158,8 +118,19 @@ class ReadingListScreenView(ComicListsBaseScreenView):
         self.m_grid = self.ids["main_grid"]
         if self.loading_done is True:
             return
-        self.get_server_lists()
+        self.app = MDApp.get_running_app()
+        self.item_per_page = self.app.config.get("General", "max_item_per_page")
+        self.base_url = self.app.base_url
+
+
         print(f"{self.apps =}")
+
+    def setup_screen(self,object_type="Reading List"):
+        self.session_cookie = self.app.config.get("General", "api_key")
+        self.main_stack = self.ids["main_stack"]
+        self.m_grid = self.ids["main_grid"]
+        self.object_type = object_type
+        self.get_server_lists()
 
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():
@@ -168,7 +139,7 @@ class ReadingListScreenView(ComicListsBaseScreenView):
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0):
-        def __get_server_lists(self, results):
+        def __get_server_lists(results):
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
@@ -178,15 +149,21 @@ class ReadingListScreenView(ComicListsBaseScreenView):
             self.build_paginations()
             self.build_page()
 
+        if self.object_type == "Reading List":
+            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
+        elif self.object_type == "Series List":
+            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size={self.item_per_page}"
+        elif self.object_type == "Collection List":
+            url_send = f"{self.base_url}/api/v1/collections?page={new_page_num}&size={self.item_per_page}"
+
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
             fetch_data.get_server_data_callback(
                 url_send,
-                callback=lambda url_send, results: __get_server_lists(self, results))
+                callback=lambda url_send, results: __get_server_lists(results))
 
     def build_paginations(self):
-        build_pageination_nav(screen_name="reading list screen")
+        build_pageination_nav(screen_name="object list screen")
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":
@@ -206,15 +183,26 @@ class ReadingListScreenView(ComicListsBaseScreenView):
             first_item = self.rl_comics_json[0]['id']
             for item in self.rl_comics_json:
                 await asynckivy.sleep(0)
+
+                c = ComicThumb(rl_name=item['name'], item_id=item['id'])
+                rl_book_count = 0
                 rl_id = item['id']
-                rl_book_count = len(item['bookIds'])
+                if self.object_type == "Reading List":
+                    rl_book_count = len(item['bookIds'])
+                    c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
+                elif self.object_type == "Series List":
+                    rl_book_count = int(item['booksCount'])
+                    c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
+                elif self.object_type == "Collection List":
+                    rl_book_count = len(item['seriesIds'])
+                    c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Series"
                 self.rl_book_count = rl_book_count
-                c = ComicThumb(rl_book_count=rl_book_count, rl_name=item['name'], item_id=item['id'])
-                c.str_caption = f"  {item['name']} \n\n  {rl_book_count} Books"
+                c.rl_book_count = rl_book_count
+                c.current_page = self.current_page
                 # c.book_ids = book_ids
                 # c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
-                c.thumb_type = "ReadingList"
+                c.thumb_type = self.object_type
                 c.text_size = dp(8)
                 c.lines = 2
                 c.totalPages = self.totalPages
@@ -272,10 +260,3 @@ class ReadingListScreenView(ComicListsBaseScreenView):
         #     self.prev_button.disabled = True
         #     self.prev_button.page_num = ""
         self.get_server_lists(new_page_num=this_page)
-
-    def model_is_changed(self) -> None:
-        """
-        Called whenever any change has occurred in the data model.
-        The view in this method tracks these changes and updates the UI
-        according to these changes.
-        """
