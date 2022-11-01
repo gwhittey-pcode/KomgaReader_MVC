@@ -1,6 +1,6 @@
 import math
 import os
-
+import urllib.parse
 
 from kivy.app import App
 from kivy.core.window import Window
@@ -59,14 +59,16 @@ class ObjectListScreenView(ComicListsBaseScreenView):
     comic_thumb_height = NumericProperty()
     page_year = StringProperty("")
     page_title = StringProperty("")
-    item_per_page = NumericProperty()
+    item_per_page = StringProperty()
     base_url = StringProperty()
     app = ObjectProperty()
     def __init__(self, **kwargs):
         super(ObjectListScreenView, self).__init__(**kwargs)
         self.object_type = None
-        self.item_per_menu = ConfigParserProperty("", "General", "max_item_per_page", App.get_running_app().config)
+
+
         self.app = MDApp.get_running_app()
+        self.item_per_menu = self.app.config.get("General", "max_item_per_page")
         self.lists_loaded = BooleanProperty()
         self.lists_loaded = False
         self.base_url = self.app.base_url
@@ -108,7 +110,7 @@ class ObjectListScreenView(ComicListsBaseScreenView):
         self.base_url = self.app.base_url
 
 
-        print(f"{self.apps =}")
+
 
     def setup_screen(self,object_type="Reading List"):
         self.session_cookie = self.app.config.get("General", "api_key")
@@ -136,16 +138,20 @@ class ObjectListScreenView(ComicListsBaseScreenView):
 
         if self.object_type == "Reading List":
             self.page_title = "Reading Lists"
-            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={self.item_per_page}"
+            url_send = f"{self.base_url}/api/v1/readlists?page={new_page_num}&size={str(self.item_per_page)}"
         elif self.object_type == "Series List":
             self.page_title = "Series Lists"
             url_send = f"{self.base_url}/api/v1/series?page={new_page_num}" \
-                       f"&size={self.item_per_page}" \
-                       f"&publisher={self.app.filter_string}"
+                       f"&size={str(self.item_per_page)}"
+            if len(self.app.filter_string)!=0:
+                add_filter_string =""
+                for publisher in self.app.filter_string:
+                    s_pb = f"{publisher}"
+                    add_filter_string += f"&publisher={urllib.parse.quote(s_pb)}"
+                url_send = f"{url_send}{add_filter_string}"
         elif self.object_type == "Collection List":
             self.page_title = "Collection Lists"
-            url_send = f"{self.base_url}/api/v1/collections?page={new_page_num}&size={self.item_per_page}"
-
+            url_send = f"{self.base_url}/api/v1/collections?page={new_page_num}&size={str(self.item_per_page)}"
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
             fetch_data.get_server_data_callback(
@@ -210,7 +216,7 @@ class ObjectListScreenView(ComicListsBaseScreenView):
                     c_image_source = t_file
                 else:
                     if self.object_type == "Reading List":
-                        url_image = f"{self.base_url}/api/v1/{rl_id}/thumbnail"
+                        url_image = f"{self.base_url}/api/v1/readlists/{rl_id}/thumbnail"
                     elif self.object_type == "Series List":
                         url_image = f"{self.base_url}/api/v1/series/{rl_id}/thumbnail"
                     elif self.object_type == "Collection List":

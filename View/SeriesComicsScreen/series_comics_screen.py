@@ -23,7 +23,7 @@ from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_
 class SeriesComicsScreenView(ComicListsBaseScreenView):
     reading_list_title = StringProperty()
     page_number = NumericProperty()
-    max_item_per_page = NumericProperty()
+    max_item_per_page = StringProperty()
     dynamic_ids = DictProperty({})  # declare class attribute, dynamic_ids
     sync_bool = BooleanProperty(False)
     so = BooleanProperty()

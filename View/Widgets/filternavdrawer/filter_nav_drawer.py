@@ -52,7 +52,7 @@ class ListItemWithCheckbox(OneLineAvatarIconListItem):
     check_box_value = StringProperty()
 
     def check_box_active(self, check_box_value):
-        MDApp.get_running_app().filter_string = f"{check_box_value},"
+        MDApp.get_running_app().filter_string.append(check_box_value)
         print(MDApp.get_running_app().filter_string)
 
 

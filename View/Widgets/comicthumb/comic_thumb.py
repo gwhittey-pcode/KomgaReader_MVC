@@ -31,7 +31,7 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     first = BooleanProperty(False)
     last = BooleanProperty(False)
     totalPages = NumericProperty()
-    item_per_page = NumericProperty()
+    item_per_page = StringProperty()
     book_ids = ListProperty()
     next_readinglist = ObjectProperty()
     prev_readinglist = ObjectProperty()
@@ -48,12 +48,12 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             self.comic_obj = comic_obj
             readProgress_page = self.comic_obj.readProgress_page
             PageCount = comic_obj.PageCount
-
-            self.percent_read = round(
-                readProgress_page
-                / PageCount
-                * 100
-            )
+            if PageCount > 2:
+                self.percent_read = round(
+                    readProgress_page
+                    / PageCount
+                    * 100
+                )
 
     def on_short_touch(self):
         print(f"{self.thumb_type =}")

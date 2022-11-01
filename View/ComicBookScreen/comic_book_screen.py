@@ -77,7 +77,7 @@ class TopNavContent(MDBoxLayout):
     last = BooleanProperty(False)
     totalPages = NumericProperty()
     current_page = NumericProperty()
-    item_per_page = NumericProperty()
+    item_per_page = StringProperty()
     comiclist_obj = ObjectProperty()
 
     def __init__(self, **kwargs):

@@ -33,7 +33,7 @@ def item_per_menu_build():
 def item_per_menu_callback(text_item):
     screen = MDApp.get_running_app().manager_screens.current_screen
     screen.item_per_menu.dismiss()
-    new_item_per_page = int(text_item)
+    new_item_per_page = text_item
     MDApp.get_running_app().item_per_page = new_item_per_page
     screen.item_per_page = new_item_per_page
     print(f"{new_item_per_page =}")

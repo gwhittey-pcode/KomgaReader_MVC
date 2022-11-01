@@ -47,7 +47,7 @@ class KomgaReader(MDApp):
     username = StringProperty()
     password = StringProperty()
     api_key = StringProperty()
-    max_item_per_page = NumericProperty()
+    max_item_per_page = StringProperty()
     open_last_comic_startup = NumericProperty()
     how_to_open_comic = StringProperty()
     app_started = BooleanProperty(False)
@@ -72,7 +72,7 @@ class KomgaReader(MDApp):
         # application.
         self.manager_screens = MDScreenManager()
         self.config = ConfigParser()
-        self.filter_string = ""
+        self.filter_string = []
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
 
@@ -173,7 +173,7 @@ class KomgaReader(MDApp):
         if not os.path.isdir(self.my_data_dir):
             os.makedirs(self.my_data_dir)
 
-        self.max_item_per_page = int(self.config.get("General", "max_item_per_page"))
+        self.max_item_per_page = self.config.get("General", "max_item_per_page")
         self.open_last_comic_startup = self.config.get(
             "General", "open_last_comic_startup"
         )

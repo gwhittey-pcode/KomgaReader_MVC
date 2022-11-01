@@ -131,7 +131,7 @@ class Tooltip(Label):
 class RLComicBooksScreenView(BaseScreenView):
     reading_list_title = StringProperty()
     page_number = NumericProperty()
-    max_item_per_page = NumericProperty()
+    max_item_per_page = StringProperty()
     dynamic_ids = DictProperty({})  # declare class attribute, dynamic_ids
     sync_bool = BooleanProperty(False)
     so = BooleanProperty()

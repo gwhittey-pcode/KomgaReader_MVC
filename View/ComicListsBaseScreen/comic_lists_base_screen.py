@@ -8,7 +8,7 @@ from View.base_screen import BaseScreenView
 class ComicListsBaseScreenView(BaseScreenView):
     page_year = StringProperty("")
     page_title = StringProperty("")
-    item_per_page = NumericProperty()
+    item_per_page = StringProperty()
     base_url = StringProperty()
     app = ObjectProperty()
 
