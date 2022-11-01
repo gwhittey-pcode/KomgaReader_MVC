@@ -31,9 +31,6 @@ class MyMDIconRaisedButton(BaseButton, ButtonElevationBehaviour, OldButtonIconMi
     A flat button with (by default) a primary color fill and matching
     color text.
     """
-
-    # FIXME: Move the underlying attributes to the :class:`~BaseButton` class.
-    #  This applies to all classes of buttons that have similar attributes.
     _default_md_bg_color = None
     _default_md_bg_color_disabled = None
     _default_theme_text_color = "Custom"
@@ -51,7 +48,6 @@ class MyMDIconRaisedButton(BaseButton, ButtonElevationBehaviour, OldButtonIconMi
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.rounded_button = False
-        # FIXME: GraphicException: Invalid width value, must be > 0
         self.line_width = 0.001
         Clock.schedule_once(self.set_size)
         self.shadow_softness = 8

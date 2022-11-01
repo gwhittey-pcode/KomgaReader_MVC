@@ -3,8 +3,6 @@ from kivy.properties import ObjectProperty, NumericProperty, StringProperty
 from kivymd.app import MDApp
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.screen import MDScreen
-
-from Utility.items_per_page_menu import item_per_menu_build
 from Utility.observer import Observer
 
 

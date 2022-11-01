@@ -120,7 +120,7 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
                 # c.book_ids = book_ids
                 # c.tooltip_text = f"  {item['name']} \n  {rl_book_count} Books"
                 c.item_id = rl_id
-                c.thumb_type = "Series"
+                c.thumb_type = "Series List"
                 c.text_size = dp(8)
                 c.lines = 2
                 c.totalPages = self.totalPages
