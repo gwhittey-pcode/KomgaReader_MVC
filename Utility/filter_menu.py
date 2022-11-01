@@ -3,6 +3,10 @@ from kivymd.uix.menu import MDDropdownMenu
 from Utility.komga_server_conn import ComicServerConn
 
 
+def filter_menu_callback(self):
+    self.filter_menu.dismiss()
+
+
 def filter_menu_build():
     screen = MDApp.get_running_app().manager_screens.current_screen
     item_per_menu_items = []
@@ -14,7 +18,7 @@ def filter_menu_build():
                 {
                     "text": f"{item}",
                     "viewclass": "ListItemWithCheckbox",
-                    "on_release": lambda x=f"{item}": screen.filter_menu_callback(x),
+                    "on_release": lambda x=f"{item}": filter_menu_callback(x),
                 }
             )
         screen.filter_menu = MDDropdownMenu(
@@ -30,5 +34,3 @@ def filter_menu_build():
         url_send,
         callback=lambda url_send, results: __got_publisher_data(results))
 
-    def filter_menu_callback(self, text_item):
-        self.filter_menu.dismiss()

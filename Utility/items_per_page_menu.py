@@ -6,7 +6,7 @@ from kivymd.uix.menu.menu import MDMenu, MDDropdownMenu
 def item_per_menu_build():
     item_per_menu_numbers = ("20", "50", "100", "200", "500")
     item_per_menu_items = []
-    screen = MDApp.get_running_app().manager_screens.get_screen("object list screen")
+    screen = MDApp.get_running_app().manager_screens.current_screen
     for nums in item_per_menu_numbers:
         if int(nums) == int(screen.item_per_page):
             background_color = screen.app.theme_cls.primary_color
@@ -20,7 +20,7 @@ def item_per_menu_build():
                 "bg_color": background_color
             }
         )
-    screen = MDApp.get_running_app().manager_screens.get_screen("object list screen")
+    screen = MDApp.get_running_app().manager_screens.current_screen
     screen.item_per_menu = MDDropdownMenu(
         caller=screen.ids.item_per_menu_button,
         items=item_per_menu_items,
@@ -31,7 +31,7 @@ def item_per_menu_build():
 
 
 def item_per_menu_callback(text_item):
-    screen = MDApp.get_running_app().manager_screens.get_screen("object list screen")
+    screen = MDApp.get_running_app().manager_screens.current_screen
     screen.item_per_menu.dismiss()
     new_item_per_page = int(text_item)
     MDApp.get_running_app().item_per_page = new_item_per_page
@@ -39,11 +39,22 @@ def item_per_menu_callback(text_item):
     print(f"{new_item_per_page =}")
     screen.app.config.set("General", "max_item_per_page", new_item_per_page)
     screen.app.config.write()
+    print(f"{screen.name =}")
     if screen.name == "r l comic books screen":
         screen.collect_readinglist_data(
             new_page_num=int(screen.current_page) - 1,
             readinglist_Id=screen.readinglist_Id
         )
+    elif screen.name =="series comics screen":
+        screen.collect_series_data(
+            series_name=screen.series_name,
+            series_Id=screen.series_Id,
+        )
+    elif screen.name == "collection comics screen":
+        screen.get_server_lists(new_page_num=screen.current_page,
+                                collection_id=screen.collection_id,
+                                collection_name=screen.page_title
+                                )
     else:
         screen.get_server_lists(new_page_num=screen.current_page)
     item_per_menu_build()

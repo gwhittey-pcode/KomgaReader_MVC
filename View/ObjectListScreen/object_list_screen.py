@@ -14,8 +14,6 @@ from kivymd.uix.button.button import ButtonElevationBehaviour, ButtonContentsTex
 from kivymd.uix.list import OneLineAvatarIconListItem, IRightBodyTouch, ILeftBodyTouch
 from kivymd.uix.selectioncontrol import MDCheckbox
 from Utility.comic_functions import save_thumb
-from Utility.filter_menu import filter_menu_build
-from Utility.items_per_page_menu import item_per_menu_build
 from Utility.komga_server_conn import ComicServerConn
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from kivymd.utils import asynckivy
