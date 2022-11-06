@@ -10,6 +10,7 @@ from View.Widgets.customexpansionpanel import CustomeMDExpansionPanelOneLine
 from View.Widgets.filterpopup import FilterPopup
 from View.Widgets.filterpopup.filter_popup import FilterPopupContent, MyMDExpansionPanel, SortPanel, ReleaseDatePanel, \
     PublisherPanel, ReadProgressPanel
+from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
 from View.base_screen import BaseScreenView
 
 
@@ -36,17 +37,17 @@ class ComicListsBaseScreenView(BaseScreenView):
         print(f"{screen.name =}")
         if screen.name == "series comics screen":
             self.filter_type = "Series Comics"
+            self.show_filter = True
         elif screen.name == "collection comics screen":
             self.filter_type = "Collection Comics"
         elif screen.name == "r l comic books screen":
             self.filter_type = "ReadinList Comics"
-        elif screen.name == "object list screen":
-            if self.object_type == "Reading List":
-                self.filter_type = "None"
-            elif self.object_type == "Series List":
-                self.filter_type = "Series List"
-            elif self.object_type == "Collection List":
-                self.filter_type = "None"
+        elif screen.name == "reading list screen":
+            self.show_filter = False
+        elif screen.name == "collections screen":
+            self.show_filter = True
+        elif screen.name == "series screen":
+            self.show_filter = True
         # self.content = FilterPopupContent()
         # self.filter_popup =   filter_popup = FilterPopup(
         #     size_hint=(.5, .96),
@@ -56,8 +57,9 @@ class ComicListsBaseScreenView(BaseScreenView):
         #     separator_height=0
         # )
         item_per_menu_build()
-        # if self.filter_popup is None:
-        #     self.build_filter_popup()
+
+        if self.filter_popup is None:
+            self.build_filter_popup()
 
 
     def build_filter_popup(self):

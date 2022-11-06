@@ -63,11 +63,10 @@ class MyToolBar(MDTopAppBar):
 
     def switch_readinglists_screen(self):
 
-        MDApp.get_running_app().open_object_list_screen("Reading List")
+        MDApp.get_running_app().manager_screens.current = "series screen"
 
     def switch_series_screen(self):
-        MDApp.get_running_app().open_object_list_screen("Series List")
-
+        MDApp.get_running_app().manager_screens.current = "reading list screen"
     def switch_series_comic_books_screen(self):
         MDApp.get_running_app().manager_screens.current = "series comics screen"
     def switch_comic_reader(self):
