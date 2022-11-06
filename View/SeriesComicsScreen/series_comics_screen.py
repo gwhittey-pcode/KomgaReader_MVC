@@ -61,7 +61,6 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
         self.dialog_load_comic_data = None
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.item_per_menu = None
-        # self.filter_menu_build()
         self.rl_comics_json = ""
         self.next_series = ObjectProperty()
         self.prev_series = ObjectProperty()
@@ -85,6 +84,8 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
         """Collect Reaing List Date From Server """
 
         async def collect_series_data():
+            self.filter_type = "Series Comics"
+            self.show_filter = True
             self.series_name = series_name
             # self.app.set_screen(self.series_name + " Page 1")
             self.reading_list_title = self.series_name + " Page 1"

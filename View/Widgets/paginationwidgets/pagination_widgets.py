@@ -7,7 +7,6 @@ from kivymd.app import MDApp
 from kivymd.uix.button import MDRaisedButton, BaseButton
 from kivymd.uix.button.button import ButtonElevationBehaviour, OldButtonIconMixin, ButtonContentsIcon
 
-__all__ = ('MyMDRaisedButton', 'MyMDIconRaisedButton')
 
 from kivymd.uix.label import MDLabel
 

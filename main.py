@@ -8,18 +8,14 @@ To run the application in hot boot mode, execute the command in the console:
 DEBUG=1 python main.py
 """
 from kivy import Logger
-from kivy.clock import Clock
-
 from kivy.core.window import Window, Keyboard
 from kivy.properties import (
     ObjectProperty,
     StringProperty,
     NumericProperty,
-    BooleanProperty
+    BooleanProperty, ListProperty
 )
 from kivymd.app import MDApp
-from kivymd.uix.navigationdrawer import MDNavigationLayout, MDNavigationDrawer
-from kivymd.uix.screen import MDScreen
 from kivymd.uix.screenmanager import MDScreenManager
 from View.screens import screens
 import os
@@ -32,14 +28,15 @@ from mysettings.settingsjson import (
     settings_json_sync,
 )
 from kivy.factory import Factory
-
 from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
 from Utility.db_functions import start_db
 from View.Widgets.mytoolbar import MyToolBar
-from View.Widgets.filternavdrawer import MyMDNavigationDrawer
 
-
+# import sys
+# sys.path.append('/home/gwhittey/Downloads/pyvmmonitor/public_api')
+# import pyvmmonitor
+# pyvmmonitor.connect()
 class KomgaReader(MDApp):
     title = StringProperty
     store_dir = StringProperty()
@@ -55,7 +52,10 @@ class KomgaReader(MDApp):
     sync_is_running = BooleanProperty(False)
     rl_count = NumericProperty()
     full_screen = False
-
+    filter_nav_drawer = ObjectProperty()
+    first_screen = ObjectProperty()
+    nav_layout = ObjectProperty()
+    sort_filter_list = ListProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.filter_nav_drawer = None
@@ -72,7 +72,7 @@ class KomgaReader(MDApp):
         # application.
         self.manager_screens = MDScreenManager()
         self.config = ConfigParser()
-        self.filter_string = []
+        self.filter_publisher_list = []
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
 
@@ -237,14 +237,9 @@ class KomgaReader(MDApp):
         self.icon = os.path.join(icon_path, f"icon.png")
         self.theme_cls.primary_palette = "Cyan"
         self.theme_cls.theme_style = "Light"
+        self.theme_cls.material_style = "M3"
         self.generate_application_screens()
-        first_screen = MDScreen()
-        nav_layout = MDNavigationLayout()
-        first_screen.add_widget(nav_layout)
-        self.filter_nav_drawer = MyMDNavigationDrawer()
-        nav_layout.add_widget(self.manager_screens)
-        nav_layout.add_widget(self.filter_nav_drawer)
-        return first_screen
+        return self.manager_screens
 
     def generate_application_screens(self) -> None:
         """

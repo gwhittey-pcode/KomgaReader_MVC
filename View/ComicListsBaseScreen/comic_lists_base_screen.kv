@@ -1,5 +1,6 @@
 <ComicListsBaseScreenView>
     MDBoxLayout:
+
         orientation: "vertical"
         MyToolBar:
         BoxLayout:
@@ -10,6 +11,7 @@
             disabled:False
             GridLayout:
                 #orientation: 'horizontal'
+                id:t_grid1
                 cols:2
                 rows:1
                 size_hint_x:1
@@ -21,7 +23,9 @@
                     rows : 1
                     size_hint:(.5, .5)
                     pos_hint:{"left":1,"top":1}
-                MDBoxLayout:
+                MDGridLayout:
+                    rows:1
+                    cols:3
                     adaptive_size:True
                     MyMDRaisedButton:
                         width : dp(50) + (self.ids.lbl_txt.texture_size[0] - self.ids.lbl_txt.texture_size[0])
@@ -35,7 +39,9 @@
                         tooltip_text: "Filter"
                         icon: "filter-variant"
                         id: filter_menu_button
-                        on_release: app.filter_nav_drawer.set_state("open")
+                        on_release: root.filter_popup.open()
+                        disabled: 0 if root.show_filter else 1
+                        opacity: 1 if root.show_filter else 0
             MDBoxLayout:
                 adaptive_height:True
                 orientation: 'vertical'
