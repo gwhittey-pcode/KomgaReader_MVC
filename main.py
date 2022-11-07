@@ -55,7 +55,9 @@ class KomgaReader(MDApp):
     filter_nav_drawer = ObjectProperty()
     first_screen = ObjectProperty()
     nav_layout = ObjectProperty()
-    sort_filter_list = ListProperty()
+    sort_filter = ListProperty()
+    filter_string = StringProperty()
+    filter_list = ListProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.filter_nav_drawer = None
@@ -72,7 +74,8 @@ class KomgaReader(MDApp):
         # application.
         self.manager_screens = MDScreenManager()
         self.config = ConfigParser()
-        self.filter_publisher_list = []
+        self.filter_string = ""
+        self.filter_list = []
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
 

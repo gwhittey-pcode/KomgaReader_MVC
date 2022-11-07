@@ -64,7 +64,7 @@ class MyMDIconRaisedButton(BaseButton, ButtonElevationBehaviour, OldButtonIconMi
         self.height = diameter
 
 
-async def build_pageination_nav(widget=None,screen_name=""):
+def build_pageination_nav(widget=None,screen_name=""):
     if screen_name:
         the_widget = MDApp.get_running_app().manager_screens.get_screen(screen_name)
     else:

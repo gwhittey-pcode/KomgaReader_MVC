@@ -25,6 +25,7 @@
     IconRightWidget:
         icon: root.icon
     LeftCheckbox:
+        id:the_checkbox
         on_active:root.check_box_active(root.check_box_value)
 
 <SortTypeList>
@@ -89,7 +90,7 @@
             text:"Apply Filter"
             pos_hint: {"center_x": .2,"top":.5}
             padding:10
-            on_release:root.clear_filters()
+            on_release:root.apply_filter()
         MDRaisedButton:
 #            icon: "filter-variant-remove"
             md_bg_color: app.theme_cls.primary_color

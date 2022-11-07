@@ -1,4 +1,5 @@
 import math
+import urllib
 
 from Utility.items_per_page_menu import item_per_menu_build
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
@@ -46,9 +47,9 @@ class SeriesScreenView(ComicListsBaseScreenView):
 
     def filter_menu_callback(self, text_item):
         self.filter_menu.dismiss()
+
     def callback_for_menu_items(self, *args):
         pass
-
 
     def on_enter(self, *args):
         self.m_grid = self.ids["main_grid"]
@@ -66,7 +67,7 @@ class SeriesScreenView(ComicListsBaseScreenView):
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0):
-        def __get_server_lists(self, results):
+        def __get_server_lists(results):
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
@@ -79,12 +80,14 @@ class SeriesScreenView(ComicListsBaseScreenView):
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
             url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size={self.item_per_page}"
+            if len(self.app.filter_string) != 0:
+                url_send = f"{url_send}{self.app.filter_string}"
             fetch_data.get_server_data_callback(
                 url_send,
-                callback=lambda url_send, results: __get_server_lists(self, results))
+                callback=lambda url_send, results: __get_server_lists(results))
 
     def build_paginations(self):
-        asynckivy.start(build_pageination_nav(screen_name=self.name))
+        build_pageination_nav(screen_name=self.name)
 
     def ltgtbutton_press(self, i):
         if i.icon == "less-than":
@@ -109,7 +112,7 @@ class SeriesScreenView(ComicListsBaseScreenView):
         src_thumb = "assets/spacer.jpg"
         c_spacer.source = src_thumb
         c_spacer.opacity = 0
-        #grid.add_widget(c_spacer)
+        # grid.add_widget(c_spacer)
         first_item = self.rl_comics_json[0]['id']
         for item in self.rl_comics_json:
             await asynckivy.sleep(0)
@@ -155,8 +158,6 @@ class SeriesScreenView(ComicListsBaseScreenView):
         for child in grid.children:
             if child.item_id == first_item:
                 scroll.scroll_to(child)
-
-
 
     def get_page(self, instance):
         this_page = instance.page_num

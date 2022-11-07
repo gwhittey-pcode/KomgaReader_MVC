@@ -24,7 +24,11 @@ class ComicListsBaseScreenView(BaseScreenView):
     show_filter = BooleanProperty(False)
     filter_type = StringProperty("None")
     filter_popup = ObjectProperty(None)
-
+    read_progress_content = ObjectProperty()
+    pub_content = ObjectProperty()
+    sort_content = ObjectProperty()
+    release_date_content = ObjectProperty()
+    content_obj_list = ListProperty()
     def __init__(self, **kwargs):
         super(ComicListsBaseScreenView, self).__init__(**kwargs)
         self.tcontent = None
@@ -66,11 +70,12 @@ class ComicListsBaseScreenView(BaseScreenView):
         async def _build_filter_popup():
             self.tcontent = FilterPopupContent()
             # Add Publisher filter
-            read_progress_content = ReadProgressPanel()
-            read_progress_content.build_list()
+            self.read_progress_content = ReadProgressPanel()
+            self.content_obj_list.append(self.read_progress_content)
+            self.read_progress_content.build_list()
             read_progress_obj = MyMDExpansionPanel(
-                id="Sort",
-                content=read_progress_content,
+                id="read_status",
+                content=self.read_progress_content,
                 panel_cls=CustomeMDExpansionPanelOneLine(
                     text="  Read Progress",
 
@@ -78,11 +83,12 @@ class ComicListsBaseScreenView(BaseScreenView):
             )
             self.tcontent.ids.read_progress_filter.add_widget(read_progress_obj)
 
-            pub_content = PublisherPanel()
-            pub_content.build_list()
+            self.pub_content = PublisherPanel()
+            self.content_obj_list.append(self.pub_content)
+            self.pub_content.build_list()
             pub_obj = MyMDExpansionPanel(
-                id="Publisher",
-                content=pub_content,
+                id="publisher",
+                content=self.pub_content,
                 panel_cls=CustomeMDExpansionPanelOneLine(
                     text="  Publisher",
 
@@ -91,11 +97,12 @@ class ComicListsBaseScreenView(BaseScreenView):
 
             self.tcontent.ids.pub_filter_add.add_widget(pub_obj)
 
-            release_date_content = ReleaseDatePanel()
-            release_date_content.build_list()
+            self.release_date_content = ReleaseDatePanel()
+            self.content_obj_list.append(self.release_date_content)
+            self.release_date_content.build_list()
             pub_obj = MyMDExpansionPanel(
-                id="ReleaseDates",
-                content=release_date_content,
+                id="release_year",
+                content=self.release_date_content,
                 panel_cls=CustomeMDExpansionPanelOneLine(
                     text="  Release Dates",
 
@@ -104,17 +111,18 @@ class ComicListsBaseScreenView(BaseScreenView):
 
             self.tcontent.ids.release_dates_filter_add.add_widget(pub_obj)
             # add readpgroess Filter
-            sort_content = SortPanel()
-            sort_content.build_list()
+            self.sort_content = SortPanel()
+            self.sort_content.build_list()
             sort_obj = MyMDExpansionPanel(
-                id="Sort",
-                content=sort_content,
+                id="sort",
+                content=self.sort_content,
                 panel_cls=CustomeMDExpansionPanelOneLine(
                     text="  Sort",
 
                 ),
             )
             self.tcontent.ids.sort_filter_add.add_widget(sort_obj)
+
             self.filter_popup = FilterPopup(
                 size_hint=(.5, .96),
                 pos_hint={"right": 1, "top": .95},

@@ -40,11 +40,30 @@ class FilterPopupContent(StackLayout):
     show_pub_filter = BooleanProperty(True)
     show_sort_filter = BooleanProperty(True)
 
+    def apply_filter(self):
+        screen = MDApp.get_running_app().manager_screens.current_screen
+        screen.filter_popup.dismiss()
+        pub_list = MDApp.get_running_app().filter_list
+        tmp_filter_list = ""
+        for item in pub_list:
+            for i, filter_type in enumerate(item.keys()):
+                if filter_type == "sort":
+                    tmp_filter_list += f"&{filter_type}={item[filter_type]['value']},{item[filter_type]['dir']}"
+                else:
+                    tmp_filter_list += f"&{filter_type}={item[filter_type]['value']}"
+        print(f"{tmp_filter_list = }")
+        MDApp.get_running_app().filter_string = tmp_filter_list
+        screen.get_server_lists(new_page_num=0)
+
     def clear_filters(self):
-        if self.show_pub_filter:
-            self.show_pub_filter = False
-        elif not self.show_pub_filter:
-            self.show_pub_filter = True
+        app = MDApp.get_running_app()
+        app.filter_string = ""
+        app.filter_list.clear()
+        screen = MDApp.get_running_app().manager_screens.current_screen
+        for item in screen.content_obj_list:
+            for child in item.walk():
+                if isinstance(child, ListItemWithCheckbox):
+                    child.ids.the_checkbox.state = "normal"
 
 
 class MyMDExpansionPanel(CustomeMDExpansionPanel):
@@ -64,7 +83,9 @@ class ReadProgressPanel(MDBoxLayout):
             for i in read_prgoress_menu_items:
                 asynckivy.sleep(0)
                 self.ids.read_progress_list.add_widget(
-                    ListItemWithCheckbox(text=f"{i}", check_box_value=f"{i}", pos_hint={"top": 1}),
+                    ListItemWithCheckbox(text=f"{i}", check_box_value=f"{i}", pos_hint={"top": 1},
+                                         filter_type="read_status"),
+
                 )
 
         asynckivy.start(__build_list())
@@ -86,7 +107,7 @@ class PublisherPanel(MDBoxLayout):
             for i in filter_menu_items:
                 asynckivy.sleep(0)
                 self.ids.pub_list.add_widget(
-                    ListItemWithCheckbox(text=f"{i}", check_box_value=f"{i}")
+                    ListItemWithCheckbox(text=f"{i}", check_box_value=f"{i}", filter_type="publisher")
                 )
 
         asynckivy.start(__build_list())
@@ -108,7 +129,7 @@ class ReleaseDatePanel(MDBoxLayout):
             for i in release_dates:
                 await asynckivy.sleep(0)
                 self.ids.release_dates_add.add_widget(
-                    ListItemWithCheckbox(text=f"{i}", check_box_value=f"{i}")
+                    ListItemWithCheckbox(text=f"{i}", check_box_value=f"{i}", filter_type="release_year")
                 )
 
         asynckivy.start(__build_list())
@@ -122,19 +143,24 @@ class SortPanel(MDBoxLayout):
         async def __build_list():
             screen = MDApp.get_running_app().manager_screens.current_screen
             filter_menu_items = []
-            if screen.name == "series comics screen":
-                filter_menu_items = ["Number", "Date added", "Dare updated", "Release date", "Folder Name",
-                                     "Books Count"]
-            elif screen.name == "object list screen":
-                filter_menu_items = ["Number", "Date added", "Release date", "File size", "Filename"]
-            app = MDApp.get_running_app().manager_screens.current_screen
-            app.sort_filter_list = filter_menu_items
-            print(f"{app.sort_filter_list =}")
-            for i in filter_menu_items:
+            if screen.name in ("reading list screen", "series screen", "collections screen"):
+                filter_menu_items = [
+                    {"Name": "metadata.titleSort"}, {"Date added": "createdDate"},
+                    {"Date updated": "lastModifiedDate"}, {"Release date": "booksMetadata.releaseDate"},
+                    {"Folder Name": "name"}, {"Books Count": "booksCount"}
+                ]
+            elif screen.name == "series comics screen":
+                filter_menu_items = [
+                    {"Number": "metadata.numberSort"}, {"Date added": "createdDate"},
+                    {"Release date": "metadata.releaseDate"}, {"File Size": "size"}, {"Filename": "name"}]
+            # app = MDApp.get_running_app().manager_screens.current_screen
+            # app.sort_filter_list = filter_menu_items
+            for dict_item in filter_menu_items:
                 asynckivy.sleep(0)
-                self.ids.sort_list.add_widget(
-                    SortTypeList(text=f"{i}", icon="", id=f"{i}")
-                )
+                for name, value in dict_item.items():
+                    self.ids.sort_list.add_widget(
+                        SortTypeList(text=f"{name}", icon="", id=f"{value}", filter_type="sort")
+                    )
 
         asynckivy.start(__build_list())
 
@@ -143,16 +169,33 @@ class ListItemWithCheckbox(OneLineAvatarIconListItem):
     """Custom list item."""
     icon = StringProperty("")
     check_box_value = StringProperty()
+    filter_type = StringProperty()
+
+    def __str__(self):
+        return f"{self.check_box_value}({self.filter_type})"
 
     def check_box_active(self, check_box_value):
-        if check_box_value in MDApp.get_running_app().filter_publisher_list:
-            MDApp.get_running_app().filter_publisher_list.remove(check_box_value)
+        chk_value = ""
+        if self.filter_type == 'read_status':
+            chk_value = check_box_value.replace(" ", "_").upper()
         else:
-            MDApp.get_running_app().filter_publisher_list.append(check_box_value)
-        print(MDApp.get_running_app().filter_publisher_list)
+            chk_value = check_box_value
+        filter_item = {self.filter_type: {"value": chk_value, "dir": ""}}
+        if filter_item in MDApp.get_running_app().filter_list:
+            MDApp.get_running_app().filter_list.remove(filter_item)
+        else:
+            MDApp.get_running_app().filter_list.append(filter_item)
 
 
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
+    id = StringProperty()
+
+    def __init__(self, **kwargs):
+        super(LeftCheckbox, self).__init__(**kwargs)
+
+    def __str__(self):
+        return f"{self.id} : {self.state}"
+
     """Custom right container."""
 
 
@@ -167,12 +210,38 @@ class SortTypeList(OneLineAvatarIconListItem):
     id = StringProperty()
     what_chevron = StringProperty()
     icon = StringProperty()
+    filter_type = StringProperty()
+
+    def __str__(self):
+        return f"{self.id}({self.filter_type})"
 
     def set_sort(self):
+        print(f"{self.id =}")
         if self.what_chevron == "down":
             self.what_chevron = "up"
+            sort_dir = "asc"
         else:
+            sort_dir = "desc"
             self.what_chevron = "down"
+
+        filter_item = {self.filter_type: {"value": self.id, "dir": sort_dir}}
+        the_item = None
+        action = ""
+
+        i = 0
+        for item in MDApp.get_running_app().filter_list:
+            print(f"{item = }")
+            for x, filter_type in enumerate(item.keys()):
+                if filter_type == "sort":
+                    action = "remove"
+                    the_item = i
+            i += 1
+        if action == "remove":
+            MDApp.get_running_app().filter_list.pop(the_item)
+            MDApp.get_running_app().filter_list.append(filter_item)
+        else:
+            MDApp.get_running_app().filter_list.append(filter_item)
         for child in self.parent.children:
             if child.id != self.id:
                 child.what_chevron = ""
+        print(f"{MDApp.get_running_app().filter_list =}")
