@@ -1,23 +1,29 @@
 name: Build
-on: [push, pull_request]
+on: [push,pull_request]
 
 jobs:
-  # Build job. Builds app for Android with Buildozer
-  build-android:
+  build_android:
     name: Build for Android
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
+        
+      - name: Buildozer action
+        # You may pin to the exact commit or the version.
+        # uses: ArtemSBulgakov/buildozer-action@5939413afbe1640f71dc6e0d93459210f3d38fca
+        uses: ArtemSBulgakov/buildozer-action@v1.1.3
         id: buildozer
         with:
-          workdir: test_app
+          # Command to start Buildozer. Set to `buildozer ios debug` for iOS
+          command: buildozer android debug
+          # Path to cloned repository. Set if you specified path for `actions/checkout` action.
+          repository_root: .
+          # Working directory where buildozer.spec is located. Set to `src` if buildozer.spec is in `src` directory
+          #workdir: ../../.
+          # Version of Buildozer to install. By default installs latest release
           buildozer_version: stable
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
