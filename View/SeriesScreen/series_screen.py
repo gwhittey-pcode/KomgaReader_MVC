@@ -93,7 +93,7 @@ class SeriesScreenView(ComicListsBaseScreenView):
 
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size=1"
+            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size={self.item_per_page}"
             if len(self.app.filter_string) != 0:
                 url_send = f"{url_send}{self.app.filter_string}"
             if self.filter_letter != "All":

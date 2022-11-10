@@ -115,13 +115,12 @@ class PublisherPanel(MDBoxLayout):
 
     def build_list(self):
         async def __build_list():
-            filter_menu_items = ['Antarctic Press', 'Archaia', 'Cartoon Books', 'Crusade', 'Dark Horse Comics',
-                                 'DC Comics',
-                                 'Dynamite Entertainment', 'Eaglemoss Publications', 'Ediciones Zinco',
-                                 'Editorial Televisa', 'Fantagraphics', 'Heroic Publishing', 'IDW Publishing', 'Image',
-                                 'Jet City Comics', 'London Night Studios', 'Marvel', 'Marvel Comics', 'Maximum Press',
-                                 'Oni Press', 'Scholastic Book Services', 'Star Reach Publications', 'Timely',
-                                 'Titan Comics', 'Top Cow']
+            screen = MDApp.get_running_app().manager_screens.current_screen
+            filter_menu_items = []
+            if screen.name == "collection comics screen":
+                filter_menu_items = screen.collection_publisher_list
+            else:
+                filter_menu_items = MDApp.get_running_app().gen_publisher_list
             for i in filter_menu_items:
                 asynckivy.sleep(0)
                 self.ids.pub_list.add_widget(
@@ -137,13 +136,13 @@ class ReleaseDatePanel(MDBoxLayout):
 
     def build_list(self):
         async def __build_list():
-            release_dates = ["2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010",
-                             "2009", "2008", "2007", "2006", "2005", "2004", "2003", "2002", "2001", "2000", "1999",
-                             "1998", "1997", "1996", "1995", "1994", "1993", "1992", "1991", "1990", "1989", "1988",
-                             "1987", "1986", "1985", "1984", "1983", "1982", "1981", "1980", "1979", "1978", "1977",
-                             "1976", "1975", "1974", "1972", "1971", "1970", "1968", "1967", "1966", "1964", "1963",
-                             "1962", "1961", "1960", "1959", "1954", "1946", "1941", "1940", "1938", "1937"
-                             ]
+            release_dates = []
+            screen = MDApp.get_running_app().manager_screens.current_screen
+            if screen.name == "collection comics screen":
+                release_dates = screen.collection_release_dates
+            else:
+                release_dates = MDApp.get_running_app().gen_release_dates
+
             for i in release_dates:
                 await asynckivy.sleep(0)
                 self.ids.release_dates_add.add_widget(

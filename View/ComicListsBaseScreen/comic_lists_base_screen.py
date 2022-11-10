@@ -29,6 +29,7 @@ class ComicListsBaseScreenView(BaseScreenView):
     release_date_content = ObjectProperty()
     content_obj_list = ListProperty()
     filter_letter = StringProperty("All")
+
     def __init__(self, **kwargs):
         super(ComicListsBaseScreenView, self).__init__(**kwargs)
         self.tcontent = None
@@ -63,9 +64,9 @@ class ComicListsBaseScreenView(BaseScreenView):
         #     separator_height=0
         # )
         item_per_menu_build()
-
-        if self.filter_popup is None:
-            self.build_filter_popup()
+        if screen.name == "collection comics screen":
+            if self.filter_popup is None:
+                self.build_filter_popup()
 
     def build_filter_popup(self):
         async def _build_filter_popup():
@@ -83,55 +84,21 @@ class ComicListsBaseScreenView(BaseScreenView):
                 ),
             )
             self.tcontent.ids.read_progress_filter.add_widget(read_progress_obj)
-
             if screen.name in ["series screen", "collection comics screen"]:
-                self.pub_content = PublisherPanel()
-                self.content_obj_list.append(self.pub_content)
-                self.pub_content.build_list()
-                pub_obj = MyMDExpansionPanel(
-                    id="publisher",
-                    content=self.pub_content,
-                    panel_cls=CustomeMDExpansionPanelOneLine(
-                        text="  Publisher",
-
-                    ),
-                )
-                self.tcontent.ids.pub_filter_add.add_widget(pub_obj)
+                self.build_publisher_panel()
             else:
                 screen.tcontent.ids.pub_filter_add.opacity = 0
                 screen.tcontent.ids.pub_filter_add.disabled = 1
                 screen.tcontent.ids.pub_filter_add.size = (1, 1)
             if screen.name in ["series screen", "collection comics screen"]:
-                self.release_date_content = ReleaseDatePanel()
-                self.content_obj_list.append(self.release_date_content)
-                self.release_date_content.build_list()
-                pub_obj = MyMDExpansionPanel(
-                    id="release_year",
-                    content=self.release_date_content,
-                    panel_cls=CustomeMDExpansionPanelOneLine(
-                        text="  Release Dates",
-
-                    ),
-                )
-                self.tcontent.ids.release_dates_filter_add.add_widget(pub_obj)
+                self.build_release_date_panel()
             else:
                 print("ok")
                 screen.tcontent.ids.release_dates_filter_add.opacity = 0
                 screen.tcontent.ids.release_dates_filter_add.disabled = 1
                 screen.tcontent.ids.release_dates_filter_add.size = (1, 1)
             if screen.name not in ["r l comic books screen", "collection comics screen"]:
-                # add read progress Filter
-                self.sort_content = SortPanel()
-                self.sort_content.build_list()
-                sort_obj = MyMDExpansionPanel(
-                    id="sort",
-                    content=self.sort_content,
-                    panel_cls=CustomeMDExpansionPanelOneLine(
-                        text="  Sort",
-
-                    ),
-                )
-                self.tcontent.ids.sort_filter_add.add_widget(sort_obj)
+                self.build_sort_panel()
             else:
                 screen.tcontent.ids.sort_filter_add.opacity = 0
                 screen.tcontent.ids.sort_filter_add.disabled = 1
@@ -147,6 +114,48 @@ class ComicListsBaseScreenView(BaseScreenView):
         screen = MDApp.get_running_app().manager_screens.current_screen
         if screen.name not in ["collections screen", "reading list screen"]:
             asynckivy.start(_build_filter_popup())
+
+    def build_publisher_panel(self):
+        self.pub_content = PublisherPanel()
+        self.content_obj_list.append(self.pub_content)
+        self.pub_content.build_list()
+        pub_obj = MyMDExpansionPanel(
+            id="publisher",
+            content=self.pub_content,
+            panel_cls=CustomeMDExpansionPanelOneLine(
+                text="  Publisher",
+
+            ),
+        )
+        self.tcontent.ids.pub_filter_add.add_widget(pub_obj)
+
+    def build_release_date_panel(self):
+        self.release_date_content = ReleaseDatePanel()
+        self.content_obj_list.append(self.release_date_content)
+        self.release_date_content.build_list()
+        pub_obj = MyMDExpansionPanel(
+            id="release_year",
+            content=self.release_date_content,
+            panel_cls=CustomeMDExpansionPanelOneLine(
+                text="  Release Dates",
+
+            ),
+        )
+        self.tcontent.ids.release_dates_filter_add.add_widget(pub_obj)
+
+    def build_sort_panel(self):
+        # add read progress Filter
+        self.sort_content = SortPanel()
+        self.sort_content.build_list()
+        sort_obj = MyMDExpansionPanel(
+            id="sort",
+            content=self.sort_content,
+            panel_cls=CustomeMDExpansionPanelOneLine(
+                text="  Sort",
+
+            ),
+        )
+        self.tcontent.ids.sort_filter_add.add_widget(sort_obj)
 
     def model_is_changed(self) -> None:
         """
