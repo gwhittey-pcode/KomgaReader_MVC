@@ -1,5 +1,9 @@
+import inspect
 import math
 import urllib
+
+from kivy import Logger
+from kivymd.toast import toast
 
 from Utility.items_per_page_menu import item_per_menu_build
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
@@ -18,7 +22,7 @@ from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from kivymd.utils import asynckivy
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
-
+from Utility.myUrlrequest import UrlRequest as myUrlRequest
 
 class SeriesScreenView(ComicListsBaseScreenView):
     dynamic_ids = DictProperty({})
@@ -58,6 +62,8 @@ class SeriesScreenView(ComicListsBaseScreenView):
         self.app = MDApp.get_running_app()
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.base_url = self.app.base_url
+        print(self.app.letter_count["#"])
+
         self.get_server_lists()
 
     def my_width_callback(self, obj, value):
@@ -67,7 +73,13 @@ class SeriesScreenView(ComicListsBaseScreenView):
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
     def get_server_lists(self, new_page_num=0):
-        def __get_server_lists(results):
+        def __get_server_lists(req,results):
+            t_rl_comics_json = ""
+            t_rl_comics_json = results['content']
+            print(f"{t_rl_comics_json =}")
+            if not t_rl_comics_json:
+                toast("No Items Found with Filter Settings")
+                return
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
@@ -75,16 +87,40 @@ class SeriesScreenView(ComicListsBaseScreenView):
             self.last = self.rl_json['last']
             self.first = self.rl_json['first']
             self.build_paginations()
+            t_rl_comics_json = ""
+            self.tmp_fetch = ""
             asynckivy.start(self.build_page())
 
         if self.lists_loaded is False:
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size={self.item_per_page}"
+            url_send = f"{self.base_url}/api/v1/series?page={new_page_num}&size=1"
             if len(self.app.filter_string) != 0:
                 url_send = f"{url_send}{self.app.filter_string}"
-            fetch_data.get_server_data_callback(
+            if self.filter_letter != "All":
+                if self.filter_letter == "#":
+                    search_regex = "&search_regex=%5E%28%5B0-9%5D%29%2CTITLE"
+                else:
+                    part_rex = f"^{self.filter_letter},TITLE"
+                    search_regex = f"&search_regex={urllib.parse.quote(part_rex)}"
+                url_send = f"{url_send}{search_regex}"
+                url_send = url_send.replace(" ", "")
+            print(f"{url_send =}")
+            str_cookie = "SESSION=" + self.app.config.get("General", "api_key")
+            head = {
+                "Content-type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+                "Cookie": str_cookie,
+            }
+
+            myUrlRequest(
                 url_send,
-                callback=lambda url_send, results: __get_server_lists(results))
+                req_headers=head,
+                on_success=__get_server_lists,
+                on_error=self.got_error,
+                on_redirect=self.got_redirect,
+                on_failure=self.got_error,
+                # auth=(username,password)
+            )
 
     def build_paginations(self):
         build_pageination_nav(screen_name=self.name)
@@ -178,6 +214,21 @@ class SeriesScreenView(ComicListsBaseScreenView):
         #     self.prev_button.disabled = True
         #     self.prev_button.page_num = ""
         self.get_server_lists(new_page_num=this_page)
+    def got_error(self, req, results):
+        Logger.critical("----got_error--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
+
+    def got_time_out(self, req, results):
+        Logger.critical("----got_time_out--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
+
+    def got_failure(self, req, results):
+        Logger.critical("----got_failure--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
+
+    def got_redirect(self, req, results):
+        Logger.critical("----got_redirect--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
 
     def model_is_changed(self) -> None:
         """

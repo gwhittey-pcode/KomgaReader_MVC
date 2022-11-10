@@ -1,3 +1,5 @@
+import urllib
+
 from kivy.factory import Factory
 from kivy.properties import StringProperty, ListProperty, ObjectProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -40,7 +42,8 @@ class FilterPopupContent(StackLayout):
     show_pub_filter = BooleanProperty(True)
     show_sort_filter = BooleanProperty(True)
 
-    def apply_filter(self):
+    @staticmethod
+    def apply_filter():
         screen = MDApp.get_running_app().manager_screens.current_screen
         screen.filter_popup.dismiss()
         pub_list = MDApp.get_running_app().filter_list
@@ -48,24 +51,35 @@ class FilterPopupContent(StackLayout):
         for item in pub_list:
             for i, filter_type in enumerate(item.keys()):
                 if filter_type == "sort":
-                    tmp_filter_list += f"&{filter_type}={item[filter_type]['value']},{item[filter_type]['dir']}"
+                    a_filter_part = f"{item[filter_type]['value']},{item[filter_type]['dir']}"
+                    a_filter_part = urllib.parse.quote(a_filter_part)
+                    tmp_filter_list += f"&{filter_type}={a_filter_part}"
                 else:
-                    tmp_filter_list += f"&{filter_type}={item[filter_type]['value']}"
+                    tmp_filter_list += f"&{filter_type}={urllib.parse.quote(item[filter_type]['value'])}"
         print(f"{tmp_filter_list = }")
         MDApp.get_running_app().filter_string = tmp_filter_list
-        screen.get_server_lists(new_page_num=0)
+        if screen.name == "r l comic books screen":
+            screen.collect_readinglist_data(readinglist_name=screen.readinglist_name,
+                                       readinglist_Id=screen.readinglist_Id, new_page_num=0)
+        elif screen.name == "series comics screen":
+            screen.collect_series_data(series_name=screen.series_name,
+                                       series_Id=screen.series_Id, new_page_num=0)
+        else:
+            screen.get_server_lists(new_page_num=0)
 
-    def clear_filters(self):
+    @staticmethod
+    def clear_filters():
         app = MDApp.get_running_app()
-        app.filter_string = ""
-        app.filter_list.clear()
+
         screen = MDApp.get_running_app().manager_screens.current_screen
         for item in screen.content_obj_list:
             for child in item.walk():
                 if isinstance(child, ListItemWithCheckbox):
                     child.ids.the_checkbox.state = "normal"
 
-
+        app.filter_string = ""
+        app.filter_list.clear()
+        print(f"{app.filter_list =}")
 class MyMDExpansionPanel(CustomeMDExpansionPanel):
     pid = StringProperty("MDExpanis")
 
@@ -79,7 +93,11 @@ class ReadProgressPanel(MDBoxLayout):
 
     def build_list(self):
         async def __build_list():
-            read_prgoress_menu_items = ['Unread', 'In Progress', 'Read', 'Complete']
+            screen = MDApp.get_running_app().manager_screens.current_screen
+            if screen.name in ["series screen", "collection comics screen"]:
+                read_prgoress_menu_items = ['Unread', 'In Progress', 'Read', 'Complete']
+            else:
+                read_prgoress_menu_items = ['Unread', 'In Progress', 'Read']
             for i in read_prgoress_menu_items:
                 asynckivy.sleep(0)
                 self.ids.read_progress_list.add_widget(

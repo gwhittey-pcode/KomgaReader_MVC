@@ -1,5 +1,7 @@
 import math
 
+from kivymd.toast import toast
+
 from Utility.items_per_page_menu import item_per_menu_build
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
 
@@ -94,14 +96,21 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
             self.page_number = current_page_num
             self.new_page_num = new_page_num
             fetch_data = ComicServerConn()
-            url_send_current = f"{self.base_url}/api/v1/series/{self.series_Id}/books?page={new_page_num}&size={self.item_per_page}"
-            print(f"{url_send_current}")
-            fetch_data.get_server_data(url_send_current, self)
+            url_send = f"{self.base_url}/api/v1/series/{self.series_Id}/books?page={new_page_num}&size={self.item_per_page}"
+            if len(self.app.filter_string) != 0:
+                url_send = f"{url_send}{self.app.filter_string}"
+            fetch_data.get_server_data(url_send, self)
 
         asynckivy.start(collect_series_data())
 
     def got_json2(self, req, results):
         async def _got_json():
+            t_rl_comics_json = results['content']
+            if not t_rl_comics_json:
+                toast("No Items Found with Filter Settings")
+                self.list_loaded = True
+                self.dialog_load_comic_data.dismiss()
+                return
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']

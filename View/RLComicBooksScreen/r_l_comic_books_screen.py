@@ -5,6 +5,7 @@ from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.properties import StringProperty, NumericProperty, DictProperty, BooleanProperty, ObjectProperty
 from kivymd.app import MDApp
+from kivymd.toast import toast
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.utils import asynckivy
 
@@ -59,7 +60,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
         self.dialog_load_comic_data = None
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.item_per_menu = None
-
+        self.show_filter = "1"
         # self.filter_menu_build()
         self.rl_comics_json = ""
         self.next_readinglist = ObjectProperty()
@@ -93,12 +94,19 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
             self.page_number = current_page_num
             self.new_page_num = new_page_num
             fetch_data = ComicServerConn()
-            url_send_current = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
-            fetch_data.get_server_data(url_send_current, self)
+            url_send = f"{self.base_url}/api/v1/readlists/{self.readinglist_Id}/books?page={new_page_num}&size={self.item_per_page}"
+            if len(self.app.filter_string) != 0:
+                url_send = f"{url_send}{self.app.filter_string}"
+            fetch_data.get_server_data(url_send, self)
 
         asynckivy.start(collect_readinglist_data())
 
     def got_json2(self, req, results):
+        t_rl_comics_json = results['content']
+        if not t_rl_comics_json:
+            toast("No Items Found with Filter Settings")
+            return
+
         async def _got_json():
             self.rl_comics_json = results['content']
             self.rl_json = results
@@ -220,7 +228,6 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
             if key == "main_grid":
                 c = val
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
-
 
     def model_is_changed(self) -> None:
         """

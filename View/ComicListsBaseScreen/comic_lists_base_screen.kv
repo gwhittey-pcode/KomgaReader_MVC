@@ -9,6 +9,11 @@
             padding: dp(10), dp(10)
             spacing: dp(10)
             disabled:False
+            MDGridLayout:
+                id:letter_grid
+                rows : 1
+                size_hint:(1, .1)
+                pos_hint:{"left":1,"top":1}
             GridLayout:
                 #orientation: 'horizontal'
                 id:t_grid1
@@ -18,6 +23,7 @@
                 size_hint_y:None
                 height:dp(50)
                 #page_num_grid used to add pagination top buttons
+
                 MDGridLayout:
                     id:page_num_grid
                     rows : 1

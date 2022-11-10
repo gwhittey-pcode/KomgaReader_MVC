@@ -1,5 +1,7 @@
 import math
 
+from kivymd.toast import toast
+
 from View.ComicListsBaseScreen import ComicListsBaseScreenView
 
 import os
@@ -56,7 +58,11 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
 
     def get_server_lists(self, new_page_num=0, collection_id="",collection_name=""):
 
-        def __get_server_lists(self: object, results: object) -> object:
+        def __get_server_lists(results: object):
+            t_rl_comics_json = results['content']
+            if not t_rl_comics_json:
+                toast("No Items Found with Filter Settings")
+                return
             self.rl_comics_json = results['content']
             self.rl_json = results
             self.totalPages = self.rl_json['totalPages']
@@ -68,13 +74,17 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
             self.build_page()
 
         if self.lists_loaded is False:
-            self.collection_id = collection_id
+            if collection_id !="":
+                self.collection_id = collection_id
             fetch_data = ComicServerConn()
-            url_send = f"{self.base_url}/api/v1/collections/{collection_id}/series" \
+            url_send = f"{self.base_url}/api/v1/collections/{self.collection_id}/series" \
                        f"?page={new_page_num}&size={self.item_per_page}"
+            if len(self.app.filter_string) != 0:
+                url_send = f"{url_send}{self.app.filter_string}"
+            print(f"{url_send =}")
             fetch_data.get_server_data_callback(
                 url_send,
-                callback=lambda url_send, results: __get_server_lists(self, results))
+                callback=lambda url_send, results: __get_server_lists(results))
 
     def build_paginations(self):
         build_pageination_nav(screen_name=self.name)

@@ -7,6 +7,11 @@ https://kivymd.readthedocs.io/en/latest/api/kivymd/tools/patterns/create_project
 To run the application in hot boot mode, execute the command in the console:
 DEBUG=1 python main.py
 """
+import inspect
+import string
+import urllib
+from collections import OrderedDict
+
 from kivy import Logger
 from kivy.core.window import Window, Keyboard
 from kivy.properties import (
@@ -17,6 +22,9 @@ from kivy.properties import (
 )
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
+from kivymd.utils import asynckivy
+from Utility.myUrlrequest import UrlRequest as myUrlRequest
+from Utility.komga_server_conn import ComicServerConn
 from View.screens import screens
 import os
 from pathlib import Path
@@ -32,6 +40,8 @@ from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
 from Utility.db_functions import start_db
 from View.Widgets.mytoolbar import MyToolBar
+from string import ascii_lowercase as alc
+
 
 # import sys
 # sys.path.append('/home/gwhittey/Downloads/pyvmmonitor/public_api')
@@ -46,8 +56,7 @@ class KomgaReader(MDApp):
     api_key = StringProperty()
     max_item_per_page = StringProperty()
     open_last_comic_startup = NumericProperty()
-    how_to_open_comic = StringProperty()
-    app_started = BooleanProperty(False)
+    # how_to_open_comic = StringProperty()
     open_comic_screen = StringProperty()
     sync_is_running = BooleanProperty(False)
     rl_count = NumericProperty()
@@ -58,8 +67,11 @@ class KomgaReader(MDApp):
     sort_filter = ListProperty()
     filter_string = StringProperty()
     filter_list = ListProperty()
+    letter_count = ObjectProperty()
+    ordered_letter_count = ObjectProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.letter_count = None
         self.filter_nav_drawer = None
         self.load_all_kv_files(self.directory)
         self.base_url = ""
@@ -102,7 +114,7 @@ class KomgaReader(MDApp):
                 "username": "",
                 "password": "",
                 "open_last_comic_startup": 0,
-                "how_to_open_comic": "Open Local Copy",
+                # "how_to_open_comic": "Open Local Copy",
                 # 'use_pagination':   '1',
                 "max_item_per_page": 25,
             },
@@ -180,9 +192,9 @@ class KomgaReader(MDApp):
         self.open_last_comic_startup = self.config.get(
             "General", "open_last_comic_startup"
         )
-        self.how_to_open_comic = self.config.get(
-            "General", "how_to_open_comic"
-        )
+        # self.how_to_open_comic = self.config.get(
+        #     "General", "how_to_open_comic"
+        # )
         self.item_per_page = self.config.get("General", "max_item_per_page")
 
     def config_callback(self, section, key, value):
@@ -242,6 +254,7 @@ class KomgaReader(MDApp):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.material_style = "M3"
         self.generate_application_screens()
+        asynckivy.start(self.get_server_data())
         return self.manager_screens
 
     def generate_application_screens(self) -> None:
@@ -266,9 +279,9 @@ class KomgaReader(MDApp):
         pass
 
     def build_settings(self, settings):
-        settings.add_json_panel(
-            "Sync Settings", self.config, data=settings_json_sync
-        )
+        # settings.add_json_panel(
+        #     "Sync Settings", self.config, data=settings_json_sync
+        # )
         settings.add_json_panel(
             "General Settings", self.config, data=settings_json_server
         )
@@ -336,10 +349,6 @@ class KomgaReader(MDApp):
             elif keyboard == c.string_to_keycode(hk_return_base_screen):
                 app.show_action_bar()
                 app.manager.current = "base"
-            elif keyboard in (1001, 27):
-                if self.nav_drawer.state == "open":
-                    self.nav_drawer.toggle_nav_drawer()
-                self.back_screen(event=keyboard)
             elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
                 self.toggle_full_screen()
         else:
@@ -352,10 +361,6 @@ class KomgaReader(MDApp):
             elif keyboard == c.string_to_keycode(hk_return_base_screen):
                 app.show_action_bar()
                 app.switch_base_screen()
-            elif keyboard in (1001, 27):
-                if self.nav_drawer.state == "open":
-                    self.nav_drawer.toggle_nav_drawer()
-                self.back_screen(event=keyboard)
         return True
 
     def toggle_full_screen(self):
@@ -366,23 +371,93 @@ class KomgaReader(MDApp):
             MDApp.get_running_app().full_screen = False
             Window.fullscreen = False
 
-    def back_screen(self, event=None):
-        """Screen manager Called when the Back Key is pressed."""
-        # BackKey pressed.
-        if event in (1001, 27):
-            if self.manager.current == "base":
-                self.dialog_exit()
-                return
-            try:
-                self.manager.current = self.list_previous_screens.pop()
-            except:  # noqa
-                self.manager.current = "base"
-            # self.screen.ids.action_bar.title = self.title
+    # def back_screen(self, event=None):
+    #     """Screen manager Called when the Back Key is pressed."""
+    #     # BackKey pressed.
+    #     if event in (1001, 27):
+    #         if self.manager.current == "base":
+    #             self.dialog_exit()
+    #             return
+    #         try:
+    #             self.manager.current = self.list_previous_screens.pop()
+    #         except:  # noqa
+    #             self.manager.current = "base"
+    #         # self.screen.ids.action_bar.title = self.title
 
     def open_object_list_screen(self, object_type):
         screen = self.manager_screens.get_screen("object list screen")
         screen.setup_screen(object_type=object_type)
         self.manager_screens.current = "object list screen"
+
+    async def get_server_data(self):
+        self.letter_count = {}
+
+        def __got_server_data(req, result):
+            num_count = 0
+            series_count = 0
+            for item in result:
+                if item['group'] not in alc:
+                    num_count = num_count + item['count']
+                else:
+                    self.letter_count[item['group'].capitalize()] = item['count']
+                    series_count = series_count + item['count']
+                    print(f"{item['group']}:{item['count']}")
+            self.series_count = series_count + num_count
+            self.letter_count['#'] = num_count
+            self.ordered_letter_count = OrderedDict(sorted(self.letter_count.items(), key=lambda t: t[0]))
+
+            # the_letter = result["content"][0]["metadata"]["title"][0]
+            # if '0' <= the_letter <= '9':
+            #     the_letter = "#"
+            # self.letter_count[the_letter] = result["totalElements"]
+        fetch_data = ComicServerConn()
+        # url_send = f"{self.base_url}/api/v1/series?unpaged=true"
+        # str_cookie = "SESSION=" + self.config.get("General", "api_key")
+        # head = {
+        #     "Content-type": "application/x-www-form-urlencoded",
+        #     "Accept": "application/json",
+        #     "Cookie": str_cookie,
+        # }
+        # self.request = myUrlRequest(
+        #     url_send,
+        #     req_headers=head,
+        #     on_success=__got_server_data,
+        #     on_error=self.got_error,
+        #     on_redirect=self.got_redirect,
+        #     on_failure=self.got_error,
+        # )
+
+        url_send = f"{self.base_url}/api/v1/series/alphabetical-groups"
+        str_cookie = "SESSION=" + self.config.get("General", "api_key")
+        head = {
+            "Content-type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "Cookie": str_cookie,
+        }
+        self.request = myUrlRequest(
+            url_send,
+            req_headers=head,
+            on_success=__got_server_data,
+            on_error=self.got_error,
+            on_redirect=self.got_redirect,
+            on_failure=self.got_error,
+        )
+
+    def got_error(self, req, results):
+        Logger.critical("----got_error--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
+
+    def got_time_out(self, req, results):
+        Logger.critical("----got_time_out--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
+
+    def got_failure(self, req, results):
+        Logger.critical("----got_failure--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
+
+    def got_redirect(self, req, results):
+        Logger.critical("----got_redirect--")
+        Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
 
 
 KomgaReader().run()
