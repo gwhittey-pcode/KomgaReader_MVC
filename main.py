@@ -8,8 +8,6 @@ To run the application in hot boot mode, execute the command in the console:
 DEBUG=1 python main.py
 """
 import inspect
-import string
-import urllib
 from collections import OrderedDict
 
 from kivy import Logger
@@ -24,7 +22,6 @@ from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.utils import asynckivy
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
-from Utility.komga_server_conn import ComicServerConn
 from View.screens import screens
 import os
 from pathlib import Path
@@ -69,6 +66,9 @@ class KomgaReader(MDApp):
     filter_list = ListProperty()
     letter_count = ObjectProperty()
     ordered_letter_count = ObjectProperty()
+    gen_publisher_list = ListProperty()
+    gen_release_dates = ListProperty()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.letter_count = None
@@ -254,7 +254,8 @@ class KomgaReader(MDApp):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.material_style = "M3"
         self.generate_application_screens()
-        asynckivy.start(self.get_server_data())
+        asynckivy.start(self.get_letter_groups())
+        self.get_gen_publishers()
         return self.manager_screens
 
     def generate_application_screens(self) -> None:
@@ -389,7 +390,49 @@ class KomgaReader(MDApp):
         screen.setup_screen(object_type=object_type)
         self.manager_screens.current = "object list screen"
 
-    async def get_server_data(self):
+    def get_gen_publishers(self):
+        def __got_server_data(req, result):
+            for publisher in result:
+                self.gen_publisher_list.append(publisher)
+            print(self.gen_publisher_list)
+
+        url_send = f"{self.base_url}/api/v1/publishers"
+        str_cookie = "SESSION=" + self.config.get("General", "api_key")
+        head = {
+            "Content-type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "Cookie": str_cookie,
+        }
+        request = myUrlRequest(
+            url_send,
+            req_headers=head,
+            on_success=__got_server_data,
+            on_error=self.got_error,
+            on_redirect=self.got_redirect,
+            on_failure=self.got_error,
+        )
+
+    def get_gen_release_dates(self):
+        def __got_server_data(req, result):
+            for publisher in result:
+                self.gen_release_dates.append(publisher)
+        url_send = f"{self.base_url}/api/v1/series/release-dates"
+        str_cookie = "SESSION=" + self.config.get("General", "api_key")
+        head = {
+            "Content-type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+            "Cookie": str_cookie,
+        }
+        request = myUrlRequest(
+            url_send,
+            req_headers=head,
+            on_success=__got_server_data,
+            on_error=self.got_error,
+            on_redirect=self.got_redirect,
+            on_failure=self.got_error,
+        )
+
+    async def get_letter_groups(self):
         self.letter_count = {}
 
         def __got_server_data(req, result):
@@ -401,31 +444,9 @@ class KomgaReader(MDApp):
                 else:
                     self.letter_count[item['group'].capitalize()] = item['count']
                     series_count = series_count + item['count']
-                    print(f"{item['group']}:{item['count']}")
             self.series_count = series_count + num_count
             self.letter_count['#'] = num_count
             self.ordered_letter_count = OrderedDict(sorted(self.letter_count.items(), key=lambda t: t[0]))
-
-            # the_letter = result["content"][0]["metadata"]["title"][0]
-            # if '0' <= the_letter <= '9':
-            #     the_letter = "#"
-            # self.letter_count[the_letter] = result["totalElements"]
-        fetch_data = ComicServerConn()
-        # url_send = f"{self.base_url}/api/v1/series?unpaged=true"
-        # str_cookie = "SESSION=" + self.config.get("General", "api_key")
-        # head = {
-        #     "Content-type": "application/x-www-form-urlencoded",
-        #     "Accept": "application/json",
-        #     "Cookie": str_cookie,
-        # }
-        # self.request = myUrlRequest(
-        #     url_send,
-        #     req_headers=head,
-        #     on_success=__got_server_data,
-        #     on_error=self.got_error,
-        #     on_redirect=self.got_redirect,
-        #     on_failure=self.got_error,
-        # )
 
         url_send = f"{self.base_url}/api/v1/series/alphabetical-groups"
         str_cookie = "SESSION=" + self.config.get("General", "api_key")
@@ -434,7 +455,7 @@ class KomgaReader(MDApp):
             "Accept": "application/json",
             "Cookie": str_cookie,
         }
-        self.request = myUrlRequest(
+        request = myUrlRequest(
             url_send,
             req_headers=head,
             on_success=__got_server_data,

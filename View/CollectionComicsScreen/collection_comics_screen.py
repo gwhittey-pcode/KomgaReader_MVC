@@ -9,7 +9,7 @@ import os
 from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.properties import StringProperty, NumericProperty, DictProperty, BooleanProperty, ObjectProperty, \
-    ConfigParserProperty
+    ConfigParserProperty, ListProperty
 from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.utils import asynckivy
@@ -20,9 +20,13 @@ from Utility.komga_server_conn import ComicServerConn
 from View.Widgets.comicthumb import ComicThumb
 from View.Widgets.dialogs.dialogs import DialogLoadKvFiles
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
+from Utility.myUrlrequest import UrlRequest as myUrlRequest
 
 
 class CollectionComicsScreenView(ComicListsBaseScreenView):
+    collection_release_dates = ListProperty()
+    collection_publisher_list = ListProperty()
+
     def __init__(self, **kwargs):
         super(CollectionComicsScreenView, self).__init__(**kwargs)
         self.collection_id = None
@@ -42,8 +46,7 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
         self.first = False
         self.current_page = 1
         self.loading_done = False
-        self.page_title =""
-
+        self.page_title = ""
 
     def on_enter(self, *args):
 
@@ -56,7 +59,7 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
                 c = val
                 c.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
 
-    def get_server_lists(self, new_page_num=0, collection_id="",collection_name=""):
+    def get_server_lists(self, new_page_num=0, collection_id="", collection_name=""):
 
         def __get_server_lists(results: object):
             t_rl_comics_json = results['content']
@@ -70,18 +73,21 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
             self.last = self.rl_json['last']
             self.first = self.rl_json['first']
             self.page_title = collection_name
+            asynckivy.start(self.get_filter_data())
+            # asynckivy.start(self.get_collection_publishers())
+
             self.build_paginations()
             self.build_page()
 
         if self.lists_loaded is False:
-            if collection_id !="":
+            if collection_id != "":
                 self.collection_id = collection_id
-            fetch_data = ComicServerConn()
+
             url_send = f"{self.base_url}/api/v1/collections/{self.collection_id}/series" \
                        f"?page={new_page_num}&size={self.item_per_page}"
             if len(self.app.filter_string) != 0:
                 url_send = f"{url_send}{self.app.filter_string}"
-            print(f"{url_send =}")
+            fetch_data = ComicServerConn()
             fetch_data.get_server_data_callback(
                 url_send,
                 callback=lambda url_send, results: __get_server_lists(results))
@@ -186,6 +192,52 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
         #     self.prev_button.disabled = True
         #     self.prev_button.page_num = ""
         self.get_server_lists(new_page_num=this_page)
+
+    async def get_collection_publishers(self):
+        print("Start")
+
+        def __got_server_data(result):
+            for publisher in result:
+                self.collection_publisher_list.append(publisher)
+            print(f"{self.collection_publisher_list = }")
+
+        url_send = f"{self.base_url}/api/v1/publishers?collection_id={self.collection_id}"
+        print(f"{url_send =}")
+        fetch_data = ComicServerConn()
+        fetch_data.get_server_data_callback(
+            url_send, callback=lambda url_send, results: __got_server_data(results)
+        )
+
+    async def get_collection_dates(self):
+        def __got_server_data(result):
+            for date in result:
+                self.collection_release_dates.append(date)
+
+        url_send = f"{self.base_url}/api/v1/series/release-dates?collection_id={self.collection_id}"
+        fetch_data = ComicServerConn()
+        fetch_data.get_server_data_callback(
+            url_send, callback=lambda url_send, results: __got_server_data(results)
+        )
+
+    async def get_filter_data(self):
+        def __got_publisher_data(result):
+            for publisher in result:
+                self.collection_publisher_list.append(publisher)
+            self.build_filter_popup()
+
+        def __got_date_data(result):
+            for date in result:
+                self.collection_release_dates.append(date)
+            url_send = f"{self.base_url}/api/v1/publishers?collection_id={self.collection_id}"
+            fetch_data.get_server_data_callback(
+                url_send, callback=lambda url_send, results: __got_publisher_data(results)
+            )
+
+        url_send = f"{self.base_url}/api/v1/series/release-dates?collection_id={self.collection_id}"
+        fetch_data = ComicServerConn()
+        fetch_data.get_server_data_callback(
+            url_send, callback=lambda url_send, results: __got_date_data(results)
+        )
 
     def model_is_changed(self) -> None:
         """
