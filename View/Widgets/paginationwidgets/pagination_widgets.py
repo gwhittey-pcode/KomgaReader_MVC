@@ -3,13 +3,13 @@ from typing import Union
 from kivy.clock import Clock
 from kivy.metrics import dp, sp
 from kivy.properties import NumericProperty, StringProperty
+from kivy.uix.behaviors import ButtonBehavior
 from kivymd.app import MDApp
 from kivymd.uix.button import MDRaisedButton, BaseButton
 from kivymd.uix.button.button import ButtonElevationBehaviour, OldButtonIconMixin, ButtonContentsIcon
 
-__all__ = ('MyMDRaisedButton', 'MyMDIconRaisedButton')
-
 from kivymd.uix.label import MDLabel
+from kivymd.uix.tooltip import MDTooltip
 
 
 class MyMDRaisedButton(MDRaisedButton):
@@ -65,9 +65,27 @@ class MyMDIconRaisedButton(BaseButton, ButtonElevationBehaviour, OldButtonIconMi
         self.height = diameter
 
 
-def build_pageination_nav(widget=None,screen_name=""):
+class TooltipLabel(ButtonBehavior, MDLabel, MDTooltip):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def do_stuff(self, btn):
+        screen = MDApp.get_running_app().manager_screens.current_screen
+        screen.filter_letter = self.text
+        screen.get_server_lists(new_page_num=0)
+
+def build_pageination_nav(widget=None, screen_name=""):
     if screen_name:
         the_widget = MDApp.get_running_app().manager_screens.get_screen(screen_name)
+        if screen_name == "series screen":
+            the_letter_dict = MDApp.get_running_app().ordered_letter_count
+            letter_grid = the_widget.ids.letter_grid
+            letter_grid.clear_widgets()
+            for i, letter in enumerate(the_letter_dict.keys()):
+                count = the_letter_dict[letter]
+                label = TooltipLabel(text=f"{letter}", tooltip_text=str(count))
+                label.bind(on_press=label.do_stuff)
+                letter_grid.add_widget(label)
     else:
         the_widget = widget
     grid = the_widget.ids.page_num_grid
@@ -101,6 +119,8 @@ def build_pageination_nav(widget=None,screen_name=""):
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
     elif the_widget.current_page + 1 in range(1, 13) and the_widget.current_page + 1 != the_widget.totalPages:
+        print(
+            "elif the_widget.current_page + 1 in range(1, 13) and the_widget.current_page + 1 != the_widget.totalPages:")
         if the_widget.current_page + 1 > 1:
             c = MyMDRaisedButton(text=str(1),
                                  size_hint=(None, None),
@@ -147,10 +167,11 @@ def build_pageination_nav(widget=None,screen_name=""):
             if num == the_widget.current_page + 1:
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-
-
-    elif the_widget.totalPages - the_widget.current_page + 1 >= 7 and the_widget.current_page + 1 not in range(1, 13) and \
+    elif the_widget.totalPages - the_widget.current_page + 1 >= 7 and the_widget.current_page + 1 not in range(1,
+                                                                                                               13) and \
             the_widget.current_page + 1 != the_widget.totalPages:
+        print("elif the_widget.totalPages - the_widget.current_page + 1 >= 7 and the_widget.current_page + 1 not in range(1, 13) and \
+            the_widget.current_page + 1 != the_widget.totalPages:")
         c = MyMDRaisedButton(text=str("1"),
                              size_hint=(None, None),
                              height=dp(40),
@@ -167,7 +188,7 @@ def build_pageination_nav(widget=None,screen_name=""):
                 height=dp(20),
                 text_color=(0, 0, 0, 1)
             ))
-        for num in range(the_widget.current_page + 1 - 6, the_widget.current_page + 1, ):
+        for num in range(the_widget.current_page + 1 - 4, the_widget.current_page + 1, ):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -180,7 +201,7 @@ def build_pageination_nav(widget=None,screen_name=""):
                 print("#$##$##$#")
                 c.md_bg_color = (1, 1, 1, 1)
             grid.add_widget(c)
-        for num in range(the_widget.current_page + 1, the_widget.current_page + 7, ):
+        for num in range(the_widget.current_page + 1, the_widget.current_page + 4, ):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -209,7 +230,8 @@ def build_pageination_nav(widget=None,screen_name=""):
         c.bind(on_press=the_widget.pag_num_press)
         grid.add_widget(c)
     else:
-        for num in range(1, 8):
+        print("else")
+        for num in range(1, 6):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),
@@ -229,7 +251,7 @@ def build_pageination_nav(widget=None,screen_name=""):
                 height=dp(20),
             ))
 
-        for num in range(the_widget.totalPages - 6, the_widget.totalPages + 1):
+        for num in range(the_widget.totalPages - 4, the_widget.totalPages + 1):
             c = MyMDRaisedButton(text=str(num),
                                  size_hint=(None, None),
                                  height=dp(40),

@@ -1,9 +1,15 @@
 # The screens dictionary contains the objects of the models and controllers
 # of the screens of the application.
-from Controller.object_list_screen import ObjectListScreenController
+from Controller.collections_screen import CollectionsScreenController
+# from Controller.object_list_screen import ObjectListScreenController
 from Controller.comic_lists_base_screen import ComicListsBaseScreenController
-from Model.object_list_screen import ObjectListScreenModel
+from Controller.reading_list_screen import ReadingListScreenController
+from Controller.series_screen import SeriesScreenController
+from Model.collections_screen import CollectionsScreenModel
+# from Model.object_list_screen import ObjectListScreenModel
 from Model.comic_lists_base_screen import ComicListsBaseScreenModel
+from Model.reading_list_screen import ReadingListScreenModel
+from Model.series_screen import SeriesScreenModel
 from Model.start_screen import StartScreenModel
 from Controller.start_screen import StartScreenController
 from Model.r_l_comic_books_screen import RLComicBooksScreenModel
@@ -27,11 +33,24 @@ screens = {
         "model": ComicListsBaseScreenModel,
         "controller": ComicListsBaseScreenController,
     },
-
-    "object list screen": {
-        "model": ObjectListScreenModel,
-        "controller": ObjectListScreenController,
+    "series screen": {
+        "model": SeriesScreenModel,
+        "controller": SeriesScreenController,
     },
+
+    "reading list screen": {
+        "model": ReadingListScreenModel,
+        "controller": ReadingListScreenController,
+    },
+
+    "collections screen": {
+        "model": CollectionsScreenModel,
+        "controller": CollectionsScreenController,
+    },
+    # "object list screen": {
+    #     "model": ObjectListScreenModel,
+    #     "controller": ObjectListScreenController,
+    # },
     "r l comic books screen": {
         "model": RLComicBooksScreenModel,
         "controller": RLComicBooksScreenController,

@@ -32,21 +32,21 @@
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
-                        on_press:app.open_object_list_screen("Reading List")
+                        on_press:root.manager_screens.current = "reading list screen"
                     MDFillRoundFlatIconButton:
                         icon: 'bookshelf'
                         text: 'Open Series'
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
-                        on_press:app.open_object_list_screen("Series List")
+                        on_press:root.manager_screens.current = "series screen"
                     MDFillRoundFlatIconButton:
                         icon: 'server'
                         text: 'Open Collections'
                         height: dp(50)
                         opposite_colors: True
                         elevation_normal: 8
-                        on_press:app.open_object_list_screen("Collection List")
+                        on_press:root.manager_screens.current = "collections screen"
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width
@@ -70,6 +70,12 @@
                         md_bg_color: app.theme_cls.primary_color
                         #on_press:app.show_action_bar()
                         on_press: root.open_popup()
+                    MDIconButtonTooltip:
+                        tooltip_text: "Filter"
+                        icon: "filter-variant"
+                        id: filter_menu_button
+                        on_release: app.filter_nav_drawer.set_state("open")
+
 
                     # MDFillRoundFlatIconButton:
                     #     icon: 'folder-sync'

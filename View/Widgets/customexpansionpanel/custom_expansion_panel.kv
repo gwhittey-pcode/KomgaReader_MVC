@@ -1,0 +1,19 @@
+<CustomeMDExpansionChevronRight>:
+    icon: "chevron-right"
+    disabled: True
+    md_bg_color_disabled: 0, 0, 0, 0
+
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self._angle
+            axis: (0, 0, 1)
+            origin: self.center
+    canvas.after:
+        PopMatrix
+
+
+<CustomeMDExpansionPanel>
+    id:custom_x_panel
+    size_hint_y: None
+    # height: dp(68)

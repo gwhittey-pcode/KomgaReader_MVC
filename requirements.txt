@@ -1,3 +1,7 @@
-kivy==2.1.0
-kivymd
 watchdog
+Kivy~=2.1.0
+kivymd~=1.2.0.dev0
+natsort~=8.2.0
+peewee~=3.15.3
+requests~=2.28.1
+Pillow~=9.3.0

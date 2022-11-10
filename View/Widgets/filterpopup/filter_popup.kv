@@ -1,0 +1,168 @@
+
+<PublisherPanel>
+    id:publisher_panel
+    adaptive_height: True
+    MDList:
+        id: pub_list
+<ReleaseDatePanel>
+    id:release_dates_panel
+    adaptive_height: True
+    MDList:
+        id: release_dates_add
+
+<ReadProgressPanel>
+    id:read_progress_panel
+    adaptive_height: True
+    MDList:
+        id: read_progress_list
+<SortPanel>
+    id:sort_panel
+    adaptive_height: True
+    MDList:
+        id: sort_list
+
+<ListItemWithCheckbox>:
+    IconRightWidget:
+        icon: root.icon
+    LeftCheckbox:
+        id:the_checkbox
+        on_active:root.check_box_active(root.check_box_value)
+
+<SortTypeList>
+    id:root.id
+    on_release:root.set_sort()
+    IconLeftWidget:
+        icon:"chevron-down" if root.what_chevron == "down" else "chevron-up" if root.what_chevron == "up" else "minus"
+
+
+<FilterPopupContent>
+    id: main_win
+    orientation: "lr-tb"
+    spacing: dp(10)
+    canvas.before:
+        Color:
+            rgba: (1,1,1, 1)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+#    canvas.after:
+#        Color:
+#            rgba: 1,.84,0,1
+#        Line:
+#            width: 2
+#            rectangle: self.x, self.y, self.width, self.height
+
+    BoxLayout:
+        size_hint_y: None
+        height: dp(50)
+        pos_hint:{"top":1}
+        canvas.before:
+            Color:
+                rgba: app.theme_cls.primary_color
+            Rectangle:
+                size: self.size
+                pos: self.pos
+#        canvas.after:
+#            Color:
+#                rgba: .1,.84,0,1
+#            Line:
+#                width: 2
+#                rectangle: self.x, self.y, self.width, self.height
+        Label:
+            text: "Filters"
+            bold: True
+            pos_hint:{"top":1}
+            size_hint_x: .9
+        FlatButton:#TODO:Change to MDFlatIconButton
+            text: "x"
+            size_hint_x: .1
+            on_release: app.popup.dismiss()
+    RelativeLayout:
+        size_hint_y: None
+        height: dp(50) if root.show_filter_remove==True else 0
+        width:root.x if root.show_filter_remove==True else 0
+        opacity:1 if root.show_filter_remove==True else 0
+        disabled: 0 if root.show_filter_remove else 1
+        pos_hint:{"top":1}
+        MDRaisedButton:
+            md_bg_color: app.theme_cls.primary_color
+            radius:(8,8)
+            text:"Apply Filter"
+            pos_hint: {"center_x": .2,"top":.5}
+            padding:10
+            on_release:root.apply_filter()
+        MDRaisedButton:
+#            icon: "filter-variant-remove"
+            md_bg_color: app.theme_cls.primary_color
+            radius:(8,8)
+            padding:10
+#            height: dp(48) if root.show_filter_remove==True else 1
+#            width: dp(48) if root.show_filter_remove==True else 1
+#            opacity:1 if root.show_filter_remove==True else 0
+#            disabled: 0 if root.show_filter_remove else 1
+            text:"Clear Filter"
+            pos_hint: {"right": .9,"top":.5}
+            tooltip_text: self.icon
+            on_release:root.clear_filters()
+    MDSeparator:
+        color:(1,1,1,0)
+
+    MDSeparator:
+        color:app.theme_cls.primary_color
+
+    ScrollView:
+        always_overscroll:True
+        id:filters_ex_scroll
+        size_hint: (1, .9)
+        MDGridLayout:
+            adaptive_height: True
+            cols:1
+            MDGridLayout:
+                adaptive_height: True
+                cols:1
+                id:read_progress_filter
+            MDGridLayout:
+                adaptive_height: True
+                cols:1
+                id:pub_filter_add
+            MDGridLayout:
+                adaptive_height: True
+                cols:1
+                id:release_dates_filter_add
+            MDGridLayout:
+                adaptive_height: True
+                cols:1
+                id:sort_filter_add
+
+
+
+#            height: dp(48) if root.show_sort_filter==True else 1
+#            width: dp(48) if root.show_sort_filter==True else 1
+#            opacity:1 if root.show_sort_filter==True else 0
+#            disabled: 0 if root.show_sort_filter==True else 1
+
+            #pos_hint:{"top":1}
+            #size : self.size
+#
+#    BoxLayout:
+#        orientation: 'vertical'
+#
+
+
+<Separator@Widget>:
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<HSeparator@Separator>:
+    size_hint_y: None
+    height: dp(12)
+
+<VSeparator@Separator>:
+    size_hint_x: None
+    width: dp(2)
+
+<ClearFilterButton@MDIconButton,MDTooltip>

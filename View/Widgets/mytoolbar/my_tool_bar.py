@@ -41,6 +41,11 @@ class MyToolBar(MDTopAppBar):
                 lambda x: self.switch_series_screen(),
                 "Series"
             ],
+            [
+                "view-list",
+                lambda x: self.switch_series_comic_books_screen(),
+                "Series Comics"
+            ],
 
             [
                 "book-open-page-variant",
@@ -57,10 +62,12 @@ class MyToolBar(MDTopAppBar):
         MDApp.get_running_app().manager_screens.current = "r l comic books screen"
 
     def switch_readinglists_screen(self):
-        MDApp.get_running_app().manager_screens.current = "reading list screen"
 
-    def switch_series_screen(self):
         MDApp.get_running_app().manager_screens.current = "series screen"
 
+    def switch_series_screen(self):
+        MDApp.get_running_app().manager_screens.current = "reading list screen"
+    def switch_series_comic_books_screen(self):
+        MDApp.get_running_app().manager_screens.current = "series comics screen"
     def switch_comic_reader(self):
         MDApp.get_running_app().manager_screens.current = "comic book screen"

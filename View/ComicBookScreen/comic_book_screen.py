@@ -130,7 +130,7 @@ class ComicBookScreenView(BaseScreenView):
     paginator_obj = ObjectProperty()
     comic_obj = ObjectProperty()
     id = StringProperty()
-    item_per_page = NumericProperty(20)
+    item_per_page = StringProperty("20")
     comic_list_type = StringProperty()
 
     def __init__(self, **kwargs):
