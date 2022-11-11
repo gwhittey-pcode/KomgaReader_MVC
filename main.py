@@ -68,6 +68,7 @@ class KomgaReader(MDApp):
     ordered_letter_count = ObjectProperty()
     gen_publisher_list = ListProperty()
     gen_release_dates = ListProperty()
+    stream_comic_pages = BooleanProperty()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -117,6 +118,7 @@ class KomgaReader(MDApp):
                 # "how_to_open_comic": "Open Local Copy",
                 # 'use_pagination':   '1',
                 "max_item_per_page": 25,
+                "stream_comic_pages": 0
             },
         )
         config.setdefaults(
@@ -196,8 +198,10 @@ class KomgaReader(MDApp):
         #     "General", "how_to_open_comic"
         # )
         self.item_per_page = self.config.get("General", "max_item_per_page")
+        self.stream_comic_pages = self.config.get("General", "stream_comic_pages")
 
     def config_callback(self, section, key, value):
+        print(f"{key :}{value}")
         if key == "storagedir":
             def __callback_for_please_wait_dialog(*args):
                 if args[0] == "Delete Database":
@@ -231,11 +235,11 @@ class KomgaReader(MDApp):
             config_items = {
                 "base_url": "base_url",
                 "api_key": "api_key",
-                "sync_folder": "sync_folder",
                 "password": "password",
                 "username": "username",
                 "max_item_per_page": "max_item_per_page",
                 "sync_folder": "sync_folder",
+                "stream_comic_pages": "stream_comic_pages"
             }
             item_list = list(config_items.keys())
             if key in item_list:
@@ -416,6 +420,7 @@ class KomgaReader(MDApp):
         def __got_server_data(req, result):
             for publisher in result:
                 self.gen_release_dates.append(publisher)
+
         url_send = f"{self.base_url}/api/v1/series/release-dates"
         str_cookie = "SESSION=" + self.config.get("General", "api_key")
         head = {
@@ -464,6 +469,12 @@ class KomgaReader(MDApp):
             on_failure=self.got_error,
         )
 
+    def switch_stream(self, state):
+        if state:
+            MDApp.get_running_app().config.set("General", "stream_comic_pages", 1)
+        else:
+            MDApp.get_running_app().config.set("General", "stream_comic_pages", 0)
+        self.config.write()
     def got_error(self, req, results):
         Logger.critical("----got_error--")
         Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))

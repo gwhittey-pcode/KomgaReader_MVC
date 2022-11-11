@@ -4,6 +4,7 @@
     username: app.username
     base_url: app.base_url
     api_key: app.api_key
+    stream_comic_pages: app.stream_comic_pages
     MDBoxLayout:
         orientation: "vertical"
         MyToolBar:
@@ -70,13 +71,19 @@
                         md_bg_color: app.theme_cls.primary_color
                         #on_press:app.show_action_bar()
                         on_press: root.open_popup()
-                    MDIconButtonTooltip:
-                        tooltip_text: "Filter"
-                        icon: "filter-variant"
-                        id: filter_menu_button
-                        on_release: app.filter_nav_drawer.set_state("open")
+                    MDBoxLayout:
+                        adaptive_size: True
+                        spacing: '10dp'
 
-
+                        MDSwitch:
+                            active: True if app.stream_comic_pages ==1 else False
+                            icon_active: "wifi"
+                            icon_inactive: "wifi-remove"
+                            on_active:app.switch_stream(self.active)
+                        MDLabel:
+                            text:"Stream Comic Pages"
+                            adaptive_size: True
+                            spacing: '10dp'
                     # MDFillRoundFlatIconButton:
                     #     icon: 'folder-sync'
                     #     text: 'Open Sync Lists'
