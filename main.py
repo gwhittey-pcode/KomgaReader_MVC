@@ -258,8 +258,10 @@ class KomgaReader(MDApp):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.material_style = "M3"
         self.generate_application_screens()
-        asynckivy.start(self.get_letter_groups())
-        self.get_gen_publishers()
+        if self.api_key != "":
+            self.get_letter_groups()
+            self.get_gen_publishers()
+            self.get_gen_release_dates()
         print(f"{self.stream_comic_pages =}")
         return self.manager_screens
 
