@@ -76,7 +76,7 @@
                         spacing: '10dp'
 
                         MDSwitch:
-                            active: True if app.stream_comic_pages ==1 else False
+                            active: True if app.stream_comic_pages == '1' else False
                             icon_active: "wifi"
                             icon_inactive: "wifi-remove"
                             on_active:app.switch_stream(self.active)

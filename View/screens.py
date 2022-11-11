@@ -3,11 +3,13 @@
 from Controller.collections_screen import CollectionsScreenController
 # from Controller.object_list_screen import ObjectListScreenController
 from Controller.comic_lists_base_screen import ComicListsBaseScreenController
+from Controller.comic_reader_streaming_screen import ComicReaderStreamingScreenController
 from Controller.reading_list_screen import ReadingListScreenController
 from Controller.series_screen import SeriesScreenController
 from Model.collections_screen import CollectionsScreenModel
 # from Model.object_list_screen import ObjectListScreenModel
 from Model.comic_lists_base_screen import ComicListsBaseScreenModel
+from Model.comic_reader_streaming_screen import ComicReaderStreamingScreenModel
 from Model.reading_list_screen import ReadingListScreenModel
 from Model.series_screen import SeriesScreenModel
 from Model.start_screen import StartScreenModel
@@ -73,6 +75,9 @@ screens = {
         "model": ComicBookScreenModel,
         "controller": ComicBookScreenController,
     },
-
+    "comic reader streaming screen": {
+        "model": ComicReaderStreamingScreenModel,
+        "controller": ComicReaderStreamingScreenController,
+    },
 
 }

@@ -260,6 +260,7 @@ class KomgaReader(MDApp):
         self.generate_application_screens()
         asynckivy.start(self.get_letter_groups())
         self.get_gen_publishers()
+        print(f"{self.stream_comic_pages =}")
         return self.manager_screens
 
     def generate_application_screens(self) -> None:
@@ -471,9 +472,12 @@ class KomgaReader(MDApp):
 
     def switch_stream(self, state):
         if state:
-            MDApp.get_running_app().config.set("General", "stream_comic_pages", 1)
+            self.config.set("General", "stream_comic_pages", '1')
+            self.stream_comic_pages = '1'
         else:
-            MDApp.get_running_app().config.set("General", "stream_comic_pages", 0)
+            self.config.set("General", "stream_comic_pages", '0')
+            self.stream_comic_pages = '0'
+
         self.config.write()
     def got_error(self, req, results):
         Logger.critical("----got_error--")
