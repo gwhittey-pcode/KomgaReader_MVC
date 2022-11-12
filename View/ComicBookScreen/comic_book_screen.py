@@ -10,7 +10,7 @@ from kivy.properties import (
     DictProperty,
     NumericProperty,
     ObjectProperty,
-    StringProperty,
+    StringProperty, ListProperty,
 )
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
@@ -82,7 +82,7 @@ class TopNavContent(MDBoxLayout):
 
     def __init__(self, **kwargs):
         super(TopNavContent, self).__init__(**kwargs)
-        self.screen = MDApp.get_running_app().manager_screens.get_screen("comic book screen")
+        self.screen = MDApp.get_running_app().manager_screens.current_screen
 
     def ltgtbutton_press(self, i):
         self.screen.reload_top_nav = True
@@ -132,6 +132,9 @@ class ComicBookScreenView(BaseScreenView):
     id = StringProperty()
     item_per_page = StringProperty("20")
     comic_list_type = StringProperty()
+    stream_comic_pages = BooleanProperty()
+    current_comic_page = NumericProperty(0)
+    pages_data = ListProperty()
 
     def __init__(self, **kwargs):
         super(ComicBookScreenView, self).__init__(**kwargs)
@@ -176,6 +179,9 @@ class ComicBookScreenView(BaseScreenView):
         self.topbar_state = False
         self.top_pop = None
 
+        app = MDApp.get_running_app()
+        self.stream_comic_pages = app.config.get("General", "stream_comic_pages")
+
     def on_pre_leave(self, *args):
         self.top_pop.dismiss()
         self.popup.dismiss()
@@ -207,6 +213,7 @@ class ComicBookScreenView(BaseScreenView):
         self.app.open_comic_screen = "None"
         self.reload_top_nav = False
         self.session_cookie = self.app.config.get("General", "api_key")
+        self.strCookie = 'SESSION=' + self.session_cookie
         last_comic_type = "Server"
         self.app.config.set("Saved", "last_comic_id", self.comic_obj.Id)
         self.app.config.set("Saved", "last_comic_type", last_comic_type)
@@ -229,11 +236,12 @@ class ComicBookScreenView(BaseScreenView):
         if self.top_pop:
             self.top_pop.clear_widgets()
         number_pages = int(comic_obj.PageCount)
-        max_comic_pages_limit = int(
-            MDApp.get_running_app().config.get(
-                "Display", "max_comic_pages_limit"
-            )
-        )
+        # max_comic_pages_limit = int(
+        #     MDApp.get_running_app().config.get(
+        #         "Display", "max_comic_pages_limit"
+        #     )
+        # )
+        max_comic_pages_limit = 500
         if number_pages <= max_comic_pages_limit:
             x_title = "Pages 1 to %s of %s " % (number_pages, number_pages)
         else:
@@ -269,36 +277,42 @@ class ComicBookScreenView(BaseScreenView):
         self.dynamic_ids["page_nav_popup"] = self.page_nav_popup
         self.page_nav_popup.add_widget(scroll)
         self.scroller = scroll
-        outer_grid = MyGridLayout(
+        self.outer_grid = MyGridLayout(
             rows=1,
             size_hint=(None, 1),
             spacing=(5, 0),
             padding=(5, 1),
             id="outtergrd",
         )
-        outer_grid.bind(minimum_width=outer_grid.setter("width"))
-        scroll.add_widget(outer_grid)
+        self.outer_grid.bind(minimum_width=self.outer_grid.setter("width"))
+        scroll.add_widget(self.outer_grid)
         i = 0
         self.use_sections = False
         if number_pages <= max_comic_pages_limit:
             self.use_sections = False
-            for i in range(0, number_pages):
-                self.add_pages(comic_book_carousel, outer_grid, comic_obj, i)
+            if self.stream_comic_pages == '1':
+                self.add_page(comic_book_carousel, self.outer_grid, comic_obj, 0)
+            else:
+                for i in range(0, number_pages):
+                    self.add_page(comic_book_carousel, self.outer_grid, comic_obj, i)
+            self.__build_page_nav(number_pages=number_pages,
+                                  comic_obj=comic_obj,
+                                  outer_grid=self.outer_grid)
         else:
             self.use_sections = True
             if self.last_load == 0:
                 z = max_comic_pages_limit
                 for i in range(0, number_pages)[0:z]:
-                    self.add_pages(
-                        comic_book_carousel, outer_grid, comic_obj, i
+                    self.add_page(
+                        comic_book_carousel, self.outer_grid, comic_obj, i
                     )
                 self.last_load = max_comic_pages_limit
                 self.last_section = 0
             else:
                 z = self.last_load + max_comic_pages_limit
                 for i in range(0, number_pages)[self.last_load: z]:
-                    self.add_pages(
-                        comic_book_carousel, outer_grid, comic_obj, i
+                    self.add_page(
+                        comic_book_carousel, self.outer_grid, comic_obj, i
                     )
                 if (self.last_load - max_comic_pages_limit) >= 0:
                     self.last_section = self.last_load - max_comic_pages_limit
@@ -311,7 +325,6 @@ class ComicBookScreenView(BaseScreenView):
                     self.section = "First"
                 else:
                     self.section = "Section"
-
         self.close_next_dialog()
         self.close_prev_dialog()
         if self.top_pop:
@@ -323,15 +336,11 @@ class ComicBookScreenView(BaseScreenView):
                                       )
         self.build_next_comic_dialog()
         self.build_prev_comic_dialog()
-
-        Clock.schedule_once(self.load_user_current_page,.5)
-
+        Clock.schedule_once(self.load_user_current_page, .5)
         self.app.open_comic_screen = self.comic_obj.Id
 
-    def add_pages(self, comic_book_carousel, outer_grid, comic_obj, i):
-        def got_page_size(results):
-            Logger.debug(results)
-            this_page_data = results[i]
+    def add_page(self, comic_book_carousel, outer_grid, comic_obj, i, load_place_holder=False, insert=False):
+        def __build_page(this_page_data=[]):
             width = int(this_page_data["width"])
             height = int(this_page_data["height"])
             if width > height:
@@ -363,15 +372,21 @@ class ComicBookScreenView(BaseScreenView):
                             open_this_page=open_this_page
                         )
                     )
+
+        def got_page_size(results):
+            Logger.debug(results)
+            self.pages_data = results
+            page_data = results[i]
+            __build_page(this_page_data=page_data)
+
         strech_image = MDApp.get_running_app().config.get(
             "Display", "stretch_image"
         )
-
         max_height = MDApp.get_running_app().config.get("Display", "max_height")
-        if comic_obj.readProgress_page -1 == i:
+        if comic_obj.readProgress_page - 1 == i:
             open_this_page = True
         else:
-            open_this_page= False
+            open_this_page = False
         comic_page_scatter = ComicBookPageScatter(
             id="comic_scatter" + str(i),
             comic_page=i,
@@ -388,14 +403,17 @@ class ComicBookScreenView(BaseScreenView):
         else:
             s_allow_stretch = False
             s_keep_ratio = True
-        max_height = "Use Original Size"
-        if max_height == "Use Original Size":
-            s_url_part = f"/api/v1/books/{comic_obj.Id}/pages/{i}?zero_based=true"
+        s_url_part = f"/api/v1/books/{comic_obj.Id}/pages/{i}?zero_based=true"
         if self.view_mode == "FileOpen" or self.comic_obj.is_sync:
             comic_page_source = get_comic_page(comic_obj, i)
         else:
-            comic_page_source = f"{self.app.base_url}{s_url_part}"
-        self.strCookie = 'SESSION=' + self.session_cookie
+            if self.stream_comic_pages == '1':
+                if load_place_holder:
+                    comic_page_source = "assets/no_cover.jpg"
+                else:
+                    comic_page_source = f"{self.app.base_url}{s_url_part}"
+            else:
+                comic_page_source = f"{self.app.base_url}{s_url_part}"
         comic_page_image = ComicBookPageImage(
             comic_slug=comic_obj.slug,
             id="pi_" + str(i),
@@ -406,54 +424,74 @@ class ComicBookScreenView(BaseScreenView):
             extra_headers={"Cookie": self.strCookie}
         )
         comic_page_scatter.add_widget(comic_page_image)
-        comic_book_carousel.add_widget(comic_page_scatter)
+
+        if insert:
+            comic_book_carousel.add_widget(comic_page_scatter, i)
+            comic_carousel = self.ids.comic_book_carousel
+            for slide in comic_carousel.slides:
+                if slide.comic_page == i:
+                    use_slide = slide
+                    comic_carousel.load_slide(use_slide)
+        else:
+            comic_book_carousel.add_widget(comic_page_scatter)
+
         # Let's make the thumbs for popup
         s_height = round(dp(240))
 
-        s_url_part = f"/api/v1/books/{comic_obj.Id}/pages/{i + 1}/thumbnail"
-        if self.view_mode == "FileOpen" or comic_obj.is_sync:
-            src_img = get_comic_page(comic_obj, i)
-        else:
-            src_img = f"{self.app.base_url}{s_url_part}"
-        inner_grid = ThumbPopPageInnerGrid(
-            id="inner_grid" + str(i), spacing=(0, 0),
-
-        )
-        page_thumb = ComicBookPageThumb(
-            comic_slug=comic_obj.slug,
-            id="page_thumb" + str(i),
-            comic_page=i,
-            source=src_img,
-            allow_stretch=False,
-            extra_headers={"Cookie": self.strCookie}
-        )
-
-        page_thumb.size_hint_y = None
-        page_thumb.height = dp(240)
-        inner_grid.add_widget(page_thumb)
-        page_thumb.bind(on_release=page_thumb.click)
-        smbutton = ThumbPopPagebntlbl(
-            text="P%s" % str(i + 1),
-            padding=(0, 0),
-            id=f"page_thumb_lbl{i}",
-            comic_slug=comic_obj.slug,
-            comic_page=i,
-            text_color=(0, 0, 0, 1),
-        )
-        inner_grid.add_widget(smbutton)
-        smbutton.bind(on_release=smbutton.click)
-        outer_grid.add_widget(inner_grid)
-        s_url_part = f"/api/v1/books/{comic_obj.Id}/pages"
-        get_size_url = f"{self.app.base_url}{s_url_part}"
-        if self.view_mode == "FileOpen" or self.comic_obj.is_sync:
-            width, height = get_file_page_size(comic_page_source)
-            data = {"width": width, "height": height}
-            got_page_size(data)
-        else:
+        if not self.pages_data:
+            s_url_part = f"/api/v1/books/{comic_obj.Id}/pages"
+            get_size_url = f"{self.app.base_url}{s_url_part}"
             self.fetch_data.get_page_size_data(
                 get_size_url,
                 callback=lambda req, results: got_page_size(results),
             )
+        else:
+            t_page_data = self.pages_data[i]
+            __build_page(this_page_data=t_page_data)
+
+    def __build_page_nav(self, number_pages=0, comic_obj=None, outer_grid=None):
+        for i in range(0, number_pages):
+            s_url_part = f"/api/v1/books/{comic_obj.Id}/pages/{i + 1}/thumbnail"
+            if self.view_mode == "FileOpen" or comic_obj.is_sync:
+                src_img = get_comic_page(comic_obj, i)
+            else:
+                src_img = f"{self.app.base_url}{s_url_part}"
+            inner_grid = ThumbPopPageInnerGrid(
+                id="inner_grid" + str(i), spacing=(0, 0),
+
+            )
+            page_thumb = ComicBookPageThumb(
+                comic_slug=comic_obj.slug,
+                id="page_thumb" + str(i),
+                comic_page=i,
+                source=src_img,
+                allow_stretch=False,
+                extra_headers={"Cookie": self.strCookie}
+            )
+
+            page_thumb.size_hint_y = None
+            page_thumb.height = dp(240)
+            inner_grid.add_widget(page_thumb)
+            page_thumb.bind(on_release=page_thumb.click)
+            smbutton = ThumbPopPagebntlbl(
+                text="P%s" % str(i + 1),
+                padding=(0, 0),
+                id=f"page_thumb_lbl{i}",
+                comic_slug=comic_obj.slug,
+                comic_page=i,
+                text_color=(0, 0, 0, 1),
+            )
+            inner_grid.add_widget(smbutton)
+            smbutton.bind(on_release=smbutton.click)
+            outer_grid.add_widget(inner_grid)
+
+    def stream_page(self, current_comic_page=0):
+        self.__build_page_nav()
+        # number_pages = int(self.comic_obj.PageCount)
+        # for i in range(2, number_pages):
+        #     comic_car = self.ids.comic_book_carousel
+        #     self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
+        #                   i=i, comic_obj=self.comic_obj, load_place_holder=True)
 
     def collect_readinglist_data(self, readinglist_id="", current_page_num=0, new_page_num=0, screen_setup=False):
         """Collect Reaing List Date From Server """
@@ -601,9 +639,9 @@ class ComicBookScreenView(BaseScreenView):
                     index = comics_list.index(comic)
             if comic_obj.Id == comics_list[0].Id and index + 1 != self.item_per_page \
                     and self.last is not True:
-                next_comic = comics_list[index+1]
-            elif index != len(comics_list)-1 and self.totalPages == 1:
-                next_comic = comics_list[index+1]
+                next_comic = comics_list[index + 1]
+            elif index != len(comics_list) - 1 and self.totalPages == 1:
+                next_comic = comics_list[index + 1]
             elif index + 1 != self.item_per_page and self.last is not True:
                 if index + 1 != self.item_per_page:
                     if index == 0:
@@ -619,7 +657,7 @@ class ComicBookScreenView(BaseScreenView):
             if index + 1 != self.item_per_page and self.last is not True:
                 self.build_next_comic_dialog(next_comic)
             else:
-                if self.first and self.last and index != len(comics_list)-1:
+                if self.first and self.last and index != len(comics_list) - 1:
                     self.build_next_comic_dialog(next_comic)
                 else:
                     self.build_next_comic_dialog()
@@ -937,7 +975,6 @@ class ComicBookScreenView(BaseScreenView):
 
     def load_readinglist_prev_page(self, instance):
         if self.current_page == 0:
-            print("At Start of ReadingList")
             pass
         else:
             fetch_data = ComicServerConn()
@@ -998,7 +1035,7 @@ class ComicBookScreenView(BaseScreenView):
         #     if comic.Id == comic_obj.Id:
         #         index = comics_list.index(comic)
         if self.current_page + 1 == self.totalPages or self.totalPages != 1:
-            print("End of ReadingList")
+            Logger.debug("End of ReadingList")
         else:
             fetch_data = ComicServerConn()
             if self.comic_list_type == "reading_list_comic_books":
@@ -1063,6 +1100,7 @@ class ComicBookScreenView(BaseScreenView):
         else:
             def updated_progress(results):
                 pass
+
             if index is not None:
                 comic_book_carousel = self.ids.comic_book_carousel
                 current_page = comic_book_carousel.current_slide.comic_page + 1
@@ -1089,7 +1127,7 @@ class ComicBookScreenView(BaseScreenView):
                         except AttributeError:
                             pass
 
-    def load_user_current_page(self,dt):
+    def load_user_current_page(self, dt):
         for slide in self.ids.comic_book_carousel.slides:
             if slide.open_this_page:
                 self.ids.comic_book_carousel.load_slide(slide)
@@ -1122,6 +1160,8 @@ class ComicBookScreenView(BaseScreenView):
     def load_next_slide(self):
         comic_book_carousel = self.ids.comic_book_carousel
         comic_scatter = comic_book_carousel.current_slide
+
+
         if self.use_sections:
             if comic_book_carousel.next_slide is None:
                 if self.next_dialog_open is False:
@@ -1136,6 +1176,12 @@ class ComicBookScreenView(BaseScreenView):
                     self.close_next_dialog()
                 return
             else:
+                if self.stream_comic_pages == '1':
+                    new_comic_page = self.current_comic_page + 1
+                    self.current_comic_page = new_comic_page
+                    comic_car = self.ids.comic_book_carousel
+                    self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
+                                  i=new_comic_page, comic_obj=self.comic_obj, load_place_holder=False)
                 comic_book_carousel.load_next()
                 return
         else:
@@ -1158,6 +1204,12 @@ class ComicBookScreenView(BaseScreenView):
                     self.close_next_dialog()
                 return
             else:
+                if self.stream_comic_pages == '1':
+                    new_comic_page = self.current_comic_page + 1
+                    self.current_comic_page = new_comic_page
+                    comic_car = self.ids.comic_book_carousel
+                    self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
+                                  i=new_comic_page, comic_obj=self.comic_obj, load_place_holder=False)
                 comic_book_carousel.load_next()
 
     def load_prev_slide(self):

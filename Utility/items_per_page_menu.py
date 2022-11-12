@@ -36,10 +36,8 @@ def item_per_menu_callback(text_item):
     new_item_per_page = text_item
     MDApp.get_running_app().item_per_page = new_item_per_page
     screen.item_per_page = new_item_per_page
-    print(f"{new_item_per_page =}")
     screen.app.config.set("General", "max_item_per_page", new_item_per_page)
     screen.app.config.write()
-    print(f"{screen.name =}")
     if screen.name == "r l comic books screen":
         screen.collect_readinglist_data(
             new_page_num=int(screen.current_page) - 1,

@@ -89,11 +89,18 @@ settings_json_server = json.dumps(
         },
         {
             "type": "bool",
-            "title": "Open Last Comic at Start",
-            "desc": "Open last comic at application startup",
+            "title": "Stream Comic Pages",
+            "desc": "In Comic Reader Stream Pages",
             "section": "General",
-            "key": "open_last_comic_startup",
+            "key": "stream_comic_pages",
         },
+        # {
+        #     "type": "bool",
+        #     "title": "Open Last Comic at Start",
+        #     "desc": "Open last comic at application startup",
+        #     "section": "General",
+        #     "key": "open_last_comic_startup",
+        # },
     ]
 )
 
