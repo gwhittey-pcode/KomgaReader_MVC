@@ -1,8 +1,9 @@
 name: Build
 on:
   push:
+    # Sequence of patterns matched against refs/tags
     tags:
-      - v1.**
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   build_android:
@@ -27,8 +28,23 @@ jobs:
           #workdir: ../../.
           # Version of Buildozer to install. By default installs latest release
           buildozer_version: stable
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+      #- name: Upload artifacts
+        #uses: actions/upload-artifact@v2
+        #with:
+          #name: package
+          #path: ${{ steps.buildozer.outputs.filename }}
+        
