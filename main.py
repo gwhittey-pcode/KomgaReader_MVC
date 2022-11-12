@@ -130,7 +130,7 @@ class KomgaReader(MDApp):
                 "mag_glass_size": 200,
                 "right2left": 0,
                 "dblpagesplit": "0",
-                "stretch_image": "0",
+                "stretch_image": "1",
                 "keep_ratio": "0",
                 "reading_list_icon_size": "Small",
                 "max_comic_pages_limit": 50,
