@@ -266,7 +266,7 @@ class ComicBookPageImage(MyAsyncImage):
     proxyImage = ObjectProperty()
     id = StringProperty()
     extra_headers = DictProperty()
-
+    is_place_holder = StringProperty()
     def __init__(self, **kwargs):
         super(ComicBookPageImage, self).__init__(**kwargs)
         extra_headers = kwargs.get('extra_headers')
@@ -600,13 +600,23 @@ class ComicBookPageThumb(ButtonBehavior, MyAsyncImage):
         page_nav_popup = app.manager_screens.current_screen.page_nav_popup
         page_nav_popup.dismiss()
         carousel = app.manager_screens.current_screen.ids.comic_book_carousel
-        if stream_comic_pages:
-
-            toast("Not implemented")
-            # i = self.comic_page-1
-            # comic_car = screen.ids.comic_book_carousel
-            # screen.add_page(comic_book_carousel=comic_car, outer_grid=screen.outer_grid,
-            #               i=i, comic_obj=screen.comic_obj, load_place_holder=False, insert=True)
+        if screen.stream_comic_pages == '1':
+            # toast("Not implemented")
+            i = self.comic_page
+            comic_car = screen.ids.comic_book_carousel
+            s_url_part = f"/api/v1/books/{screen.comic_obj.Id}/pages/{i}?zero_based=true"
+            src_img = f"{screen.app.base_url}{s_url_part}"
+            for item in screen.comic_page_ids:
+                if item["pid"] == i:
+                    if item['comic_page_obj'].is_place_holder != "no":
+                        item['comic_page_obj'].source = src_img
+                        item['comic_page_obj'].is_place_holder = "no"
+                    screen.current_comic_page = i
+                    for slide in carousel.slides:
+                        if slide.comic_page == self.comic_page:
+                            use_slide = slide
+                            carousel.load_slide(use_slide)
+                            return
         else:
             for slide in carousel.slides:
                 if slide.comic_page == self.comic_page:

@@ -135,6 +135,7 @@ class ComicBookScreenView(BaseScreenView):
     stream_comic_pages = BooleanProperty()
     current_comic_page = NumericProperty(0)
     pages_data = ListProperty()
+    comic_page_ids = ListProperty()
 
     def __init__(self, **kwargs):
         super(ComicBookScreenView, self).__init__(**kwargs)
@@ -292,6 +293,7 @@ class ComicBookScreenView(BaseScreenView):
             self.use_sections = False
             if self.stream_comic_pages == '1':
                 self.add_page(comic_book_carousel, self.outer_grid, comic_obj, 0)
+                self.stream_page()
             else:
                 for i in range(0, number_pages):
                     self.add_page(comic_book_carousel, self.outer_grid, comic_obj, i)
@@ -379,6 +381,7 @@ class ComicBookScreenView(BaseScreenView):
             page_data = results[i]
             __build_page(this_page_data=page_data)
 
+        is_place_holder = "no"
         strech_image = MDApp.get_running_app().config.get(
             "Display", "stretch_image"
         )
@@ -410,6 +413,8 @@ class ComicBookScreenView(BaseScreenView):
             if self.stream_comic_pages == '1':
                 if load_place_holder:
                     comic_page_source = "assets/no_cover.jpg"
+                    is_place_holder = "yes"
+
                 else:
                     comic_page_source = f"{self.app.base_url}{s_url_part}"
             else:
@@ -421,8 +426,10 @@ class ComicBookScreenView(BaseScreenView):
             keep_ratio=s_keep_ratio,
             comic_page=i,
             source=comic_page_source,
-            extra_headers={"Cookie": self.strCookie}
+            extra_headers={"Cookie": self.strCookie},
+            is_place_holder =is_place_holder
         )
+        self.comic_page_ids.append({"pid": i, "comic_page_obj": comic_page_image})
         comic_page_scatter.add_widget(comic_page_image)
 
         if insert:
@@ -487,11 +494,17 @@ class ComicBookScreenView(BaseScreenView):
 
     def stream_page(self, current_comic_page=0):
         self.__build_page_nav()
-        # number_pages = int(self.comic_obj.PageCount)
-        # for i in range(2, number_pages):
-        #     comic_car = self.ids.comic_book_carousel
-        #     self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
-        #                   i=i, comic_obj=self.comic_obj, load_place_holder=True)
+        number_pages = int(self.comic_obj.PageCount)
+        comic_car = self.ids.comic_book_carousel
+        for i in range(1, number_pages):
+            self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
+                          i=i, comic_obj=self.comic_obj, load_place_holder=True)
+        s_url_part = f"/api/v1/books/{self.comic_obj.Id}/pages/0?zero_based=true"
+        src_img = f"{self.app.base_url}{s_url_part}"
+        for item in self.comic_page_ids:
+            if item["pid"] == 0:
+                item['comic_page_obj'].source = src_img
+                item['comic_page_obj'].is_place_holder = "no"
 
     def collect_readinglist_data(self, readinglist_id="", current_page_num=0, new_page_num=0, screen_setup=False):
         """Collect Reaing List Date From Server """
@@ -1128,9 +1141,23 @@ class ComicBookScreenView(BaseScreenView):
                             pass
 
     def load_user_current_page(self, dt):
+        i = 0
         for slide in self.ids.comic_book_carousel.slides:
             if slide.open_this_page:
+                if self.stream_comic_pages == '1':
+                    self.current_comic_page = i
+                    comic_car = self.ids.comic_book_carousel
+                    s_url_part = f"/api/v1/books/{self.comic_obj.Id}/pages/{i}?zero_based=true"
+                    src_img = f"{self.app.base_url}{s_url_part}"
+                    for item in self.comic_page_ids:
+                        if item["pid"] == i:
+                            if item['comic_page_obj'].is_place_holder != "no":
+                                item['comic_page_obj'].source = src_img
+                                item['comic_page_obj'].is_place_holder = "no"
+                            else:
+                                pass
                 self.ids.comic_book_carousel.load_slide(slide)
+            i += 1
 
     def page_nav_popup_open(self):
         self.page_nav_popup.open()
@@ -1161,7 +1188,6 @@ class ComicBookScreenView(BaseScreenView):
         comic_book_carousel = self.ids.comic_book_carousel
         comic_scatter = comic_book_carousel.current_slide
 
-
         if self.use_sections:
             if comic_book_carousel.next_slide is None:
                 if self.next_dialog_open is False:
@@ -1180,9 +1206,16 @@ class ComicBookScreenView(BaseScreenView):
                     new_comic_page = self.current_comic_page + 1
                     self.current_comic_page = new_comic_page
                     comic_car = self.ids.comic_book_carousel
-                    self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
-                                  i=new_comic_page, comic_obj=self.comic_obj, load_place_holder=False)
-                comic_book_carousel.load_next()
+                    s_url_part = f"/api/v1/books/{self.comic_obj.Id}/pages/{new_comic_page}?zero_based=true"
+                    src_img = f"{self.app.base_url}{s_url_part}"
+                    for item in self.comic_page_ids:
+                        if item["pid"] == new_comic_page:
+                            if item['comic_page_obj'].is_place_holder != "no":
+                                item['comic_page_obj'].source = src_img
+                                item['comic_page_obj'].is_place_holder = "no"
+                            else:
+                                pass
+                    comic_book_carousel.load_next()
                 return
         else:
             if (
@@ -1208,8 +1241,15 @@ class ComicBookScreenView(BaseScreenView):
                     new_comic_page = self.current_comic_page + 1
                     self.current_comic_page = new_comic_page
                     comic_car = self.ids.comic_book_carousel
-                    self.add_page(comic_book_carousel=comic_car, outer_grid=self.outer_grid,
-                                  i=new_comic_page, comic_obj=self.comic_obj, load_place_holder=False)
+                    s_url_part = f"/api/v1/books/{self.comic_obj.Id}/pages/{new_comic_page}?zero_based=true"
+                    src_img = f"{self.app.base_url}{s_url_part}"
+                    for item in self.comic_page_ids:
+                        if item["pid"] == new_comic_page:
+                            if item['comic_page_obj'].is_place_holder != "no":
+                                item['comic_page_obj'].source = src_img
+                                item['comic_page_obj'].is_place_holder = "no"
+                            else:
+                                pass
                 comic_book_carousel.load_next()
 
     def load_prev_slide(self):
@@ -1232,6 +1272,19 @@ class ComicBookScreenView(BaseScreenView):
                     self.close_prev_dialog()
                 return
             else:
+                if self.stream_comic_pages == '1':
+                    new_comic_page = self.current_comic_page - 1
+                    self.current_comic_page = new_comic_page
+                    comic_car = self.ids.comic_book_carousel
+                    s_url_part = f"/api/v1/books/{self.comic_obj.Id}/pages/{new_comic_page}?zero_based=true"
+                    src_img = f"{self.app.base_url}{s_url_part}"
+                    for item in self.comic_page_ids:
+                        if item["pid"] == new_comic_page:
+                            if item['comic_page_obj'].is_place_holder != "no":
+                                item['comic_page_obj'].source = src_img
+                                item['comic_page_obj'].is_place_holder = "no"
+                            else:
+                                pass
                 comic_book_carousel.load_previous()
                 return
         else:
@@ -1251,6 +1304,19 @@ class ComicBookScreenView(BaseScreenView):
                     self.close_prev_dialog()
                 return
             else:
+                if self.stream_comic_pages == '1':
+                    new_comic_page = self.current_comic_page - 1
+                    self.current_comic_page = new_comic_page
+                    comic_car = self.ids.comic_book_carousel
+                    s_url_part = f"/api/v1/books/{self.comic_obj.Id}/pages/{new_comic_page}?zero_based=true"
+                    src_img = f"{self.app.base_url}{s_url_part}"
+                    for item in self.comic_page_ids:
+                        if item["pid"] == new_comic_page:
+                            if item['comic_page_obj'].is_place_holder != "no":
+                                item['comic_page_obj'].source = src_img
+                                item['comic_page_obj'].is_place_holder = "no"
+                            else:
+                                pass
                 comic_book_carousel.load_previous()
                 return
                 ######

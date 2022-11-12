@@ -56,7 +56,6 @@ class FilterPopupContent(StackLayout):
                     tmp_filter_list += f"&{filter_type}={a_filter_part}"
                 else:
                     tmp_filter_list += f"&{filter_type}={urllib.parse.quote(item[filter_type]['value'])}"
-        print(f"{tmp_filter_list = }")
         MDApp.get_running_app().filter_string = tmp_filter_list
         if screen.name == "r l comic books screen":
             screen.collect_readinglist_data(readinglist_name=screen.readinglist_name,
@@ -79,7 +78,7 @@ class FilterPopupContent(StackLayout):
 
         app.filter_string = ""
         app.filter_list.clear()
-        print(f"{app.filter_list =}")
+
 class MyMDExpansionPanel(CustomeMDExpansionPanel):
     pid = StringProperty("MDExpanis")
 
@@ -233,7 +232,6 @@ class SortTypeList(OneLineAvatarIconListItem):
         return f"{self.id}({self.filter_type})"
 
     def set_sort(self):
-        print(f"{self.id =}")
         if self.what_chevron == "down":
             self.what_chevron = "up"
             sort_dir = "asc"
@@ -247,7 +245,6 @@ class SortTypeList(OneLineAvatarIconListItem):
 
         i = 0
         for item in MDApp.get_running_app().filter_list:
-            print(f"{item = }")
             for x, filter_type in enumerate(item.keys()):
                 if filter_type == "sort":
                     action = "remove"
@@ -261,4 +258,3 @@ class SortTypeList(OneLineAvatarIconListItem):
         for child in self.parent.children:
             if child.id != self.id:
                 child.what_chevron = ""
-        print(f"{MDApp.get_running_app().filter_list =}")
