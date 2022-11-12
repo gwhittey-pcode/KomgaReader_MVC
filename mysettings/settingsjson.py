@@ -129,14 +129,14 @@ settings_json_dispaly = json.dumps(
             "section": "Display",
             "key": "stretch_image",
         },
-        {
-            "type": "options",
-            "title": "Reading List Page Cover Icon Size",
-            "desc": "Size of Reading List Page Cover Icon",
-            "section": "Display",
-            "key": "reading_list_icon_size",
-            "options": ["X-Large", "Large", "Medium", "Small"],
-        },
+        # {
+        #     "type": "options",
+        #     "title": "Reading List Page Cover Icon Size",
+        #     "desc": "Size of Reading List Page Cover Icon",
+        #     "section": "Display",
+        #     "key": "reading_list_icon_size",
+        #     "options": ["X-Large", "Large", "Medium", "Small"],
+        # },
         {
             "type": "numeric",
             "title": "Max Pages to Load",
@@ -144,23 +144,23 @@ settings_json_dispaly = json.dumps(
             "section": "Display",
             "key": "max_comic_pages_limit",
         },
-        {
-            "type": "options",
-            "title": "Maximum Page Height",
-            "desc": "Maximum Page Height to Download",
-            "section": "Display",
-            "key": "max_height",
-            "options": [
-                "Use Original Size",
-                "Use Window Size",
-                "2000",
-                "1500",
-                "1280",
-                "1200",
-                "1024",
-                "800",
-            ],
-        },
+        # {
+        #     "type": "options",
+        #     "title": "Maximum Page Height",
+        #     "desc": "Maximum Page Height to Download",
+        #     "section": "Display",
+        #     "key": "max_height",
+        #     "options": [
+        #         "Use Original Size",
+        #         "Use Window Size",
+        #         "2000",
+        #         "1500",
+        #         "1280",
+        #         "1200",
+        #         "1024",
+        #         "800",
+        #     ],
+        # },
     ]
 )
 
