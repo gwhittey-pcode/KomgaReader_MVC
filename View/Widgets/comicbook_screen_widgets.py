@@ -26,6 +26,8 @@ from kivy.uix.scatter import Scatter
 from kivy.vector import Vector
 from math import radians
 
+from kivymd.toast import toast
+
 
 class MagnifyingGlassScatter(Scatter):
     id = StringProperty()
@@ -593,14 +595,24 @@ class ComicBookPageThumb(ButtonBehavior, MyAsyncImage):
 
     def click(self, instance):
         app = App.get_running_app()
+        screen = app.manager_screens.current_screen
+        stream_comic_pages = screen.stream_comic_pages
         page_nav_popup = app.manager_screens.current_screen.page_nav_popup
         page_nav_popup.dismiss()
         carousel = app.manager_screens.current_screen.ids.comic_book_carousel
-        for slide in carousel.slides:
-            if slide.comic_page == self.comic_page:
-                use_slide = slide
-                carousel.load_slide(use_slide)
-                return
+        if stream_comic_pages:
+
+            toast("Not implemented")
+            # i = self.comic_page-1
+            # comic_car = screen.ids.comic_book_carousel
+            # screen.add_page(comic_book_carousel=comic_car, outer_grid=screen.outer_grid,
+            #               i=i, comic_obj=screen.comic_obj, load_place_holder=False, insert=True)
+        else:
+            for slide in carousel.slides:
+                if slide.comic_page == self.comic_page:
+                    use_slide = slide
+                    carousel.load_slide(use_slide)
+                    return
 
 
 class CommonComicsScroll(ScrollView):

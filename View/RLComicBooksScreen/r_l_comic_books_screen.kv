@@ -6,7 +6,7 @@
     font_style: 'Subtitle1'
     id:menu_open
     on_release:
-        if self.do_action is 'read': self.open_comic()
+        if self.do_action == 'read': self.open_comic()
         else: self.amenu_open()
 
 <SyncButtonIcon>
