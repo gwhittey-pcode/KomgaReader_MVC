@@ -159,7 +159,6 @@ class ReadingListScreenView(ComicListsBaseScreenView):
         if self.loading_done is True:
             return
         self.get_server_lists()
-        print(f"{self.apps =}")
 
     def my_width_callback(self, obj, value):
         for key, val in self.ids.items():

@@ -194,15 +194,13 @@ class CollectionComicsScreenView(ComicListsBaseScreenView):
         self.get_server_lists(new_page_num=this_page)
 
     async def get_collection_publishers(self):
-        print("Start")
+
 
         def __got_server_data(result):
             for publisher in result:
                 self.collection_publisher_list.append(publisher)
-            print(f"{self.collection_publisher_list = }")
 
         url_send = f"{self.base_url}/api/v1/publishers?collection_id={self.collection_id}"
-        print(f"{url_send =}")
         fetch_data = ComicServerConn()
         fetch_data.get_server_data_callback(
             url_send, callback=lambda url_send, results: __got_server_data(results)

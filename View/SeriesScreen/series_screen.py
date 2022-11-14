@@ -62,8 +62,6 @@ class SeriesScreenView(ComicListsBaseScreenView):
         self.app = MDApp.get_running_app()
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.base_url = self.app.base_url
-        print(self.app.letter_count["#"])
-
         self.get_server_lists()
 
     def my_width_callback(self, obj, value):
@@ -76,7 +74,6 @@ class SeriesScreenView(ComicListsBaseScreenView):
         def __get_server_lists(req,results):
             t_rl_comics_json = ""
             t_rl_comics_json = results['content']
-            print(f"{t_rl_comics_json =}")
             if not t_rl_comics_json:
                 toast("No Items Found with Filter Settings")
                 return
@@ -104,7 +101,6 @@ class SeriesScreenView(ComicListsBaseScreenView):
                     search_regex = f"&search_regex={urllib.parse.quote(part_rex)}"
                 url_send = f"{url_send}{search_regex}"
                 url_send = url_send.replace(" ", "")
-            print(f"{url_send =}")
             str_cookie = "SESSION=" + self.app.config.get("General", "api_key")
             head = {
                 "Content-type": "application/x-www-form-urlencoded",

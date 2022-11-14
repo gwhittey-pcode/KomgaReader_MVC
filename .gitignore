@@ -135,7 +135,7 @@ dmypy.json
 /KomgaReader2.ini
 /.idea/KomgaReader_MVC.iml
 /komgareader_mvc.ini
-
+./buildozer
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/inspectionProfiles/profiles_settings.xml

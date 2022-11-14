@@ -262,7 +262,6 @@ class KomgaReader(MDApp):
             self.get_letter_groups()
             self.get_gen_publishers()
             self.get_gen_release_dates()
-        print(f"{self.stream_comic_pages =}")
         return self.manager_screens
 
     def generate_application_screens(self) -> None:
@@ -440,10 +439,11 @@ class KomgaReader(MDApp):
             on_failure=self.got_error,
         )
 
-    async def get_letter_groups(self):
+    def get_letter_groups(self):
+        print("Start LEtter")
         self.letter_count = {}
-
         def __got_server_data(req, result):
+            print("GOT Letter")
             num_count = 0
             series_count = 0
             for item in result:
