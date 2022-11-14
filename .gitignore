@@ -143,3 +143,6 @@ dmypy.json
 .buildozer/
 /bin
 /komgareader.ini
+Model/__pycache__/__init__.cpython-310.pyc
+atest.py
+Model/__pycache__/__init__.cpython-310.pyc
