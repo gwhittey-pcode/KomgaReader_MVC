@@ -213,6 +213,7 @@ class ComicBookScreenView(BaseScreenView):
         self.last_load = last_load
         self.app.open_comic_screen = "None"
         self.reload_top_nav = False
+        self.pages_data = ""
         self.session_cookie = self.app.config.get("General", "api_key")
         self.strCookie = 'SESSION=' + self.session_cookie
         last_comic_type = "Server"
