@@ -79,7 +79,7 @@ class TopNavContent(MDBoxLayout):
     current_page = NumericProperty()
     item_per_page = StringProperty()
     comiclist_obj = ObjectProperty()
-
+    page_thumb_list = ListProperty()
     def __init__(self, **kwargs):
         super(TopNavContent, self).__init__(**kwargs)
         self.screen = MDApp.get_running_app().manager_screens.current_screen
@@ -136,7 +136,7 @@ class ComicBookScreenView(BaseScreenView):
     current_comic_page = NumericProperty(0)
     pages_data = ListProperty()
     comic_page_ids = ListProperty()
-
+    top_nav_obj_list = ListProperty()
     def __init__(self, **kwargs):
         super(ComicBookScreenView, self).__init__(**kwargs)
         self.screen_setup = False
@@ -214,6 +214,7 @@ class ComicBookScreenView(BaseScreenView):
         self.app.open_comic_screen = "None"
         self.reload_top_nav = False
         self.pages_data = ""
+        self.page_thumb_list = []
         self.session_cookie = self.app.config.get("General", "api_key")
         self.strCookie = 'SESSION=' + self.session_cookie
         last_comic_type = "Server"
@@ -481,14 +482,21 @@ class ComicBookScreenView(BaseScreenView):
             page_thumb.height = dp(240)
             inner_grid.add_widget(page_thumb)
             page_thumb.bind(on_release=page_thumb.click)
+            the_text_color = (0, 0, 0, 1)
+            if i == 0:
+                md_bg_color = (1,.84,0,1)
+            else:
+                md_bg_color = self.app.theme_cls.primary_color
             smbutton = ThumbPopPagebntlbl(
                 text="P%s" % str(i + 1),
                 padding=(0, 0),
                 id=f"page_thumb_lbl{i}",
                 comic_slug=comic_obj.slug,
                 comic_page=i,
-                text_color=(0, 0, 0, 1),
+                text_color=the_text_color,
+                md_bg_color=md_bg_color,
             )
+            self.page_thumb_list.append(smbutton)
             inner_grid.add_widget(smbutton)
             smbutton.bind(on_release=smbutton.click)
             outer_grid.add_widget(inner_grid)
@@ -612,6 +620,7 @@ class ComicBookScreenView(BaseScreenView):
                     source=src_thumb, id=str(comic.Id), comic_obj=comic,
                     extra_headers={"Cookie": self.strCookie, }
                 )
+                self.top_nav_obj_list.append(comic_thumb)
                 if self.view_mode == "FileOpen":
                     comic_thumb.mode = "FileOpen"
                 elif self.view_mode == "Sync":
@@ -626,6 +635,10 @@ class ComicBookScreenView(BaseScreenView):
                 comic_thumb.bind(on_release=self.top_pop.dismiss)
                 comic_thumb.bind(on_release=comic_thumb.open_collection)
                 # smbutton = CommonComicsCoverLabel(text=comic_name)
+                if comic.Id == self.comic_obj.Id:
+                    md_bg_color = (1, .84, 0, 1)
+                else:
+                    md_bg_color = self.app.theme_cls.primary_color
                 smbutton = ThumbPopPagebntlbl(
                     text=comic_name,
 
@@ -634,6 +647,7 @@ class ComicBookScreenView(BaseScreenView):
                     comic_slug=comic.slug,
                     font_size=10.5,
                     text_color=(0, 0, 0, 1),
+                    md_bg_color=md_bg_color,
                 )
                 inner_grid.add_widget(smbutton)
                 smbutton.bind(on_release=self.top_pop.dismiss)
@@ -1114,11 +1128,18 @@ class ComicBookScreenView(BaseScreenView):
         else:
             def updated_progress(results):
                 pass
-
             if index is not None:
                 comic_book_carousel = self.ids.comic_book_carousel
                 current_page = comic_book_carousel.current_slide.comic_page + 1
                 comic_obj = self.comic_obj
+                for item in self.page_thumb_list:
+                    try:
+                        if item.comic_page == current_page -1:
+                            item.md_bg_color = (1, .84, 0, 1)
+                        else:
+                            item.md_bg_color = self.app.theme_cls.primary_color
+                    except ValueError:
+                        pass
                 if current_page >= comic_obj.PageCount:
                     completed = 'true'
                 else:

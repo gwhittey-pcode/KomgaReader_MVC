@@ -534,7 +534,6 @@ class ThumbPopPagebntlbl(MDRaisedButton):
     fetch_data = ObjectProperty()
     comic_page = NumericProperty()
     id = StringProperty()
-
     def __init__(self, **kwargs):
         super(ThumbPopPagebntlbl, self).__init__(**kwargs)
 
