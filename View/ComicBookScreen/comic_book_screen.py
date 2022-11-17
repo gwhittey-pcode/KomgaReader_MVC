@@ -80,6 +80,7 @@ class TopNavContent(MDBoxLayout):
     item_per_page = StringProperty()
     comiclist_obj = ObjectProperty()
     page_thumb_list = ListProperty()
+
     def __init__(self, **kwargs):
         super(TopNavContent, self).__init__(**kwargs)
         self.screen = MDApp.get_running_app().manager_screens.current_screen
@@ -137,6 +138,7 @@ class ComicBookScreenView(BaseScreenView):
     pages_data = ListProperty()
     comic_page_ids = ListProperty()
     top_nav_obj_list = ListProperty()
+
     def __init__(self, **kwargs):
         super(ComicBookScreenView, self).__init__(**kwargs)
         self.screen_setup = False
@@ -430,7 +432,7 @@ class ComicBookScreenView(BaseScreenView):
             comic_page=i,
             source=comic_page_source,
             extra_headers={"Cookie": self.strCookie},
-            is_place_holder =is_place_holder
+            is_place_holder=is_place_holder
         )
         self.comic_page_ids.append({"pid": i, "comic_page_obj": comic_page_image})
         comic_page_scatter.add_widget(comic_page_image)
@@ -485,7 +487,7 @@ class ComicBookScreenView(BaseScreenView):
             page_thumb.bind(on_release=page_thumb.click)
             the_text_color = (0, 0, 0, 1)
             if i == 0:
-                md_bg_color = (1,.84,0,1)
+                md_bg_color = (1, .84, 0, 1)
             else:
                 md_bg_color = self.app.theme_cls.primary_color
             smbutton = ThumbPopPagebntlbl(
@@ -553,13 +555,13 @@ class ComicBookScreenView(BaseScreenView):
                 pass
         new_readinglist_reversed = self.new_readinglist.comics[::-1]
         self.comiclist_obj = self.new_readinglist
-        self.build_top_nav()
+        asynckivy.start(self.build_top_nav())
         if self.screen_setup:
             self.get_next_comic()
             self.get_prev_comic()
         self.screen_setup = False
 
-    def build_top_nav(self):
+    async def build_top_nav(self):
         """
         Build the top popup that contains the readnglist comics
         and links via cover image to open
@@ -606,7 +608,7 @@ class ComicBookScreenView(BaseScreenView):
                     or self.view_mode == "FileOpen"
             ):
                 comic_name = str(comic.__str__)
-                s_url_part = f"/api/v1/books/{comic.Id}/pages/1/thumbnail"  # noqa
+                s_url_part = f"/api/v1/books/{comic.Id}/thumbnail"  # noqa
                 if self.view_mode == "FileOpen" or (
                         self.view_mode == "Sync" and comic.is_sync
                 ):
@@ -1129,13 +1131,14 @@ class ComicBookScreenView(BaseScreenView):
         else:
             def updated_progress(results):
                 pass
+
             if index is not None:
                 comic_book_carousel = self.ids.comic_book_carousel
                 current_page = comic_book_carousel.current_slide.comic_page + 1
                 comic_obj = self.comic_obj
                 for item in self.page_thumb_list:
                     try:
-                        if item.comic_page == current_page -1:
+                        if item.comic_page == current_page - 1:
                             item.md_bg_color = (1, .84, 0, 1)
                         else:
                             item.md_bg_color = self.app.theme_cls.primary_color

@@ -251,18 +251,24 @@ class KomgaReader(MDApp):
         self.set_value_from_config()
         self.config.add_callback(self.config_callback)
         start_db()
+        self.ordered_letter_count = []
+        self.gen_publisher_list = []
+        self.gen_release_dates = []
         path = os.path.dirname(__file__)
         icon_path = os.path.join(path, f"data{os.sep}")
-        self.icon = os.path.join(icon_path, f"icon.png")
-        self.theme_cls.primary_palette = "Cyan"
-        self.theme_cls.theme_style = "Light"
-        self.theme_cls.material_style = "M3"
-        self.generate_application_screens()
         if self.api_key != "":
             self.get_letter_groups()
             self.get_gen_publishers()
             self.get_gen_release_dates()
-        return self.manager_screens
+        self.icon = os.path.join(icon_path, f"icon.png")
+        self.theme_cls.primary_palette = "Cyan"
+        self.theme_cls.theme_style = "Light"
+        self.theme_cls.material_style = "M3"
+        while self.ordered_letter_count :
+            pass
+        else:
+            self.generate_application_screens()
+            return self.manager_screens
 
     def generate_application_screens(self) -> None:
         """
@@ -440,8 +446,8 @@ class KomgaReader(MDApp):
         )
 
     def get_letter_groups(self):
-        print("Start LEtter")
         self.letter_count = {}
+
         def __got_server_data(req, result):
             print("GOT Letter")
             num_count = 0
@@ -479,8 +485,8 @@ class KomgaReader(MDApp):
         else:
             self.config.set("General", "stream_comic_pages", '0')
             self.stream_comic_pages = '0'
-
         self.config.write()
+
     def got_error(self, req, results):
         Logger.critical("----got_error--")
         Logger.critical("ERROR in %s %s" % (inspect.stack()[0][3], results))
