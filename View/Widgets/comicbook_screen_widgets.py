@@ -370,7 +370,7 @@ class ComicBookPageImage(MyAsyncImage):
             if comic_obj.PageCount - 1 == var_i:
                 app = App.get_running_app()
                 s_screen = app.manager_screens.get_screen("comic book screen")
-                s_screen.load_user_current_page()
+                Clock.schedule_once(screen.load_user_current_page)
 
 
 class ComicCarousel(Carousel):
@@ -539,13 +539,34 @@ class ThumbPopPagebntlbl(MDRaisedButton):
 
     def click(self, instance):
         app = App.get_running_app()
+        screen = app.manager_screens.current_screen
+        stream_comic_pages = screen.stream_comic_pages
         page_nav_popup = app.manager_screens.current_screen.page_nav_popup
         page_nav_popup.dismiss()
         carousel = app.manager_screens.current_screen.ids.comic_book_carousel
-        for slide in carousel.slides:
-            if slide.comic_page == self.comic_page:
-                use_slide = slide
-        carousel.load_slide(use_slide)
+        if screen.stream_comic_pages == '1':
+            # toast("Not implemented")
+            i = self.comic_page
+            comic_car = screen.ids.comic_book_carousel
+            s_url_part = f"/api/v1/books/{screen.comic_obj.Id}/pages/{i}?zero_based=true"
+            src_img = f"{screen.app.base_url}{s_url_part}"
+            for item in screen.comic_page_ids:
+                if item["pid"] == i:
+                    if item['comic_page_obj'].is_place_holder != "no":
+                        item['comic_page_obj'].source = src_img
+                        item['comic_page_obj'].is_place_holder = "no"
+                    screen.current_comic_page = i
+                    for slide in carousel.slides:
+                        if slide.comic_page == self.comic_page:
+                            use_slide = slide
+                            carousel.load_slide(use_slide)
+                            return
+        else:
+            for slide in carousel.slides:
+                if slide.comic_page == self.comic_page:
+                    use_slide = slide
+                    carousel.load_slide(use_slide)
+                    return
 
 
 class ThumbPopPageSmallButton(Button):
