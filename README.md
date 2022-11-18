@@ -1,2 +1,2 @@
 # KomgaReader_MVC
-T
+@
