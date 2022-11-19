@@ -35,6 +35,7 @@ class ComicListsBaseScreenView(BaseScreenView):
         self.tcontent = None
 
     def on_pre_enter(self):
+        self.show_filter = False
         self.app = MDApp.get_running_app()
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.base_url = self.app.base_url
@@ -64,12 +65,14 @@ class ComicListsBaseScreenView(BaseScreenView):
         #     separator_height=0
         # )
         item_per_menu_build()
-        if screen.name == "collection comics screen":
+        if self.show_filter:
             if self.filter_popup is None:
                 self.build_filter_popup()
 
     def build_filter_popup(self):
+        print("1")
         async def _build_filter_popup():
+            print("2")
             self.tcontent = FilterPopupContent()
             # Add Publisher filter
             self.read_progress_content = ReadProgressPanel()

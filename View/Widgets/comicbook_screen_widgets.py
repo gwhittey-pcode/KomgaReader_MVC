@@ -362,15 +362,15 @@ class ComicBookPageImage(MyAsyncImage):
                         _remove_widget()
                         _add_parts()
                     i += 1
-                screen = MDApp.get_running_app().manager_screens.current_screen
-                Clock.schedule_once(screen.load_user_current_page)
+                s_screen = MDApp.get_running_app().manager_screens.current_screen
+                Clock.schedule_once(s_screen.load_user_current_page)
             else:
                 if p_width > p_height:
                     scatter.size_hint = (2, 1)
             if comic_obj.PageCount - 1 == var_i:
                 app = App.get_running_app()
                 s_screen = app.manager_screens.get_screen("comic book screen")
-                Clock.schedule_once(screen.load_user_current_page)
+                Clock.schedule_once(s_screen.load_user_current_page)
 
 
 class ComicCarousel(Carousel):
