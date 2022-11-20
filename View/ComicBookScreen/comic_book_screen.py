@@ -164,7 +164,7 @@ class ComicBookScreenView(BaseScreenView):
         self.scroller = None
         config_app = MDApp.get_running_app()
         settings_data = json.loads(settings_json_screen_tap_control)
-        # Window.bind(on_keyboard=self.events_program)
+        Window.bind(on_keyboard=self.app.events_program)
         for setting in settings_data:
             if setting["type"] == "options":
                 tap_config = config_app.config.get(

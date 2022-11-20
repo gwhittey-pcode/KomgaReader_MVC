@@ -45,7 +45,14 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
         if comic_obj is None:
             pass
         else:
+
             self.comic_obj = comic_obj
+            try:
+                if self.comic_obj.completed:
+                    self.ids.completed_icon.opacity = 1
+                    self.ids.completed_icon.disabled = 0
+            except ValueError:
+                pass
             readProgress_page = self.comic_obj.readProgress_page
             PageCount = comic_obj.PageCount
             if PageCount > 2:

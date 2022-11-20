@@ -69,7 +69,7 @@ class KomgaReader(MDApp):
     gen_publisher_list = ListProperty()
     gen_release_dates = ListProperty()
     stream_comic_pages = BooleanProperty()
-
+    download_que = ListProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.letter_count = None
@@ -89,6 +89,9 @@ class KomgaReader(MDApp):
         self.config = ConfigParser()
         self.filter_string = ""
         self.filter_list = []
+        self.LIST_SCREENS = ['comic book screen'
+
+        ]
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
 
@@ -326,10 +329,11 @@ class KomgaReader(MDApp):
         )
 
     def events_program(self, instance, keyboard, keycode, text, modifiers):
+        print("KB")
         c = Keyboard()
         """Called when you press a Key"""
         app = MDApp.get_running_app()
-        current_screen = app.manager.current_screen
+        current_screen = app.manager_screens.current_screen
         hk_next_page = app.config.get("Hotkeys", "hk_next_page")
         hk_prev_page = app.config.get("Hotkeys", "hk_prev_page")
         hk_open_page_nav = app.config.get("Hotkeys", "hk_open_page_nav")
@@ -346,7 +350,7 @@ class KomgaReader(MDApp):
             "Hotkeys", "hk_toggle_fullscreen"
         )
         Logger.debug(f"keyboard:{keyboard}")
-        if current_screen.name not in self.LIST_SCREENS:
+        if current_screen.name in self.LIST_SCREENS:
             if keyboard in (c.string_to_keycode(hk_next_page), 275):
                 current_screen.load_next_slide()
             elif keyboard in (c.string_to_keycode(hk_prev_page), 276):
@@ -364,16 +368,16 @@ class KomgaReader(MDApp):
                 app.manager.current = "base"
             elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
                 self.toggle_full_screen()
-        else:
-            if keyboard in (282, 319):
-                pass
-            elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
-                self.toggle_full_screen()
-            elif keyboard == c.string_to_keycode(hk_return_comic_list):
-                app.manager.current = "server_readinglists_screen"
-            elif keyboard == c.string_to_keycode(hk_return_base_screen):
-                app.show_action_bar()
-                app.switch_base_screen()
+        # else:
+            # if keyboard in (282, 319):
+            #     pass
+            # elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
+            #     self.toggle_full_screen()
+            # elif keyboard == c.string_to_keycode(hk_return_comic_list):
+            #     app.manager.current = "server_readinglists_screen"
+            # elif keyboard == c.string_to_keycode(hk_return_base_screen):
+            #     app.show_action_bar()
+            #     app.switch_base_screen()
         return True
 
     def toggle_full_screen(self):

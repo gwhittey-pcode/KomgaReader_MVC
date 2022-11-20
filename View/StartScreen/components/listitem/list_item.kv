@@ -1,0 +1,15 @@
+<BaseListItemWithSwitch>
+    divider: None
+    no_ripple_effect: True
+    on_size: self.ids._right_container.height = dp(64)
+
+    RightSwitchContainer:
+        icon_active: "check"
+        thumb_color_active: "white"
+        thumb_color_inactive: "#606758"
+        track_color_active: app.theme_cls.primary_color
+        track_color_inactive: "#D7DECD"
+        active: True if app.stream_comic_pages == '1' else False
+        icon_active: "wifi"
+        icon_inactive: "wifi-remove"
+        on_active:app.switch_stream(self.active)

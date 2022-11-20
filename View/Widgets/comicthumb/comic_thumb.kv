@@ -26,7 +26,7 @@
 #                    width: 2
 #                    rectangle: self.x, self.y, self.width, self.height
 
-            box_color: 0, 0, 0, .2
+            box_color: 0, 0, 0, .6
             source:root.source
             pos_hint: {"right": 1, "top": 1}
             size_hint: None, None
@@ -34,29 +34,23 @@
             box_position: "header"
             on_release:root.on_short_touch()
             MDIconButton:
-                icon: "checkbox-blank-circle-outline"
-                theme_icon_color: "Custom"
-                icon_color:  app.theme_cls.primary_color
-                pos_hint: {"center_y": .2}
-                icon_size: "30sp"
-                disabled:0
-                on_release: self.icon = "checkbox-marked-circle" if self.icon == "checkbox-blank-circle-outline" else "checkbox-blank-circle-outline"
-            MDIconButton:
                 icon: "download-circle-outline"
                 theme_icon_color: "Custom"
-                icon_color:  app.theme_cls.primary_color
-                pos_hint: {"center_y": .2}
-                icon_size: "30sp"
-                disabled:1
-                opacity:0
-                on_release: self.icon = "download-circle" if self.icon == "download-circle-outline" else "download-circle-outline"
-            MDIconButton:
-                icon: "read"
-                theme_icon_color: "Custom"
-                icon_color:  app.theme_cls.primary_color
+                icon_color:  "yellow"
                 pos_hint: {"center_y": .2}
                 icon_size: "30sp"
                 disabled:0
+                opacity:1
+                on_release: self.icon = "download-circle" if self.icon == "download-circle-outline" else "download-circle-outline"
+            MDIconButton:
+                id:completed_icon
+                icon: "read"
+                theme_icon_color: "Custom"
+                icon_color:  "yellow"
+                pos_hint: {"center_y": .2}
+                icon_size: "30sp"
+                disabled:0
+                opacity:0
                 on_release: self.icon = "download-circle" if self.icon == "download-circle-outline" else "download-circle-outline"
         MDProgressBar:
 
