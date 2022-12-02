@@ -29,7 +29,11 @@ class ComicListsBaseScreenView(BaseScreenView):
     release_date_content = ObjectProperty()
     content_obj_list = ListProperty()
     filter_letter = StringProperty("All")
-
+    is_comic_single = BooleanProperty(False)
+    comic_thumbs_list = ListProperty()
+    show_download_icon = BooleanProperty(False)
+    batch_download = BooleanProperty(False)
+    dl_type = StringProperty()
     def __init__(self, **kwargs):
         super(ComicListsBaseScreenView, self).__init__(**kwargs)
         self.tcontent = None
@@ -40,22 +44,32 @@ class ComicListsBaseScreenView(BaseScreenView):
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
         self.base_url = self.app.base_url
         screen = MDApp.get_running_app().manager_screens.current_screen
-        print(f"{screen.name =}")
+        self.comic_thumbs_list = []
         if screen.name == "series comics screen":
             self.filter_type = "Series Comics"
             self.show_filter = True
+            self.is_comic_single = True
+            self.show_download_icon = True
         elif screen.name == "collection comics screen":
             self.show_filter = True
             self.filter_type = "Collection Comics"
+            self.show_download_icon = False
         elif screen.name == "r l comic books screen":
             self.show_filter = True
             self.filter_type = "ReadinList Comics"
+            self.is_comic_single = True
+            self.show_download_icon = True
         elif screen.name == "reading list screen":
             self.show_filter = False
+            self.show_download_icon = True
+            self.dl_type = "reading list"
         elif screen.name == "collections screen":
             self.show_filter = False
         elif screen.name == "series screen":
             self.show_filter = True
+            self.show_download_icon = True
+            self.batch_download = True
+            self.dl_type = "series"
         # self.content = FilterPopupContent()
         # self.filter_popup =   filter_popup = FilterPopup(
         #     size_hint=(.5, .96),

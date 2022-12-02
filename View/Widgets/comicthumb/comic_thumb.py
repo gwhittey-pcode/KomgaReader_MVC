@@ -36,7 +36,6 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     next_readinglist = ObjectProperty()
     prev_readinglist = ObjectProperty()
     comic_list_type = StringProperty()
-
     def __init__(self, comic_obj=None, current_page=1, **kwargs):
         super(ComicThumb, self).__init__(**kwargs)
         self.source = ""
@@ -45,7 +44,14 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
         if comic_obj is None:
             pass
         else:
+
             self.comic_obj = comic_obj
+            try:
+                if self.comic_obj.completed:
+                    self.ids.completed_icon.opacity = 1
+                    self.ids.completed_icon.disabled = 0
+            except ValueError:
+                pass
             readProgress_page = self.comic_obj.readProgress_page
             PageCount = comic_obj.PageCount
             if PageCount > 2:
@@ -95,17 +101,17 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             readinglist_id = self.item_id
             readinglist_name = self.rl_name
             server_readinglists_screen.list_loaded = False
-            query = ReadingList.select().where(ReadingList.slug == readinglist_id)
-            if query.exists():
-                Logger.info(f"{readinglist_name} already in Database")
-                set_mode = "From DataBase"
-            else:
-                Logger.info(
-                    "{} not in Database getting info from server".format(
-                        readinglist_name
-                    )
-                )
-                set_mode = "From Server"
+            # query = ReadingList.select().where(ReadingList.slug == readinglist_id)
+            # if query.exists():
+            #     Logger.info(f"{readinglist_name} already in Database")
+            #     set_mode = "From DataBase"
+            # else:
+            #     Logger.info(
+            #         "{} not in Database getting info from server".format(
+            #             readinglist_name
+            #         )
+            #     )
+            set_mode = "From Server"
             # set_mode = 'From Server'
             Clock.schedule_once(
                 lambda dt: server_readinglists_screen.collect_readinglist_data(

@@ -106,7 +106,7 @@ class ComicBook(EventDispatcher):
     is_sync = BooleanProperty(False)
     data = DictProperty()
     order_index = NumericProperty()
-
+    completed = BooleanProperty()
     def __init__(
         self,
         data=None,
@@ -132,6 +132,7 @@ class ComicBook(EventDispatcher):
                 self.Series = comic_data["seriesTitle"]
                 self.Series_id = comic_data["seriesId"]
                 self.date = f"{comic_data['metadata']['releaseDate']}"
+
                 if comic_data['metadata']['releaseDate'] is not None:
 
                     self.Year = comic_data['metadata']['releaseDate'][0]
@@ -140,6 +141,7 @@ class ComicBook(EventDispatcher):
                     self.Year = 2000
                     self.Month = 1
                 if comic_data['readProgress']:
+                    self.completed = comic_data['readProgress']['completed']
                     self.readProgress_page = comic_data['readProgress']['page']
                 self.PageCount = comic_data['media']["pagesCount"]
                 self.Title = comic_data['metadata']['title']

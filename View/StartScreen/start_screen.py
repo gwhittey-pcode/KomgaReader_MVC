@@ -11,7 +11,7 @@ from kivy.uix.popup import Popup
 from Utility.komga_server_conn import ComicServerConn
 from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.base_screen import BaseScreenView
-
+from .components import OneLineListItemWithSwitch,Header
 
 class LoginPopupContent(BoxLayout):
     info_text = StringProperty()

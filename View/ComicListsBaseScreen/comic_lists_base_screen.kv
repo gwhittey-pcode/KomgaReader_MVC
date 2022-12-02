@@ -74,6 +74,18 @@
                     adaptive_height: True
                     font_style: "Body2"
                     spacing:"4"
+                MDBoxLayout:
+                    adaptive_height:True
+                    orientation: 'horizontal'
+                    spacing:10
+                    MDRaisedButton:
+                        text: "Select All On Page"
+                        opacity: 1 if root.is_comic_single == 1 else 0
+                        on_press: app.select_all_comics()
+                    MDRaisedButton:
+                        text: "Download Selected"
+                        opacity: 1 if root.is_comic_single == 1 else 0
+                        on_press: app.download_selected_comics()
 
             ScrollView:
                 #do_scroll_x: False

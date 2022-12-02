@@ -233,6 +233,7 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
                 await asynckivy.sleep(0)
                 str_cookie = 'SESSION=' + self.session_cookie
                 c = ComicThumb(item_id=comic.Id, comic_obj=comic)
+
                 c.lines = 2
                 c.comiclist_obj = self.new_series
                 c.paginator_obj = self.paginator_obj
@@ -265,6 +266,7 @@ class SeriesComicsScreenView(ComicListsBaseScreenView):
                 c.on_load = (loaded())
                 c.PageCount = comic.PageCount
                 c.pag_pagenum = self.current_page
+                self.comic_thumbs_list.append(c)
                 grid.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
                 self.dynamic_ids[id] = c
 

@@ -22,6 +22,11 @@
                 spacing: dp(10)
                 orientation: 'vertical'
                 pos_hint: {'center_x': .5}
+                TwoLineListItemWithSwitch:
+                    text: "Stream"
+                    secondary_text: "Toggle Streaming each Comic Page"
+
+
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width
@@ -48,6 +53,13 @@
                         opposite_colors: True
                         elevation_normal: 8
                         on_press:root.manager_screens.current = "collections screen"
+                    MDFillRoundFlatIconButton:
+                        icon: 'server'
+                        text: 'Downloads'
+                        height: dp(50)
+                        opposite_colors: True
+                        elevation_normal: 8
+                        on_press:root.manager_screens.current = "download screen"
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width
@@ -75,45 +87,16 @@
                         adaptive_size: True
                         spacing: '10dp'
 
-                        MDSwitch:
-                            active: True if app.stream_comic_pages == '1' else False
-                            icon_active: "wifi"
-                            icon_inactive: "wifi-remove"
-                            on_active:app.switch_stream(self.active)
-                        MDLabel:
-                            text:"Stream Comic Pages"
-                            adaptive_size: True
-                            spacing: '10dp'
-                    # MDFillRoundFlatIconButton:
-                    #     icon: 'folder-sync'
-                    #     text: 'Open Sync Lists'
-                    #     height:dp(50)
-                    #     opposite_colors: True
-                    #     elevation_normal: 8
-                    #     on_press: app.switch_local_lists_screen()
-                # BoxLayout:
-                #     size_hint: None, None
-                #     width: self.minimum_width
-                #     height: dp(56)
-                #     spacing: '10dp'
 
-#                    MDFillRoundFlatIconButton:
-#                        icon: 'file-image'
-#                        text: 'Get Server Data'
-#                        height:dp(50)
-#                        opposite_colors: True
-#                        elevation_normal: 8
-#                        on_press: app.get_server_data()
-                MDLabel:
-                    id: last_comic_label
-                    text: 'Last Comic Loaded\n Coming Soon'
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                    font_style: 'Caption'
-                    theme_text_color: 'Primary'
-                    markup: True
-                    halign: 'center'
-                    text_size: self.width - 20, None
+#                        MDSwitch:
+#                            active: True if app.stream_comic_pages == '1' else False
+#                            icon_active: "wifi"
+#                            icon_inactive: "wifi-remove"
+#                            on_active:app.switch_stream(self.active)
+
+
+
+
                 GridLayout:
                     id: main_grid
                     row_force_default: True
