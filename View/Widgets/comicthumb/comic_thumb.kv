@@ -4,6 +4,7 @@
 <ComicThumb>
     _str_caption:self.str_caption
     _percent_read:self.percent_read
+    _download_screen:app.manager_screens.get_screen("download screen")
     size_hint: None, None
     size: "200dp", "390dp"
     orientation:"vertical"
@@ -34,14 +35,15 @@
             box_position: "header"
             on_release:root.on_short_touch()
             MDIconButton:
+                id: download_select
                 icon: "download-circle-outline"
                 theme_icon_color: "Custom"
                 icon_color:  "yellow"
                 pos_hint: {"center_y": .2}
                 icon_size: "30sp"
-                disabled:0
-                opacity:1
-                on_release: self.icon = "download-circle" if self.icon == "download-circle-outline" else "download-circle-outline"
+                disabled:0 if app.manager_screens.current_screen.show_download_icon == 1 else 1
+                opacity:1 if app.manager_screens.current_screen.show_download_icon == 1 else 0
+                on_release: root._download_screen.download_items(item_id=root.item_id, dl_type=app.manager_screens.current_screen.dl_type)
             MDIconButton:
                 id:completed_icon
                 icon: "read"

@@ -188,6 +188,7 @@ class RLComicBooksScreenView(ComicListsBaseScreenView):
                 c.on_load = (loaded())
                 c.PageCount = comic.PageCount
                 c.pag_pagenum = self.current_page
+                self.comic_thumbs_list.append(c)
                 grid.cols = math.floor((Window.width - dp(20)) // self.app.comic_thumb_width)
                 self.dynamic_ids[id] = c
 

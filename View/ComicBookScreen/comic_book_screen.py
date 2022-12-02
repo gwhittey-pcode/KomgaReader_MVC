@@ -116,6 +116,9 @@ class PaginationNavContent(MDBoxLayout):
 
 
 class ComicBookScreenView(BaseScreenView):
+    """
+    Screen for comicbook reader using komga server.
+    """
     scroller = ObjectProperty()
     top_pop = ObjectProperty()
     section = StringProperty()

@@ -69,7 +69,8 @@ class KomgaReader(MDApp):
     gen_publisher_list = ListProperty()
     gen_release_dates = ListProperty()
     stream_comic_pages = BooleanProperty()
-    download_que = ListProperty()
+
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.letter_count = None
@@ -91,7 +92,7 @@ class KomgaReader(MDApp):
         self.filter_list = []
         self.LIST_SCREENS = ['comic book screen'
 
-        ]
+                             ]
         register = Factory.register
         register("RLSmartTile", module="View.ReadingListScreen.components.rlimagelist")
 
@@ -267,7 +268,7 @@ class KomgaReader(MDApp):
         self.theme_cls.primary_palette = "Cyan"
         self.theme_cls.theme_style = "Light"
         self.theme_cls.material_style = "M3"
-        while self.ordered_letter_count :
+        while self.ordered_letter_count:
             pass
         else:
             self.generate_application_screens()
@@ -329,7 +330,6 @@ class KomgaReader(MDApp):
         )
 
     def events_program(self, instance, keyboard, keycode, text, modifiers):
-        print("KB")
         c = Keyboard()
         """Called when you press a Key"""
         app = MDApp.get_running_app()
@@ -369,15 +369,15 @@ class KomgaReader(MDApp):
             elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
                 self.toggle_full_screen()
         # else:
-            # if keyboard in (282, 319):
-            #     pass
-            # elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
-            #     self.toggle_full_screen()
-            # elif keyboard == c.string_to_keycode(hk_return_comic_list):
-            #     app.manager.current = "server_readinglists_screen"
-            # elif keyboard == c.string_to_keycode(hk_return_base_screen):
-            #     app.show_action_bar()
-            #     app.switch_base_screen()
+        # if keyboard in (282, 319):
+        #     pass
+        # elif keyboard == c.string_to_keycode(hk_toggle_fullscreen):
+        #     self.toggle_full_screen()
+        # elif keyboard == c.string_to_keycode(hk_return_comic_list):
+        #     app.manager.current = "server_readinglists_screen"
+        # elif keyboard == c.string_to_keycode(hk_return_base_screen):
+        #     app.show_action_bar()
+        #     app.switch_base_screen()
         return True
 
     def toggle_full_screen(self):
@@ -410,7 +410,6 @@ class KomgaReader(MDApp):
         def __got_server_data(req, result):
             for publisher in result:
                 self.gen_publisher_list.append(publisher)
-            print(self.gen_publisher_list)
 
         url_send = f"{self.base_url}/api/v1/publishers"
         str_cookie = "SESSION=" + self.config.get("General", "api_key")
@@ -453,7 +452,6 @@ class KomgaReader(MDApp):
         self.letter_count = {}
 
         def __got_server_data(req, result):
-            print("GOT Letter")
             num_count = 0
             series_count = 0
             for item in result:
@@ -490,6 +488,26 @@ class KomgaReader(MDApp):
             self.config.set("General", "stream_comic_pages", '0')
             self.stream_comic_pages = '0'
         self.config.write()
+
+
+    def download_selected_comics(self):
+        self.manager_screens.current = "download screen"
+
+
+    def select_all_comics(self):
+        dl_screen = self.manager_screens.get_screen("download screen")
+        for item in dl_screen.comic_thumbs_list:
+            print(f"{item.item_id =}")
+            item.ids.download_select.icon = "download-circle"
+            str_caption = f"  {item.comic_obj.Series} \n  #{item.comic_obj.Number}"
+            item_dict = {
+                "id":item.item_id,
+                "name":str_caption,
+                "title": item.comic_obj.Title,
+                "page_count": item.comic_obj.PageCount
+            }
+            dl_screen.download_que.append(item_dict)
+        print(dl_screen.download_que)
 
     def got_error(self, req, results):
         Logger.critical("----got_error--")
