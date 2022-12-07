@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+import multitasking
 from kivy.clock import Clock
 from kivy.properties import StringProperty, BooleanProperty, ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -12,7 +15,8 @@ from View.Widgets.filterpopup.filter_popup import FilterPopupContent, MyMDExpans
     PublisherPanel, ReadProgressPanel
 from View.Widgets.paginationwidgets.pagination_widgets import build_pageination_nav
 from View.base_screen import BaseScreenView
-
+from string import ascii_lowercase as alc
+from Utility.myUrlrequest import UrlRequest as myUrlRequest
 
 class ComicListsBaseScreenView(BaseScreenView):
     page_year = StringProperty("")
@@ -34,11 +38,45 @@ class ComicListsBaseScreenView(BaseScreenView):
     show_download_icon = BooleanProperty(False)
     batch_download = BooleanProperty(False)
     dl_type = StringProperty()
+    download_text = StringProperty("")
     def __init__(self, **kwargs):
         super(ComicListsBaseScreenView, self).__init__(**kwargs)
         self.tcontent = None
-
+        app = MDApp.get_running_app()
+        # @multitasking.task
+        # def get_letter_groups():
+        #     self.letter_count = {}
+        #
+        #     def __got_server_data(req, result):
+        #         num_count = 0
+        #         series_count = 0
+        #         for item in result:
+        #             if item['group'] not in alc:
+        #                 num_count = num_count + item['count']
+        #             else:
+        #                 self.letter_count[item['group'].capitalize()] = item['count']
+        #                 series_count = series_count + item['count']
+        #         app.series_count = series_count + num_count
+        #         app.letter_count['#'] = num_count
+        #         app.ordered_letter_count = OrderedDict(sorted(app.letter_count.items(), key=lambda t: t[0]))
+        #
+        #     url_send = f"{self.base_url}/api/v1/series/alphabetical-groups"
+        #     str_cookie = "SESSION=" + self.config.get("General", "api_key")
+        #     head = {
+        #         "Content-type": "application/x-www-form-urlencoded",
+        #         "Accept": "application/json",
+        #         "Cookie": str_cookie,
+        #     }
+        #     request = myUrlRequest(
+        #         url_send,
+        #         req_headers=head,
+        #         on_success=__got_server_data,
+        #         on_error=app.got_error,
+        #         on_redirect=app.got_redirect,
+        #         on_failure=app.got_error,
+        #     )
     def on_pre_enter(self):
+        self.ids.top_bar.elevation = 0
         self.show_filter = False
         self.app = MDApp.get_running_app()
         self.item_per_page = self.app.config.get("General", "max_item_per_page")
@@ -70,6 +108,10 @@ class ComicListsBaseScreenView(BaseScreenView):
             self.show_download_icon = True
             self.batch_download = True
             self.dl_type = "series"
+        elif screen.name == "dlcomic group screen":
+            self.show_filter = False
+            self.show_download_icon = False
+            self.batch_download = True
         # self.content = FilterPopupContent()
         # self.filter_popup =   filter_popup = FilterPopup(
         #     size_hint=(.5, .96),
@@ -85,6 +127,7 @@ class ComicListsBaseScreenView(BaseScreenView):
 
     def build_filter_popup(self):
         print("1")
+
         async def _build_filter_popup():
             print("2")
             self.tcontent = FilterPopupContent()

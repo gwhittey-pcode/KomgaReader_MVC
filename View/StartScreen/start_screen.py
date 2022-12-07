@@ -47,7 +47,7 @@ class StartScreenView(BaseScreenView):
 
     def on_pre_enter(self, *args):
         self.check_login()
-
+        self.ids.top_bar.elevation = 0
     def check_login(self):
         # see if user has a api key stored from server
         if self.api_key == "":

@@ -1,4 +1,3 @@
-from kivy import Logger
 from kivy.clock import Clock
 from kivy.properties import StringProperty, NumericProperty, DictProperty, ObjectProperty, BooleanProperty, ListProperty
 from kivymd.app import MDApp
@@ -6,8 +5,6 @@ from kivymd.uix.behaviors import CommonElevationBehavior, TouchBehavior, HoverBe
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivy.uix.modalview import ModalView
-
-from Utility.db_functions import ReadingList
 from ..myimagelist.myimagelist import MyMDSmartTile
 
 
@@ -36,28 +33,32 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
     next_readinglist = ObjectProperty()
     prev_readinglist = ObjectProperty()
     comic_list_type = StringProperty()
+
     def __init__(self, comic_obj=None, current_page=1, **kwargs):
         super(ComicThumb, self).__init__(**kwargs)
         self.source = ""
         self.item_id = kwargs.get('item_id')
         self.current_page = current_page
+        read_progress_page = 0
         if comic_obj is None:
             pass
         else:
-
             self.comic_obj = comic_obj
             try:
                 if self.comic_obj.completed:
                     self.ids.completed_icon.opacity = 1
                     self.ids.completed_icon.disabled = 0
-            except ValueError:
+                read_progress_page = self.comic_obj.readProgress_page
+            except AttributeError:
                 pass
-            readProgress_page = self.comic_obj.readProgress_page
-            PageCount = comic_obj.PageCount
-            if PageCount > 2:
+            if self.thumb_type == "download_group":
+                page_count = comic_obj.page_count
+            else:
+                page_count = comic_obj.PageCount
+            if page_count > 2:
                 self.percent_read = round(
-                    readProgress_page
-                    / PageCount
+                    read_progress_page
+                    / page_count
                     * 100
                 )
 
@@ -171,23 +172,12 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             readinglist_id = self.item_id
             readinglist_name = self.rl_name
             server_readinglists_screen.list_loaded = False
-            query = ReadingList.select().where(ReadingList.slug == readinglist_id)
-            if query.exists():
-                Logger.info(f"{readinglist_name} already in Database")
-                set_mode = "From DataBase"
-            else:
-                Logger.info(
-                    "{} not in Database getting info from server".format(
-                        readinglist_name
-                    )
-                )
-                set_mode = "From Server"
-            # set_mode = 'From Server'
+
             Clock.schedule_once(
                 lambda dt: server_readinglists_screen.collect_series_data(
                     series_name=readinglist_name,
                     series_Id=readinglist_id,
-                    mode=set_mode,
+                    mode="From Server",
                     rl_book_count=self.rl_book_count,
                 )
             )
@@ -210,18 +200,6 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             readinglist_id = self.item_id
             readinglist_name = self.rl_name
             server_readinglists_screen.list_loaded = False
-            query = ReadingList.select().where(ReadingList.slug == readinglist_id)
-            if query.exists():
-                Logger.info(f"{readinglist_name} already in Database")
-                set_mode = "From DataBase"
-            else:
-                Logger.info(
-                    "{} not in Database getting info from server".format(
-                        readinglist_name
-                    )
-                )
-                set_mode = "From Server"
-            # set_mode = 'From Server'
             Clock.schedule_once(
                 lambda dt: server_readinglists_screen.get_server_lists(
                     new_page_num=self.current_page - 1,
@@ -231,3 +209,17 @@ class ComicThumb(MDBoxLayout, TouchBehavior, ):
             )
 
             app.manager_screens.current = "collection comics screen"
+
+    def download_stuff(self):
+        app = MDApp.get_running_app()
+        app.manager_screens.current = "download screen"
+        screen = app.manager_screens.get_screen("download screen")
+        Clock.schedule_once(self.do_download_pre,1)
+
+    def do_download_pre(self, *args):
+        app = MDApp.get_running_app()
+        screen = app.manager_screens.get_screen("download screen")
+        screen.download_items(
+            item_id=self.item_id,
+            dl_type=app.manager_screens.current_screen.dl_type
+        )

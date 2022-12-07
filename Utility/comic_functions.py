@@ -111,7 +111,6 @@ def getComicMetadata(path):
 async def save_thumb(comic_id, c_image_source,callback=None):
     def got_thumb(results):
         pass
-
     fetch_data = ComicServerConn()
     app = MDApp.get_running_app()
     id_folder = app.store_dir

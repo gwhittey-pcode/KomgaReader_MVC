@@ -10,6 +10,7 @@ DEBUG=1 python main.py
 import inspect
 from collections import OrderedDict
 
+import multitasking
 from kivy import Logger
 from kivy.core.window import Window, Keyboard
 from kivy.properties import (
@@ -25,7 +26,9 @@ from Utility.myUrlrequest import UrlRequest as myUrlRequest
 from View.screens import screens
 import os
 from pathlib import Path
-from kivy.config import ConfigParser
+from kivy.config import ConfigParser, Config
+
+from libs.database import create_db
 from mysettings.settingsjson import (
     settings_json_server,
     settings_json_dispaly,
@@ -35,15 +38,12 @@ from mysettings.settingsjson import (
 from kivy.factory import Factory
 from mysettings.custom_settings import MySettings
 from kivymd.uix.dialog import MDDialog
-from Utility.db_functions import start_db
+
+
 from View.Widgets.mytoolbar import MyToolBar
 from string import ascii_lowercase as alc
 
 
-# import sys
-# sys.path.append('/home/gwhittey/Downloads/pyvmmonitor/public_api')
-# import pyvmmonitor
-# pyvmmonitor.connect()
 class KomgaReader(MDApp):
     title = StringProperty
     store_dir = StringProperty()
@@ -69,8 +69,9 @@ class KomgaReader(MDApp):
     gen_publisher_list = ListProperty()
     gen_release_dates = ListProperty()
     stream_comic_pages = BooleanProperty()
-
-
+    db_engine = ObjectProperty()
+    DB_ENGINE = ObjectProperty()
+    DB_SES_MAKER = ObjectProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.letter_count = None
@@ -252,9 +253,10 @@ class KomgaReader(MDApp):
             # self.my_data_dir = os.path.join(self.store_dir, 'comics_db')
 
     def build(self) -> MDScreenManager:
+
         self.set_value_from_config()
         self.config.add_callback(self.config_callback)
-        start_db()
+
         self.ordered_letter_count = []
         self.gen_publisher_list = []
         self.gen_release_dates = []
@@ -268,10 +270,12 @@ class KomgaReader(MDApp):
         self.theme_cls.primary_palette = "Cyan"
         self.theme_cls.theme_style = "Light"
         self.theme_cls.material_style = "M3"
+        create_db()
         while self.ordered_letter_count:
             pass
         else:
             self.generate_application_screens()
+
             return self.manager_screens
 
     def generate_application_screens(self) -> None:
@@ -291,6 +295,8 @@ class KomgaReader(MDApp):
             view.manager_screens = self.manager_screens
             view.name = name_screen
             self.manager_screens.add_widget(view)
+
+
 
     def on_config_change(self, config, section, key, value):
         pass
@@ -406,6 +412,7 @@ class KomgaReader(MDApp):
         screen.setup_screen(object_type=object_type)
         self.manager_screens.current = "object list screen"
 
+    @multitasking.task
     def get_gen_publishers(self):
         def __got_server_data(req, result):
             for publisher in result:
@@ -427,6 +434,7 @@ class KomgaReader(MDApp):
             on_failure=self.got_error,
         )
 
+    @multitasking.task
     def get_gen_release_dates(self):
         def __got_server_data(req, result):
             for publisher in result:
@@ -448,6 +456,7 @@ class KomgaReader(MDApp):
             on_failure=self.got_error,
         )
 
+    @multitasking.task
     def get_letter_groups(self):
         self.letter_count = {}
 
@@ -489,10 +498,8 @@ class KomgaReader(MDApp):
             self.stream_comic_pages = '0'
         self.config.write()
 
-
     def download_selected_comics(self):
         self.manager_screens.current = "download screen"
-
 
     def select_all_comics(self):
         dl_screen = self.manager_screens.get_screen("download screen")
@@ -501,8 +508,8 @@ class KomgaReader(MDApp):
             item.ids.download_select.icon = "download-circle"
             str_caption = f"  {item.comic_obj.Series} \n  #{item.comic_obj.Number}"
             item_dict = {
-                "id":item.item_id,
-                "name":str_caption,
+                "id": item.item_id,
+                "name": str_caption,
                 "title": item.comic_obj.Title,
                 "page_count": item.comic_obj.PageCount
             }

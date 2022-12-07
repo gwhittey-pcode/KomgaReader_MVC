@@ -8,6 +8,7 @@
     MDBoxLayout:
         orientation: "vertical"
         MyToolBar:
+            id:top_bar
         ScrollView:
             size_hint_x: None
             width: box.width
@@ -26,7 +27,18 @@
                     text: "Stream"
                     secondary_text: "Toggle Streaming each Comic Page"
 
-
+                MDBoxLayout:
+                    adaptive_height:True
+                    orientation: 'vertical'
+                    spacing:4
+                MDLabel:
+                    id: download_text
+                    text: ""
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: "blue"
+                    adaptive_height: True
+                    font_style: "Body2"
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width
@@ -60,6 +72,13 @@
                         opposite_colors: True
                         elevation_normal: 8
                         on_press:root.manager_screens.current = "download screen"
+                    MDFillRoundFlatIconButton:
+                        icon: 'server'
+                        text: 'Downloads Group Screen'
+                        height: dp(50)
+                        opposite_colors: True
+                        elevation_normal: 8
+                        on_press:root.manager_screens.current = "dlcomic group screen"
                 BoxLayout:
                     size_hint: None, None
                     width: self.minimum_width

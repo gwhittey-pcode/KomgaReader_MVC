@@ -3,12 +3,14 @@
 from Controller.collections_screen import CollectionsScreenController
 # from Controller.object_list_screen import ObjectListScreenController
 from Controller.comic_lists_base_screen import ComicListsBaseScreenController
+from Controller.dlcomic_group_screen import DLComicGroupScreenController
 from Controller.download_screen import DownloadScreenController
 from Controller.reading_list_screen import ReadingListScreenController
 from Controller.series_screen import SeriesScreenController
 from Model.collections_screen import CollectionsScreenModel
 # from Model.object_list_screen import ObjectListScreenModel
 from Model.comic_lists_base_screen import ComicListsBaseScreenModel
+from Model.dlcomic_group_screen import DLComicGroupScreenModel
 from Model.download_screen import DownloadScreenModel
 from Model.reading_list_screen import ReadingListScreenModel
 from Model.series_screen import SeriesScreenModel
@@ -80,4 +82,8 @@ screens = {
         "controller": DownloadScreenController,
     },
 
+    "dlcomic group screen": {
+        "model": DLComicGroupScreenModel,
+        "controller": DLComicGroupScreenController,
+    },
 }

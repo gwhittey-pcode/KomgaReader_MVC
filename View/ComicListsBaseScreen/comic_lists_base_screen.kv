@@ -1,8 +1,9 @@
 <ComicListsBaseScreenView>
     MDBoxLayout:
-
         orientation: "vertical"
         MyToolBar:
+            id: top_bar
+
         BoxLayout:
             id:main_stack
             orientation: 'vertical'
@@ -51,6 +52,18 @@
             MDBoxLayout:
                 adaptive_height:True
                 orientation: 'vertical'
+                spacing:4
+                MDLabel:
+                    id: download_text
+                    text: ""
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    text_color: "blue"
+                    adaptive_height: True
+                    font_style: "Body2"
+            MDBoxLayout:
+                adaptive_height:True
+                orientation: 'vertical'
 #                canvas.after:
 #                    Color:
 #                        rgba: 0,0,0,1
@@ -64,27 +77,31 @@
                     theme_text_color: "Custom"
                     text_color: "blue"
                     adaptive_height: True
-                    font_style: "H2"
-
-                MDLabel:
-                    text: root.page_year + "\n"
-                    halign: "center"
-                    theme_text_color: "Custom"
-                    text_color: "blue"
-                    adaptive_height: True
-                    font_style: "Body2"
-                    spacing:"4"
+                    font_style: "Body1"
+#
+#                MDLabel:
+#                    text: root.page_year + "\n"
+#                    halign: "center"
+#                    theme_text_color: "Custom"
+#                    text_color: "blue"
+#                    adaptive_height: True
+#                    font_style: "Body2"
+#                    spacing:"4"
                 MDBoxLayout:
-                    adaptive_height:True
+                    adaptive_height:True if root.is_comic_single == 1 else False
                     orientation: 'horizontal'
+                    opacity: 1 if root.is_comic_single == 1 else 0
+                    disabled:  0 if root.is_comic_single == 1 else 1
                     spacing:10
                     MDRaisedButton:
-                        text: "Select All On Page"
+                        text: "Select All On Page" if root.is_comic_single == 1 else ""
                         opacity: 1 if root.is_comic_single == 1 else 0
+                        disabled:  0 if root.is_comic_single == 1 else 1
                         on_press: app.select_all_comics()
                     MDRaisedButton:
-                        text: "Download Selected"
+                        text: "Download Selected" if root.is_comic_single == 1 else ""
                         opacity: 1 if root.is_comic_single == 1 else 0
+                        disabled:  0 if root.is_comic_single == 1 else 1
                         on_press: app.download_selected_comics()
 
             ScrollView:

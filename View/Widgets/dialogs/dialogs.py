@@ -44,9 +44,9 @@ Builder.load_string(
             size_hint: None, None
             size: self.texture_size
             text:
-                'Loading data from Komga server: {}%\\n' \
+                '{}: {}%\\n' \
                 '[color={}]{}[/color]'.format(\
-                root.percent, get_hex_from_color(app.theme_cls.primary_color), root.name_kv_file)
+                root.str_text,root.percent, get_hex_from_color(app.theme_cls.primary_color), root.name_kv_file)
             bold: True
             markup: True
             color: 1, 1, 1, 1
@@ -70,3 +70,4 @@ class DialogLoadKvFiles(BaseDialogForLoadKvFiles):
 
     name_kv_file = StringProperty()
     percent = StringProperty("0")
+    str_text = StringProperty("Loading data from Komga server")

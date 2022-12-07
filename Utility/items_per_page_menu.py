@@ -53,6 +53,10 @@ def item_per_menu_callback(text_item):
                                 collection_id=screen.collection_id,
                                 collection_name=screen.page_title
                                 )
+    elif screen.name == "dlcomic group screen":
+        screen.get_comicgroup_data(new_page_num=0,
+                                 comic_group_id=screen.comic_group_id, group_type=screen.group_type,
+                                 )
     else:
         screen.get_server_lists(new_page_num=screen.current_page)
     item_per_menu_build()
